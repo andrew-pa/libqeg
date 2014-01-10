@@ -77,10 +77,12 @@
   <ItemGroup>
     <ClInclude Include="cmmn.h" />
     <ClInclude Include="device.h" />
+    <ClInclude Include="texture2d.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cmmn.cpp" />
     <ClCompile Include="device.cpp" />
+    <ClCompile Include="texture2d.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

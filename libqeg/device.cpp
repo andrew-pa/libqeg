@@ -3,7 +3,6 @@
 
 namespace qeg
 {
-
 #ifdef DIRECTX
 	device::device(vec2 s, HWND win_, uint msaa_lvl_)
 		: msaa_level(msaa_lvl_), _window(win_), win_bnds(s)
@@ -248,5 +247,8 @@ else
 	device::~device()
 	{
 	}
+#endif
+#ifdef defined(OPENGL) && defined(WIN32)
+
 #endif
 };
