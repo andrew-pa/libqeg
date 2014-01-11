@@ -83,4 +83,59 @@ namespace qeg
 		return read_data(fpn.data());
 	}
 #endif
+
+#ifdef DIRECTX
+#undef RGB
+#define FT_SWITCH_STATMENT(pps, type) switch (t)	\
+	{	\
+case qeg::pixel_format_type::RGB:	\
+	return DXGI_FORMAT_R##pps##G##pps##B##pps##_##type;		\
+case qeg::pixel_format_type::RGBA:	\
+	return DXGI_FORMAT_R##pps##G##pps##B##pps##A##pps##_##type;	\
+case qeg::pixel_format_type::BGR:	\
+	return DXGI_FORMAT_B##pps##G##pps##R##pps##_##type;		\
+case qeg::pixel_format_type::BGRA:	\
+	return DXGI_FORMAT_B##pps##G##pps##R##pps##A##pps##_##type;	\
+case qeg::pixel_format_type::DEPTH:	\
+	return DXGI_FORMAT_D##pps##_##type; \
+case qeg::pixel_format_type::R:	\
+	return DXGI_FORMAT_R##pps##_##type; \
+case qeg::pixel_format_type::RG:	\
+	return DXGI_FORMAT_R##pps##G##pps##_##type; \
+case qeg::pixel_format_type::UNKNOWN:	\
+	break;	\
+default:	\
+	throw exception("invalid format");	\
+	break;	\
+	}\
+
+
+	DXGI_FORMAT convert_format(pixel_format_type t, pixel_format_size_type s, uint pps)
+	{
+		if (t == pixel_format_type::UNKNOWN) return DXGI_FORMAT_UNKNOWN;
+		switch (s)
+		{
+		case qeg::pixel_format_size_type::typeless:
+			if(pps == 32) FT_SWITCH_STATMENT(32, TYPELESS)
+			if(pps == 16) FT_SWITCH_STATMENT(16, TYPELESS)
+
+			break;
+		case qeg::pixel_format_size_type::float_:
+			break;
+		case qeg::pixel_format_size_type::uint:
+			break;
+		case qeg::pixel_format_size_type::sint:
+			break;
+		case qeg::pixel_format_size_type::unorm:
+			break;
+		case qeg::pixel_format_size_type::snorm:
+			break;
+		default:
+			throw exception("invalid format");
+			break;
+		}
+	}
+#endif
+#ifdef OPENGL
+#endif
 };
