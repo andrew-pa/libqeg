@@ -1,12 +1,13 @@
 #pragma once
 #include "cmmn.h"
-#include "render_texture2d.h"
+//#include "render_texture2d.h"
 
 namespace qeg
 {
+	class render_texture2d;
 	class device
 	{
-		stack<qeg::render_texture2d*> rt_sk;
+		stack<render_texture2d*> rt_sk;
 	protected:
 #ifdef WIN32
 #ifdef OPENGL

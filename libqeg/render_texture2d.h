@@ -5,7 +5,7 @@
 
 namespace qeg
 {
-	class render_texture2d : public texture2d
+	class render_texture2d : public qeg::texture2d
 	{
 	protected:
 #ifdef DIRECTX
