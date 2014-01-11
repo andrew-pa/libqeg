@@ -187,8 +187,13 @@ namespace qeg
 		R8_SNORM = GL_R8_SNORM,
 		R8_SINT = GL_R8I,
 	};
+
+	//get_gl_format_type
+	// returns values like GL_FLOAT
 	GLenum get_gl_format_type(pixel_format f);
 
+	//get_gl_format_internal
+	// returns values like GL_RGBA
 	GLenum get_gl_format_internal(pixel_format f);
 #endif
 

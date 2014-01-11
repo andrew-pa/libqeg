@@ -19,6 +19,18 @@ namespace qeg
 		texture2d(){}
 		~texture2d();
 
+		texture2d(vec2 _s)
+			: _size(_s) { }
+
+		texture2d(device& dev, vec2 size, pixel_format f, void* data = nullptr, bool gen_mips = false
+#ifdef DIRECTX
+			, size_t sys_pitch = 4
+#endif
+			);
+		
+		static texture2d* load_dds(device& dev, datablob<byte>* data);
+		static texture2d* load_bmp(device& dev, datablob<byte>* data);
+
 		void bind(device& dev, int slot);
 		void unbind(device& dev, int slot);
 
