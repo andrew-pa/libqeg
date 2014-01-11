@@ -84,58 +84,149 @@ namespace qeg
 	}
 #endif
 
-#ifdef DIRECTX
-#undef RGB
-#define FT_SWITCH_STATMENT(pps, type) switch (t)	\
-	{	\
-case qeg::pixel_format_type::RGB:	\
-	return DXGI_FORMAT_R##pps##G##pps##B##pps##_##type;		\
-case qeg::pixel_format_type::RGBA:	\
-	return DXGI_FORMAT_R##pps##G##pps##B##pps##A##pps##_##type;	\
-case qeg::pixel_format_type::BGR:	\
-	return DXGI_FORMAT_B##pps##G##pps##R##pps##_##type;		\
-case qeg::pixel_format_type::BGRA:	\
-	return DXGI_FORMAT_B##pps##G##pps##R##pps##A##pps##_##type;	\
-case qeg::pixel_format_type::DEPTH:	\
-	return DXGI_FORMAT_D##pps##_##type; \
-case qeg::pixel_format_type::R:	\
-	return DXGI_FORMAT_R##pps##_##type; \
-case qeg::pixel_format_type::RG:	\
-	return DXGI_FORMAT_R##pps##G##pps##_##type; \
-case qeg::pixel_format_type::UNKNOWN:	\
-	break;	\
-default:	\
-	throw exception("invalid format");	\
-	break;	\
-	}\
-
-
-	DXGI_FORMAT convert_format(pixel_format_type t, pixel_format_size_type s, uint pps)
+#ifdef OPENGL
+	GLenum get_gl_format_type(pixel_format f)
 	{
-		if (t == pixel_format_type::UNKNOWN) return DXGI_FORMAT_UNKNOWN;
-		switch (s)
+		switch (f)
 		{
-		case qeg::pixel_format_size_type::typeless:
-			if(pps == 32) FT_SWITCH_STATMENT(32, TYPELESS)
-			if(pps == 16) FT_SWITCH_STATMENT(16, TYPELESS)
+		case pixel_format::RGBA16_TYPELESS:
+			return GL_UNSIGNED_SHORT;
+		case pixel_format::RGBA32_TYPELESS:
+		case pixel_format::RGB32_TYPELESS:
+		case pixel_format::RGBA8_TYPELESS:
+		case pixel_format::RG32_TYPELESS:
+		case pixel_format::RG16_TYPELESS:
+		case pixel_format::R32_TYPELESS:
+		case pixel_format::R16_TYPELESS:
+		case pixel_format::R8_TYPELESS:
+			return GL_UNSIGNED_INT;
+		case pixel_format::RGBA16_FLOAT:
+			return GL_HALF_FLOAT;
+		case pixel_format::RGBA32_FLOAT:
+		case pixel_format::RGB32_FLOAT:
+		case pixel_format::RG32_FLOAT:
+		case pixel_format::RG16_FLOAT:
+		case pixel_format::R32_FLOAT:
+		case pixel_format::R16_FLOAT:
+			return GL_FLOAT;
 
-			break;
-		case qeg::pixel_format_size_type::float_:
-			break;
-		case qeg::pixel_format_size_type::uint:
-			break;
-		case qeg::pixel_format_size_type::sint:
-			break;
-		case qeg::pixel_format_size_type::unorm:
-			break;
-		case qeg::pixel_format_size_type::snorm:
-			break;
+		case pixel_format::RGBA16_UINT:
+			return GL_UNSIGNED_SHORT;
+		case pixel_format::RGBA32_UINT:
+		case pixel_format::RGB32_UINT:
+		case pixel_format::RGBA8_UINT:
+		case pixel_format::RG32_UINT:
+		case pixel_format::RG16_UINT:
+		case pixel_format::R32_UINT:
+		case pixel_format::R16_UINT:
+		case pixel_format::R8_UINT:
+			return GL_UNSIGNED_INT;
+
+		case pixel_format::RGBA16_SINT:
+			return GL_UNSIGNED_SHORT;
+		case pixel_format::RGBA32_SINT:
+		case pixel_format::RGB32_SINT:
+		case pixel_format::RGBA8_SINT:
+		case pixel_format::RG32_SINT:
+		case pixel_format::RG16_SINT:
+		case pixel_format::R32_SINT:
+		case pixel_format::R16_SINT:
+		case pixel_format::R8_SINT:
+			return GL_UNSIGNED_INT;
+
+		case pixel_format::RGBA16_UNORM:
+			return GL_UNSIGNED_SHORT;
+		case pixel_format::RGBA8_UNORM:
+			return GL_UNSIGNED_BYTE;
+		case pixel_format::RG16_UNORM:
+		case pixel_format::R16_UNORM:
+		case pixel_format::R8_UNORM:
+			return GL_UNSIGNED_INT;
+
+		case pixel_format::RGBA16_SNORM:
+			return GL_SHORT;
+		case pixel_format::RGBA8_SNORM:
+			return GL_BYTE;
+		case pixel_format::RG16_SNORM:
+		case pixel_format::R16_SNORM:
+		case pixel_format::R8_SNORM:
+			return GL_SHORT;
 		default:
 			throw exception("invalid format");
 			break;
 		}
 	}
+	GLenum get_gl_format_internal(pixel_format f)
+	{
+		switch (f)
+		{
+		case pixel_format::RGBA32_TYPELESS:
+		case pixel_format::RGBA32_UINT:
+		case pixel_format::RGBA32_SINT:
+		case pixel_format::RGBA16_TYPELESS:
+		case pixel_format::RGBA16_UINT:
+		case pixel_format::RGBA16_SINT:
+		case pixel_format::RGBA8_TYPELESS:
+		case pixel_format::RGBA8_UINT:
+		case pixel_format::RGBA8_SINT:
+			return GL_RGBA_INTEGER;
+		case pixel_format::RGBA32_FLOAT:
+		case pixel_format::RGBA16_FLOAT:
+		case pixel_format::RGBA8_UNORM:
+		case pixel_format::RGBA8_SNORM:
+			return GL_RGBA;
+
+		case pixel_format::RGB32_UINT:
+		case pixel_format::RGB32_SINT:
+		case pixel_format::RGB32_TYPELESS:
+			return GL_RGB_INTEGER;
+		case pixel_format::RGB32_FLOAT:
+			return GL_RGB;
+
+		case pixel_format::RG32_TYPELESS:
+		case pixel_format::RG32_UINT:
+		case pixel_format::RG32_SINT:
+			return GL_RG_INTEGER;
+		case pixel_format::RG32_FLOAT:
+			return GL_RG;
+
+		case pixel_format::RG16_TYPELESS:
+		case pixel_format::RG16_UINT:
+		case pixel_format::RG16_SINT:
+			return GL_RG_INTEGER;
+		case pixel_format::RG16_FLOAT:
+		case pixel_format::RG16_UNORM:
+		case pixel_format::RG16_SNORM:
+			return GL_RG;
+
+		case pixel_format::R32_SINT:
+		case pixel_format::R32_UINT:
+		case pixel_format::R32_TYPELESS:
+			return GL_RED_INTEGER;
+		case pixel_format::R32_FLOAT:
+			return GL_RED;
+
+		case pixel_format::R16_SINT:
+		case pixel_format::R16_UINT:
+		case pixel_format::R16_TYPELESS:
+			return GL_RED_INTEGER;
+		case pixel_format::R16_FLOAT:
+		case pixel_format::R16_UNORM:
+		case pixel_format::R16_SNORM:
+			return GL_RED;
+
+		case pixel_format::R8_SINT:
+		case pixel_format::R8_UINT:
+		case pixel_format::R8_TYPELESS:
+			return GL_RED_INTEGER;
+		case pixel_format::R8_SNORM:
+		case pixel_format::R8_UNORM:
+			return GL_RED;
+
+		default:
+			throw exception("invalid format");
+		}
+	}
 #endif
-#ifdef OPENGL
-#endif
+
 };
