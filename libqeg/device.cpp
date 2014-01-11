@@ -92,7 +92,7 @@ namespace qeg
 			swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 			swapChainDesc.Flags = 0;
 
-			ComPtr<IDXGIDevice1> dxgid;
+			ComPtr<IDXGIDevice2> dxgid;
 			chr(_device.As(&dxgid));
 
 			ComPtr<IDXGIAdapter> dxgiadp;
@@ -100,7 +100,6 @@ namespace qeg
 
 			ComPtr<IDXGIFactory2> dxgif;
 			chr(dxgiadp->GetParent(__uuidof(IDXGIFactory2), &dxgif));
-
 
 			chr(dxgif->CreateSwapChainForHwnd(_device.Get(), _window, &swapChainDesc, nullptr, nullptr, &_swap_chain));
 
@@ -247,8 +246,5 @@ else
 	device::~device()
 	{
 	}
-#endif
-#ifdef defined(OPENGL) && defined(WIN32)
-
 #endif
 };

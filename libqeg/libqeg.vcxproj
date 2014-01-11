@@ -52,7 +52,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>DIRECTX;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>cmmn.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -77,11 +77,13 @@
   <ItemGroup>
     <ClInclude Include="cmmn.h" />
     <ClInclude Include="device.h" />
+    <ClInclude Include="render_texture2d.h" />
     <ClInclude Include="texture2d.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cmmn.cpp" />
     <ClCompile Include="device.cpp" />
+    <ClCompile Include="render_texture2d.cpp" />
     <ClCompile Include="texture2d.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

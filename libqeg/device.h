@@ -2,13 +2,11 @@
 #include "cmmn.h"
 #include "render_texture2d.h"
 
-class render_texture2d;
-
 namespace qeg
 {
 	class device
 	{
-		stack<render_texture2d*> rt_sk;
+		stack<qeg::render_texture2d*> rt_sk;
 	protected:
 #ifdef WIN32
 #ifdef OPENGL
@@ -37,21 +35,21 @@ namespace qeg
 		void create_d2d_res();
 		ComPtr<ID3D11Device2> _device;
 		ComPtr<ID3D11DeviceContext2> _context;
-		ComPtr<IDXGISwapChain2> _swap_chain;
+		ComPtr<IDXGISwapChain1> _swap_chain;
 		ComPtr<ID3D11RenderTargetView> render_target;
 		ComPtr<ID3D11DepthStencilView> depth_stencil;
 
 		ComPtr<ID2D1Factory1> _d2factory;
 		ComPtr<IDWriteFactory1> _dwfactory;
-		ComPtr<ID2D1Device1> _d2device;
-		ComPtr<ID2D1DeviceContext1> _d2context;
+		ComPtr<ID2D1Device> _d2device;
+		ComPtr<ID2D1DeviceContext> _d2context;
 		ComPtr<ID2D1Bitmap1> d2target_bitmap;
 	public:
 		propr(ComPtr<ID3D11Device2>, ddevice, { return _device; });
 		propr(ComPtr<ID3D11DeviceContext2>, context, { return _context; });
-		propr(ComPtr<IDXGISwapChain>, swap_chain, { return _swap_chain; });
-		propr(ComPtr<ID2D1DeviceContext1>, d2context, { return _d2context; });
-		propr(ComPtr<ID2D1Device1>, d2device, { return _d2device; });
+		propr(ComPtr<IDXGISwapChain1>, swap_chain, { return _swap_chain; });
+		propr(ComPtr<ID2D1DeviceContext>, d2context, { return _d2context; });
+		propr(ComPtr<ID2D1Device>, d2device, { return _d2device; });
 		propr(ComPtr<ID2D1Factory1>, d2factory, { return _d2factory; });
 		propr(ComPtr<IDWriteFactory1>, dwfactory, { return _dwfactory; });
 
@@ -71,12 +69,12 @@ namespace qeg
 #endif
 			);
 		~device();
-		propr(render_texture2d*, current_render_target, ;);
+		inline render_texture2d* current_render_target() const;
 		inline void pop_render_target();
 		inline void push_render_target(render_texture2d* rt);
 		inline void update_render_target();
 		void present();
 		void resize(vec2 ns);
 	};
-}
+};
 

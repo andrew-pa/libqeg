@@ -39,11 +39,12 @@ namespace qeg
 		propr(ComPtr<ID3D11Texture2D>, texture2D, { return texd; });
 		propr(ComPtr<ID3D11ShaderResourceView>, shader_resource_view, { return srv; });
 
+		texture2d(device& dev, CD3D11_TEXTURE2D_DESC desc);
 		texture2d(device& dev, CD3D11_TEXTURE2D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc);
 #endif
 #ifdef OPENGL
 		propr(GLuint, id, { return _id; });
 #endif
 	};
-}
+};
 

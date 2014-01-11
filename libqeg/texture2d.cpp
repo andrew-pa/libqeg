@@ -12,15 +12,22 @@ namespace qeg
 		D3D11_SUBRESOURCE_DATA initdata = { 0 };
 		initdata.pSysMem = data;
 		initdata.SysMemPitch = sys_pitch;
-		dev.ddevice()->CreateTexture2D(&txd, (data == nullptr ? nullptr : &initdata), &texd);
-		dev.ddevice()->CreateShaderResourceView(texd.Get(), &srd, &srv);
+		chr(dev.ddevice()->CreateTexture2D(&txd, (data == nullptr ? nullptr : &initdata), &texd));
+		chr(dev.ddevice()->CreateShaderResourceView(texd.Get(), &srd, &srv));
 	}
 
 	texture2d::texture2d(device& dev, CD3D11_TEXTURE2D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc)
 		: _size(desc.Width, desc.Height)
 	{
-		dev.ddevice()->CreateTexture2D(&desc, nullptr, &texd);
-		dev.ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv);
+		chr(dev.ddevice()->CreateTexture2D(&desc, nullptr, &texd));
+		chr(dev.ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
+	}
+	texture2d::texture2d(device& dev, CD3D11_TEXTURE2D_DESC desc)
+		: _size(desc.Width, desc.Height)
+	{
+		chr(dev.ddevice()->CreateTexture2D(&desc, nullptr, &texd));
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc(texd.Get(), D3D11_SRV_DIMENSION_TEXTURE2D, desc.Format);
+		chr(dev.ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
 	}
 
 	void texture2d::bind(device& dev, int slot)

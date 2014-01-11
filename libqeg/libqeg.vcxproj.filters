@@ -24,6 +24,9 @@
     <ClInclude Include="texture2d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="render_texture2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cmmn.cpp">
@@ -33,6 +36,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="texture2d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="render_texture2d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
