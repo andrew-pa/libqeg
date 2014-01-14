@@ -61,6 +61,7 @@ namespace qeg
 #endif
 #endif
 	public:
+		device(){}
 		device(vec2 _s 
 #ifdef WIN32
 			, HWND win_
@@ -75,7 +76,7 @@ namespace qeg
 		inline void push_render_target(render_texture2d* rt);
 		inline void update_render_target();
 		void present();
-		void resize(vec2 ns);
+		void resize();
 	};
 };
 

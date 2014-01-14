@@ -168,7 +168,7 @@ namespace qeg
 #pragma region NO MSAA
 		else
 		{
-			ComPtr<ID3D11Texture2D> backBuffer;
+			//ComPtr<ID3D11Texture2D> backBuffer;
 			chr(_swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backBuffer));
 
 			chr(_device->CreateRenderTargetView(backBuffer.Get(), nullptr, &render_target));
@@ -210,14 +210,18 @@ else
 
 	}
 
-	void device::resize(vec2 ns)
+	void device::resize()
 	{
-		//if (ns == win_bnds) return;
+		RECT cre;
+		GetClientRect(_window, &cre);
+		auto ns = vec2(convdp(cre.right - cre.left), convdp(cre.bottom - cre.top));
+		if (ns == win_bnds) return;
 		ID3D11RenderTargetView* nullviews[] = { nullptr };
 		_context->Flush();
 		_d2context->SetTarget(nullptr);
 		d2target_bitmap = nullptr;
 		_d2context->SetDpi(96.f, 96.f); //replace 96.f with actual logical DPI
+		win_bnds = ns;
 		create_window_size_depres();
 	}
 
@@ -233,15 +237,38 @@ else
 		_context->DiscardView(depth_stencil.Get());
 		if (h = DXGI_ERROR_DEVICE_REMOVED)
 		{
-			RECT cre;
-			GetClientRect(_window, &cre);
-			win_bnds = vec2(convdp(cre.right - cre.left), convdp(cre.bottom - cre.top));
 			_swap_chain = nullptr;
 			create_device_res();
 			create_d2d_res();
-			resize(win_bnds);
+			resize();
 		}
 		else chr(h);
+	}
+
+	void device::push_render_target(render_texture2d* rt)
+	{
+		rt_sk.push(rt);
+		update_render_target();
+	}
+
+	void device::update_render_target()
+	{
+		auto r = rt_sk.top();
+		const float clear_color[] = { 1.f, .5f, 0.f, 0.f };
+		if (r->render_target() != nullptr)
+			_context->ClearRenderTargetView(r->render_target().Get(), clear_color);
+		if (r->depth_stencil() != nullptr)
+			_context->ClearDepthStencilView(r->depth_stencil().Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
+		_context->OMSetRenderTargets(1, r->render_target().GetAddressOf(), r->depth_stencil().Get());
+		CD3D11_VIEWPORT vp(0.f, 0.f, (FLOAT)r->size().x, (FLOAT)r->size().y);
+		_context->RSSetViewports(1, &vp);
+	}
+
+	void device::pop_render_target()
+	{
+		if (rt_sk.size() == 1) return;
+		rt_sk.pop();
+		update_render_target();
 	}
 
 	device::~device()
