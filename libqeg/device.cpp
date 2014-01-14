@@ -192,13 +192,16 @@ namespace qeg
 		}
 #pragma endregion
 		
+		vec2 dpi;
+		_d2factory->GetDesktopDpi(&dpi.x, &dpi.y);
+		
 
 		D2D1_BITMAP_PROPERTIES1 bitprop =
 			D2D1::BitmapProperties1(
 			D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
 			D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
-			96.f,
-			96.f); //replace 96.f with a actual logical DPI value
+			dpi.x,
+			dpi.y); 
 		ComPtr<IDXGISurface> dxgibb;
 if(msaa_level > 1)
 		chr(offscreenBackBuffer.As(&dxgibb));
@@ -217,8 +220,10 @@ else
 		_context->OMSetRenderTargets(1, nullviews, nullptr);
 		_context->Flush();
 		_d2context->SetTarget(nullptr);
-		d2target_bitmap = nullptr;
-		_d2context->SetDpi(96.f, 96.f); //replace 96.f with actual logical DPI
+		d2target_bitmap = nullptr;		
+		vec2 dpi;
+		_d2factory->GetDesktopDpi(&dpi.x, &dpi.y);
+		_d2context->SetDpi(dpi.x, dpi.y);
 		create_window_size_depres();
 	}
 
