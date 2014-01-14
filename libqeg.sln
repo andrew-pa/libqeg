@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libqeg", "libqeg\libqeg.vcxproj", "{33671ADD-1739-4565-A10F-CF9E88F529DD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qegtest", "qegtest\qegtest.vcxproj", "{847257C4-A03E-4003-BC09-336811CD02F9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{33671ADD-1739-4565-A10F-CF9E88F529DD} = {33671ADD-1739-4565-A10F-CF9E88F529DD}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

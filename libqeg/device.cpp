@@ -214,6 +214,7 @@ else
 	{
 		if (ns == win_bnds) return;
 		ID3D11RenderTargetView* nullviews[] = { nullptr };
+		_context->OMSetRenderTargets(1, nullviews, nullptr);
 		_context->Flush();
 		_d2context->SetTarget(nullptr);
 		d2target_bitmap = nullptr;
@@ -231,12 +232,16 @@ else
 		auto h = _swap_chain->Present1(1, 0, &p);
 		_context->DiscardView(render_target.Get());
 		_context->DiscardView(depth_stencil.Get());
-		if (h = DXGI_ERROR_DEVICE_REMOVED)
+		if (h == DXGI_ERROR_DEVICE_REMOVED)
 		{
+			h = _device->GetDeviceRemovedReason();
+			RECT cre;
+			GetClientRect(_window, &cre);
+			auto ns = vec2(convdp(cre.right - cre.left), convdp(cre.bottom - cre.top));
 			_swap_chain = nullptr;
 			create_device_res();
 			create_d2d_res();
-			resize(vec2(0,0));
+			resize(ns);
 		}
 		else chr(h);
 	}

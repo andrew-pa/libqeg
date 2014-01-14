@@ -7,7 +7,7 @@ namespace qeg
 	class app
 	{
 	protected:
-		device _dev;
+		device* _dev;
 		float fps; float mpf;
 		float var_fps; float targ_mpf;
 
@@ -16,6 +16,8 @@ namespace qeg
 #endif
 	public:
 		app(const wstring& title, vec2 winsize, bool vfps = false, float tmpf = 1.f / 100.f);
+
+		~app() { delete _dev; }
 		
 		void run();
 

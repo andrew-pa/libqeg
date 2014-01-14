@@ -24,7 +24,7 @@ namespace qeg
 		{
 			if (msg == WM_SIZE)
 			{
-				this_app->_dev.resize(vec2(LOWORD(lp), HIWORD(lp)));
+				this_app->_dev->resize(vec2(LOWORD(lp), HIWORD(lp)));
 				size_changed = true;
 				return 0;
 			}
@@ -50,7 +50,7 @@ namespace qeg
 		wnd = CreateWindowEx(exsty, title.c_str(), title.c_str(), WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT, (int)winsize.x, (int)winsize.y, nullptr, nullptr, inst, nullptr);
 
-		_dev = device(winsize, wnd, 0);
+		_dev = new device(winsize, wnd, 4);
 		ShowWindow(wnd, SW_SHOW);
 		UpdateWindow(wnd);
 	}
@@ -78,9 +78,9 @@ namespace qeg
 					size_changed = false;
 				}
 				update(tm.total_time(), tm.delta_time());
-				_dev.update_render_target();
+				_dev->update_render_target();
 				render(tm.total_time(), tm.delta_time());
-				_dev.present();
+				_dev->present();
 				fc++;
 				ft += tm.delta_time();
 				if (ft > 1.0f)
