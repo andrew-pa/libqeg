@@ -23,7 +23,6 @@ namespace qeg
 		virtual void update(float t, float dt) = 0;
 		virtual void resized()
 		{
-			_dev.resize();
 		}
 	};
 }

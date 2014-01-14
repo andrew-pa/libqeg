@@ -24,7 +24,7 @@ namespace qeg
 		{
 			if (msg == WM_SIZE)
 			{
-				this_app->_dev.resize();
+				this_app->_dev.resize(vec2(LOWORD(lp), HIWORD(lp)));
 				size_changed = true;
 				return 0;
 			}

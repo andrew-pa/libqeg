@@ -210,18 +210,14 @@ else
 
 	}
 
-	void device::resize()
+	void device::resize(vec2 ns)
 	{
-		RECT cre;
-		GetClientRect(_window, &cre);
-		auto ns = vec2(convdp(cre.right - cre.left), convdp(cre.bottom - cre.top));
 		if (ns == win_bnds) return;
 		ID3D11RenderTargetView* nullviews[] = { nullptr };
 		_context->Flush();
 		_d2context->SetTarget(nullptr);
 		d2target_bitmap = nullptr;
 		_d2context->SetDpi(96.f, 96.f); //replace 96.f with actual logical DPI
-		win_bnds = ns;
 		create_window_size_depres();
 	}
 
@@ -240,7 +236,7 @@ else
 			_swap_chain = nullptr;
 			create_device_res();
 			create_d2d_res();
-			resize();
+			resize(vec2(0,0));
 		}
 		else chr(h);
 	}
