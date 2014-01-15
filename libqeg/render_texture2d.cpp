@@ -28,11 +28,11 @@ namespace qeg
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuf);
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);
-		glTexImage2D(GL_TEXTURE_2D, 0, get_gl_format_internal(f), s.x, s.y, 0, f, get_gl_format_size(f), 0);
-		glGenRenderbuffers(1, &depthtex);
-		glBindRenderbuffer(GL_RENDERBUFFER, depthtex);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, s.x, s.y);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, depthtex, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, get_gl_format_internal(f), _size.x, _size.y, 0, (GLenum)f, get_gl_format_type(f), 0);
+		glGenRenderbuffers(1, &depthbuf);
+		glBindRenderbuffer(GL_RENDERBUFFER, depthbuf);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, _size.x, _size.y);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, depthbuf, 0);
 		GLenum db[1] = { GL_COLOR_ATTACHMENT0 };
 		glDrawBuffers(1, db);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -42,8 +42,8 @@ namespace qeg
 
 	render_texture2d::~render_texture2d()
 	{	
-		if(depthtex != 0)
-			glDeleteRenderbuffers(1, &depthtex);
+		if(depthbuf != 0)
+			glDeleteRenderbuffers(1, &depthbuf);
 		if (framebuf != 0)
 			glDeleteFramebuffers(1, &framebuf);
 	}

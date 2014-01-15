@@ -89,17 +89,17 @@ namespace qeg
 	{
 		switch (f)
 		{
-		case pixel_format::RGBA16_TYPELESS:
-			return GL_UNSIGNED_SHORT;
-		case pixel_format::RGBA32_TYPELESS:
-		case pixel_format::RGB32_TYPELESS:
-		case pixel_format::RGBA8_TYPELESS:
-		case pixel_format::RG32_TYPELESS:
-		case pixel_format::RG16_TYPELESS:
-		case pixel_format::R32_TYPELESS:
-		case pixel_format::R16_TYPELESS:
-		case pixel_format::R8_TYPELESS:
-			return GL_UNSIGNED_INT;
+		//case pixel_format::RGBA16_TYPELESS:
+		//	return GL_UNSIGNED_SHORT;
+		//case pixel_format::RGBA32_TYPELESS:
+		//case pixel_format::RGB32_TYPELESS:
+		//case pixel_format::RGBA8_TYPELESS:
+		//case pixel_format::RG32_TYPELESS:
+		//case pixel_format::RG16_TYPELESS:
+		//case pixel_format::R32_TYPELESS:
+		//case pixel_format::R16_TYPELESS:
+		//case pixel_format::R8_TYPELESS:
+			//return GL_UNSIGNED_INT;
 		case pixel_format::RGBA16_FLOAT:
 			return GL_HALF_FLOAT;
 		case pixel_format::RGBA32_FLOAT:
@@ -118,7 +118,7 @@ namespace qeg
 		case pixel_format::RG32_UINT:
 		case pixel_format::RG16_UINT:
 		case pixel_format::R32_UINT:
-		case pixel_format::R16_UINT:
+		//case pixel_format::R16_UINT:
 		case pixel_format::R8_UINT:
 			return GL_UNSIGNED_INT;
 
@@ -130,7 +130,7 @@ namespace qeg
 		case pixel_format::RG32_SINT:
 		case pixel_format::RG16_SINT:
 		case pixel_format::R32_SINT:
-		case pixel_format::R16_SINT:
+		//case pixel_format::R16_SINT:
 		case pixel_format::R8_SINT:
 			return GL_UNSIGNED_INT;
 
@@ -160,13 +160,13 @@ namespace qeg
 	{
 		switch (f)
 		{
-		case pixel_format::RGBA32_TYPELESS:
+		//case pixel_format::RGBA32_TYPELESS:
 		case pixel_format::RGBA32_UINT:
 		case pixel_format::RGBA32_SINT:
-		case pixel_format::RGBA16_TYPELESS:
+		//case pixel_format::RGBA16_TYPELESS:
 		case pixel_format::RGBA16_UINT:
 		case pixel_format::RGBA16_SINT:
-		case pixel_format::RGBA8_TYPELESS:
+		//case pixel_format::RGBA8_TYPELESS:
 		case pixel_format::RGBA8_UINT:
 		case pixel_format::RGBA8_SINT:
 			return GL_RGBA_INTEGER;
@@ -178,19 +178,19 @@ namespace qeg
 
 		case pixel_format::RGB32_UINT:
 		case pixel_format::RGB32_SINT:
-		case pixel_format::RGB32_TYPELESS:
+		//case pixel_format::RGB32_TYPELESS:
 			return GL_RGB_INTEGER;
 		case pixel_format::RGB32_FLOAT:
 			return GL_RGB;
 
-		case pixel_format::RG32_TYPELESS:
+		//case pixel_format::RG32_TYPELESS:
 		case pixel_format::RG32_UINT:
 		case pixel_format::RG32_SINT:
 			return GL_RG_INTEGER;
 		case pixel_format::RG32_FLOAT:
 			return GL_RG;
 
-		case pixel_format::RG16_TYPELESS:
+		//case pixel_format::RG16_TYPELESS:
 		case pixel_format::RG16_UINT:
 		case pixel_format::RG16_SINT:
 			return GL_RG_INTEGER;
@@ -201,15 +201,15 @@ namespace qeg
 
 		case pixel_format::R32_SINT:
 		case pixel_format::R32_UINT:
-		case pixel_format::R32_TYPELESS:
+		//case pixel_format::R32_TYPELESS:
 			return GL_RED_INTEGER;
 		case pixel_format::R32_FLOAT:
 			return GL_RED;
 
-		case pixel_format::R16_SINT:
-		case pixel_format::R16_UINT:
-		case pixel_format::R16_TYPELESS:
-			return GL_RED_INTEGER;
+		//case pixel_format::R16_SINT:
+		//case pixel_format::R16_UINT:
+		//case pixel_format::R16_TYPELESS:
+		//	return GL_RED_INTEGER;
 		case pixel_format::R16_FLOAT:
 		case pixel_format::R16_UNORM:
 		case pixel_format::R16_SNORM:
@@ -217,7 +217,7 @@ namespace qeg
 
 		case pixel_format::R8_SINT:
 		case pixel_format::R8_UINT:
-		case pixel_format::R8_TYPELESS:
+		//case pixel_format::R8_TYPELESS:
 			return GL_RED_INTEGER;
 		case pixel_format::R8_SNORM:
 		case pixel_format::R8_UNORM:

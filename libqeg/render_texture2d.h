@@ -28,7 +28,7 @@ namespace qeg
 #endif
 #ifdef OPENGL
 		render_texture2d(vec2 size_, GLuint fb, GLuint db)
-			: _size(size_), framebuf(fb), depthbuf(db) {}
+			: texture2d(size_), framebuf(fb), depthbuf(db) {}
 		propr(GLuint, frame_buffer, { return framebuf; });
 		propr(GLuint, depth_buffer, { return depthbuf; });
 #endif

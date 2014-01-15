@@ -72,9 +72,9 @@ namespace qeg
 			);
 		~device();
 		inline render_texture2d* current_render_target() const;
-		inline void pop_render_target();
-		inline void push_render_target(render_texture2d* rt);
-		inline void update_render_target();
+		void pop_render_target();
+		void push_render_target(render_texture2d* rt);
+		void update_render_target();
 		void present();
 		void resize(vec2 ns);
 	};

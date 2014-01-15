@@ -4,6 +4,7 @@
 
 namespace qeg
 {
+#ifdef WIN32
 #ifdef DIRECTX
 	device::device(vec2 s, HWND win_, uint msaa_lvl_)
 		: msaa_level(msaa_lvl_), _window(win_), win_bnds(s)
@@ -270,6 +271,12 @@ else
 		_context->RSSetViewports(1, &vp);
 	}
 
+	render_texture2d* device::current_render_target() const
+	{
+		return rt_sk.top();
+	}
+
+
 	void device::pop_render_target()
 	{
 		if (rt_sk.size() == 1) return;
@@ -280,5 +287,145 @@ else
 	device::~device()
 	{
 	}
+#endif
+#ifdef OPENGL
+
+	static void debug_gl_callback(unsigned int source, unsigned int type,
+		unsigned int id, unsigned int sev, int len, const char* msg, void* usr)
+	{
+		ostringstream oss;
+		string ssource, stype, ssev;
+		switch (source)
+		{
+		case GL_DEBUG_SOURCE_API:             ssource = "GL"; break;
+		case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   ssource = "GUI"; break;
+		case GL_DEBUG_SOURCE_SHADER_COMPILER: ssource = "Shader Compiler"; break;
+		case GL_DEBUG_SOURCE_THIRD_PARTY:     ssource = "3rd Party"; break;
+		case GL_DEBUG_SOURCE_APPLICATION:     ssource = "App"; break;
+		case GL_DEBUG_SOURCE_OTHER:           ssource = "Other"; break;
+		}
+
+		switch (type)
+		{
+		case GL_DEBUG_TYPE_ERROR: stype = "Error"; break;
+		case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: stype = "Decaprecated"; break;
+		case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: stype = "Undefined"; break;
+		case GL_DEBUG_TYPE_PORTABILITY: stype = "Portability"; break;
+		case GL_DEBUG_TYPE_PERFORMANCE: stype = "Perf"; break;
+		case GL_DEBUG_TYPE_OTHER: stype = "Other"; break;
+		}
+
+		switch (sev)
+		{
+		case GL_DEBUG_SEVERITY_HIGH: ssev = "H"; break;
+		case GL_DEBUG_SEVERITY_MEDIUM: ssev = "M"; break;
+		case GL_DEBUG_SEVERITY_LOW: ssev = "L"; break;
+		}
+
+		oss << ssource << "> " << ssev << "[" << stype << "] (" << id << ") " << msg;
+		if (sev == GL_DEBUG_SEVERITY_HIGH)
+			throw exception(("GL error: " + oss.str()).c_str());
+		else
+			OutputDebugStringA(oss.str().c_str());
+	}
+
+	device::device(vec2 _s, HWND win_)
+		: dc(GetDC(win_))
+	{
+		PIXELFORMATDESCRIPTOR pfd;
+		ZeroMemory(&pfd, sizeof(pfd));
+		pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+		pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+		pfd.iPixelType = PFD_TYPE_RGBA;
+		pfd.cColorBits = 32;
+		pfd.cDepthBits = 32;
+		pfd.iLayerType = PFD_MAIN_PLANE;
+
+		auto pf = ChoosePixelFormat(dc, &pfd);
+		if (pf == 0) throw exception("ChoosePixelFormat failed (Pixel format is invalid?)");
+		if (!SetPixelFormat(dc, pf, &pfd)) throw exception("SetPixelFormat failed!");
+
+		auto tempCtx = wglCreateContext(dc);
+		wglMakeCurrent(dc, tempCtx);
+
+		glewInit();
+		int attributes[] = {
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4, // Set the MAJOR version of OpenGL to 3
+			WGL_CONTEXT_MINOR_VERSION_ARB, 0, // Set the MINOR version of OpenGL to 2
+			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB
+#ifdef DEBUG
+			| WGL_CONTEXT_DEBUG_BIT_ARB
+#endif
+			, // Set our OpenGL context to be forward compatible
+			0
+		};
+
+		if (wglewIsSupported("WGL_ARB_create_context") == 1)
+		{
+			rc = wglCreateContextAttribsARB(dc, nullptr, attributes);
+			wglMakeCurrent(nullptr, nullptr);
+			wglDeleteContext(tempCtx);
+			wglMakeCurrent(dc, rc);
+		}
+		else
+		{
+			throw exception("OpenGL 3.x+ context not supported!");
+		}
+
+		const GLubyte* glVersionString = glGetString(GL_VERSION);
+		int glVersion[2] = { -1, -1 };
+		glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]);
+		glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]);
+
+#ifdef _DEBUG
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+		glDebugMessageCallbackARB((GLDEBUGPROCARB)&debug_gl_callback, this);
+#endif
+
+		rt_sk.push(new render_texture2d(_rtsize, 0, 0));
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glClearColor(1.f, .5f, 0.f, 0.f);
+	}
+	
+	void device::present()
+	{
+		SwapBuffers(dc);
+	}
+	
+	render_texture2d* device::current_render_target() const
+	{
+		return rt_sk.top();
+	}
+	
+	void device::pop_render_target()
+	{
+		if (rt_sk.size() == 1) return;
+		rt_sk.pop();
+		update_render_target();
+	}
+
+	void device::push_render_target(render_texture2d* rt)
+	{
+		rt_sk.push(rt);
+		update_render_target();
+	}
+
+	void device::update_render_target()
+	{	
+		glBindFramebuffer(GL_FRAMEBUFFER, rt_sk.top()->frame_buffer());
+		glViewport(0, 0, rt_sk.top()->size().x, rt_sk.top()->size().y);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	
+	void device::resize(vec2 ns)
+	{
+	}
+
+	device::~device()
+	{
+	}
+#endif
 #endif
 };

@@ -50,7 +50,11 @@ namespace qeg
 		wnd = CreateWindowEx(exsty, title.c_str(), title.c_str(), WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT, (int)winsize.x, (int)winsize.y, nullptr, nullptr, inst, nullptr);
 
-		_dev = new device(winsize, wnd, 4);
+		_dev = new device(winsize, wnd
+#ifdef DIRECTX
+			, 4
+#endif
+			);
 		ShowWindow(wnd, SW_SHOW);
 		UpdateWindow(wnd);
 	}

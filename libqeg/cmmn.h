@@ -47,13 +47,12 @@ using Microsoft::WRL::ComPtr;
 #endif
 #endif
 
+
 #ifdef OPENGL
 #include <GL/glew.h>
 #include <GL/wglew.h>
-#ifdef LINK
 #pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "opengl32.lib")
-#endif
 #endif
 
 namespace qeg
