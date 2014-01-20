@@ -56,8 +56,8 @@
     <LibraryPath>C:\Users\Andrew\Source\libqeg\Debug;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
-    <IncludePath>C:\Users\Andrew\Source\libqeg\libqeg;$(SolutionDir)include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Andrew\Source\libqeg\DebugGL;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg;$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\andre_000\Source\libqeg\DebugGL;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)-gl</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
