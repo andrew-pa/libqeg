@@ -111,6 +111,7 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="cmmn.h" />
     <ClInclude Include="device.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="render_texture2d.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture2d.h" />
@@ -120,6 +121,7 @@
     <ClCompile Include="app.cpp" />
     <ClCompile Include="cmmn.cpp" />
     <ClCompile Include="device.cpp" />
+    <ClCompile Include="mesh.cpp" />
     <ClCompile Include="render_texture2d.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="texture2d.cpp" />
