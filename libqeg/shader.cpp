@@ -49,14 +49,16 @@ namespace qeg
 		if(vs_data != nullptr)
 		{
 			_idvp = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(_idvp, 1, (GLchar**)&vs_data->data, 0);
+			const GLchar* vsd = (GLchar*)vs_data->data;
+			glShaderSource(_idvp, 1, &vsd, nullptr);
 			glCompileShader(_idvp);
-			validate_shader(_idvp, (GLchar*)ps_data->data);
+			validate_shader(_idvp, (GLchar*)vs_data->data);
 		}
 
 		if(ps_data != nullptr)
 		{
-			glShaderSource(_idfp, 1, (GLchar**)&ps_data->data, 0);
+			const GLchar* psd = (GLchar*)vs_data->data;
+			glShaderSource(_idfp, 1, &psd, nullptr);
 			glCompileShader(_idfp);
 			validate_shader(_idfp, (GLchar*)ps_data->data);
 			_idfp = glCreateShader(GL_FRAGMENT_SHADER);

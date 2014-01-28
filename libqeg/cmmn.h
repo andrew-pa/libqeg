@@ -120,6 +120,7 @@ namespace qeg
 		RG16_SINT,
 		RG16_SNORM,
 		R32_TYPELESS = DXGI_FORMAT_R32_TYPELESS,
+		_D32_FLOAT,
 		R32_FLOAT,
 		R32_UINT,
 		R32_SINT,
@@ -223,8 +224,8 @@ namespace qeg
 		size_t length;
 	};
 	//Read in the data contained in filename, put it in to a datablob
-	inline datablob<byte>* read_data(const wstring& filename);
+	datablob<byte>* read_data(const wstring& filename);
 
 	//Wrapper for read_data, but adds the executable path on to the file name
-	inline datablob<byte>* read_data_from_package(_In_ const wstring& filename);
+	datablob<byte>* read_data_from_package(_In_ const wstring& filename);
 };

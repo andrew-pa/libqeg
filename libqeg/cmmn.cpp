@@ -4,7 +4,7 @@ namespace qeg
 {
 #ifdef WIN32
 	//Read in the data contained in filename, put it in to a datablob
-	inline datablob<byte>* read_data(
+	datablob<byte>* read_data(
 		const wstring& filename	//_In_ const wchar_t* filename
 		)
 	{
@@ -59,7 +59,7 @@ namespace qeg
 	}
 
 	//Wrapper for read_data, but adds the executable path on to the file name
-	inline datablob<byte>* read_data_from_package(_In_ const wstring& filename)
+	datablob<byte>* read_data_from_package(_In_ const wstring& filename)
 	{
 		static std::wstring fpath = L"";
 		if (fpath.length() == 0)
