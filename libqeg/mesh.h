@@ -209,8 +209,7 @@ namespace qeg
 		//vector<vec2> tx;
 		//vector<uint16> ixs;
 #ifdef DIRECTX
-		ComPtr<ID3D11Buffer> bufs[4];
-		ComPtr<ID3D11InputLayout> layout;
+		ID3D11Buffer* bufs[4];
 #endif
 #ifdef OPENGL
 		GLuint vtx_array;
@@ -219,7 +218,8 @@ namespace qeg
 	public:
 		mesh_psnmtx(device* _dev, const vector<vec3>& pos, const vector<vec3>& norm, const vector<vec2>& tex,
 			const vector<uint16>& indices, const string& n);
-		void draw(device* _dev, prim_draw_type dt = prim_draw_type::triangle_list, int index_offset = 0, int oindex_count = -1, int vertex_offset = 0) override;
+		void draw(device* _dev, prim_draw_type dt = prim_draw_type::triangle_list, 
+			int index_offset = 0, int oindex_count = -1, int vertex_offset = 0) override;
 		
 		~mesh_psnmtx();
 	

@@ -57,7 +57,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace qeg
 {
-	typedef unsigned int uint;	
+	typedef unsigned int uint;
 	typedef unsigned int uint32;
 	typedef unsigned short uint16;
 	typedef unsigned char uint8;
@@ -66,6 +66,7 @@ namespace qeg
 	inline float randf() { return ((float)rand() / (float)RAND_MAX); }
 	inline float randfn() { return ((randf() * 2) - 1); }
 
+#define array_size(ar) sizeof(ar) / sizeof(ar[0])
 
 #ifdef DIRECTX
 	//HRexception

@@ -6,9 +6,8 @@
 #include <mesh.h>
 using namespace qeg;
 
-typedef mesh<vertex_position_normal_texture> meshvpnt;
 
-meshvpnt* create_box(device* _dev, const string& name, float d)
+mesh* create_box(device* _dev, const string& name, float d)
 {
 	typedef vertex_position_normal_texture dvertex;
 	vertex_position_normal_texture* v = new vertex_position_normal_texture[24];
@@ -53,7 +52,7 @@ meshvpnt* create_box(device* _dev, const string& name, float d)
 	v[22] = dvertex(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
 	v[23] = dvertex(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
 
-	UINT* i = new UINT[36];
+	uint16* i = new uint16[36];
 
 	// Fill in the front face index data
 	i[0] = 0; i[1] = 1; i[2] = 2;
@@ -81,19 +80,28 @@ meshvpnt* create_box(device* _dev, const string& name, float d)
 
 	auto indexCount = 36;
 	auto vertexCount = 24;
-	return new meshvpnt(_dev, name, vector<vertex_position_normal_texture>(v, v + 24), vector<uint32>(i, i + 36));
+	vector<vec3> p, n;
+	vector<vec2> t;
+	for (int i = 0; i < 24; ++i)
+	{
+		p.push_back(v[i].pos);
+		n.push_back(v[i].norm);
+		t.push_back(v[i].tex);
+	}
+	return new mesh_psnmtx(_dev, p, n, t, vector<uint16>(i, i + 36), "cube");
 }
 
 class qegtest_app : public app
 {
 	//ComPtr<ID2D1SolidColorBrush> brush;
 
-	meshvpnt* m;
+	mesh* m;
 	shader s;
 public:
 	qegtest_app()
 		: app(L"libqeg test", vec2(640, 480), true),
-		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso"))
+		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso"), 
+			shader::layout_posnomtex)
 	{
 		//_dev->d2context()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::GreenYellow), &brush);		
 		m = create_box(_dev, "box0", 1);

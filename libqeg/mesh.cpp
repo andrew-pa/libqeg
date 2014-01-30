@@ -15,6 +15,53 @@ namespace qeg
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
+
+	mesh::mesh(const string& n)
+		: _name(n)
+	{
+	}
+	mesh::~mesh()
+	{
+	}
+
+	mesh_psnmtx::mesh_psnmtx(device* _dev, const vector<vec3>& pos, const vector<vec3>& norm, const vector<vec2>& tex,
+		const vector<uint16>& indices, const string& n)
+		: mesh(n), idxcnt(indices.size())//, ps(pos), nm(norm), tx(tex), ixs(indices)
+	{
+		CD3D11_BUFFER_DESC pos_desc(sizeof(vec3)*pos.size(), D3D11_BIND_VERTEX_BUFFER);
+		CD3D11_BUFFER_DESC norm_desc(sizeof(vec3)*norm.size(), D3D11_BIND_VERTEX_BUFFER);
+		CD3D11_BUFFER_DESC tex_desc(sizeof(vec2)*tex.size(), D3D11_BIND_VERTEX_BUFFER);
+		CD3D11_BUFFER_DESC idx_desc(sizeof(uint16)*indices.size(), D3D11_BIND_INDEX_BUFFER);
+		D3D11_SUBRESOURCE_DATA subdata = { 0 };
+		subdata.pSysMem = pos.data();
+		chr(_dev->ddevice()->CreateBuffer(&pos_desc, &subdata, &bufs[0]));
+		subdata.pSysMem = norm.data();
+		chr(_dev->ddevice()->CreateBuffer(&norm_desc, &subdata, &bufs[1]));
+		subdata.pSysMem = tex.data();
+		chr(_dev->ddevice()->CreateBuffer(&tex_desc, &subdata, &bufs[2]));
+		subdata.pSysMem = indices.data();
+		chr(_dev->ddevice()->CreateBuffer(&idx_desc, &subdata, &bufs[3]));
+	}
+
+	void mesh_psnmtx::draw(device* _dev, prim_draw_type dt,
+		int index_offset, int oindex_count, int vertex_offset)
+	{
+		uint strides[3] = { sizeof(vec3), sizeof(vec3), sizeof(vec2), };
+		uint offsets[3] = { 0, 0, 0, };
+		_dev->context()->IASetVertexBuffers(0, 3, bufs, strides, offsets);
+		_dev->context()->IASetIndexBuffer(bufs[3], DXGI_FORMAT_R16_UINT, 0);
+		_dev->context()->IASetPrimitiveTopology((D3D11_PRIMITIVE_TOPOLOGY)dt);
+		_dev->context()->DrawIndexed((oindex_count > 0 ? oindex_count : idxcnt), index_offset, vertex_offset);
+	}
+
+	mesh_psnmtx::~mesh_psnmtx()
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			bufs[i]->Release();
+			bufs[i] = nullptr;
+		}
+	}
 	
 	//template <typename vertex_type, typename index_type>
 	//mesh<vertex_type,index_type>::mesh(device* _dev, const string& n, const vector<vertex_type>& v, 
