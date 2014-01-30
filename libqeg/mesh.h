@@ -194,7 +194,8 @@ namespace qeg
 	public:
 		mesh(const string& n);
 		proprw(string, name, { return _name; });
-		virtual void draw(device* _dev, prim_draw_type dt = prim_draw_type::triangle_list, int index_offset = 0, int oindex_count = -1, int vertex_offset = 0);
+		virtual void draw(device* _dev, prim_draw_type dt = prim_draw_type::triangle_list, 
+			int index_offset = 0, int oindex_count = -1, int vertex_offset = 0) = 0;
 		~mesh();
 #ifdef OPENGL
 		propr(GLuint, vertex_array, { return vtx_array; });

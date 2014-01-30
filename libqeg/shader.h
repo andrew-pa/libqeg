@@ -20,7 +20,7 @@ namespace qeg
 	public:
 		shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data
 #ifdef DIRECTX
-			, const D3D11_INPUT_ELEMENT_DESC lo[]
+			, const D3D11_INPUT_ELEMENT_DESC lo[], size_t cnt
 #endif
 			);
 		~shader();

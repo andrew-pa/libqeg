@@ -10,13 +10,14 @@ namespace qeg
 		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    2, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
-	shader::shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data, const D3D11_INPUT_ELEMENT_DESC lo[])
+	shader::shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data, 
+		const D3D11_INPUT_ELEMENT_DESC lo[], size_t cnt)
 	{
 		if (vs_data != nullptr)
 			chr(_dev->ddevice()->CreateVertexShader(vs_data->data, vs_data->length, nullptr, &vertex_sh));
 		if (ps_data != nullptr)
 			chr(_dev->ddevice()->CreatePixelShader(ps_data->data, ps_data->length, nullptr, &pixel_sh));
-		chr(_dev->ddevice()->CreateInputLayout(lo, array_size(lo), vs_data->data, vs_data->length, &inplo));
+		chr(_dev->ddevice()->CreateInputLayout(lo, cnt, vs_data->data, vs_data->length, &inplo));
 	}
 
 	void shader::bind(device* _dev)

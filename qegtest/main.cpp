@@ -88,7 +88,7 @@ mesh* create_box(device* _dev, const string& name, float d)
 		n.push_back(v[i].norm);
 		t.push_back(v[i].tex);
 	}
-	return new mesh_psnmtx(_dev, p, n, t, vector<uint16>(i, i + 36), "cube");
+	return new mesh_psnmtx(_dev, p, n, t, vector<uint16>(i, i + 36), name);
 }
 
 class qegtest_app : public app
@@ -101,7 +101,7 @@ public:
 	qegtest_app()
 		: app(L"libqeg test", vec2(640, 480), true),
 		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso"), 
-			shader::layout_posnomtex)
+			shader::layout_posnomtex, 3)
 	{
 		//_dev->d2context()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::GreenYellow), &brush);		
 		m = create_box(_dev, "box0", 1);
