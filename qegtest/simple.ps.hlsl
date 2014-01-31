@@ -9,5 +9,5 @@ struct psinput
 
 float4 main(psinput i) : SV_TARGET
 {
-	return float4(0, 1, 0, 1);
+	return float4(i.normW, 1);
 }

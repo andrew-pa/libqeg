@@ -230,4 +230,9 @@ namespace qeg
 
 	//Wrapper for read_data, but adds the executable path on to the file name
 	datablob<byte>* read_data_from_package(_In_ const wstring& filename);
+
+	enum class shader_stage
+	{
+		pixel_shader, vertex_shader, //... other shaders
+	};
 };

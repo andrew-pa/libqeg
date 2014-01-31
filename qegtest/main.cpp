@@ -4,6 +4,7 @@
 #include <app.h>
 #include <shader.h>
 #include <mesh.h>
+#include <constant_buffer.h>
 using namespace qeg;
 
 
@@ -91,24 +92,69 @@ mesh* create_box(device* _dev, const string& name, float d)
 	return new mesh_psnmtx(_dev, p, n, t, vector<uint16>(i, i + 36), name);
 }
 
+
+#include <DirectXMath.h>
+mat4x4 dx_perspectiveFov(float fov, float width, float height, float znear, float zfar)
+{
+	auto m = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(fov), width / height, znear, zfar);
+	mat4 rm(
+		m.r[0].m128_f32[0], m.r[1].m128_f32[0], m.r[2].m128_f32[0], m.r[3].m128_f32[0],
+		m.r[0].m128_f32[1], m.r[1].m128_f32[1], m.r[2].m128_f32[1], m.r[3].m128_f32[1],
+		m.r[0].m128_f32[2], m.r[1].m128_f32[2], m.r[2].m128_f32[2], m.r[3].m128_f32[2],
+		m.r[0].m128_f32[3], m.r[1].m128_f32[3], m.r[2].m128_f32[3], m.r[3].m128_f32[3]);
+	return rm;
+}
+
 class qegtest_app : public app
 {
 	//ComPtr<ID2D1SolidColorBrush> brush;
 
 	mesh* m;
 	shader s;
+	constant_buffer<mat4> wvp_cb;
+	vec3 cam_pos;
 public:
 	qegtest_app()
 		: app(L"libqeg test", vec2(640, 480), true),
-		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso"), 
-			shader::layout_posnomtex, 3)
+		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso")
+#ifdef DIRECTX
+		, shader::layout_posnomtex, 3
+#endif
+			), 
+			wvp_cb(_dev, s, 0, mat4(1), shader_stage::vertex_shader)
 	{
+		wvp_cb.data(
+			perspectiveFov(45.f, 640.f, 480.f, .1f, 1000.f) * lookAt(vec3(0, 0, -15), vec3(0, 0, 0), vec3(0, 1, 0)));
+		cam_pos = vec3(0, 5, -15);
 		//_dev->d2context()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::GreenYellow), &brush);		
 		m = create_box(_dev, "box0", 1);
+		ID3D11RasterizerState* rs;
+		CD3D11_RASTERIZER_DESC rsd(D3D11_FILL_SOLID, D3D11_CULL_BACK, TRUE, 0, 0, 0, TRUE, FALSE, FALSE, FALSE);
+		
+		_dev->ddevice()->CreateRasterizerState(&rsd, &rs);
+		_dev->context()->RSSetState(rs);
 	}
 
 	void update(float t, float dt) override
 	{
+		if (GetAsyncKeyState('W') & 0x8000 == 0x8000)
+		{
+			cam_pos.z += 1;
+		}
+		if (GetAsyncKeyState('S') & 0x8000 == 0x8000)
+		{
+			cam_pos.z -= 1;
+		}
+		if (GetAsyncKeyState('A') & 0x8000 == 0x8000)
+		{
+			cam_pos.x += 1;
+		}
+		if (GetAsyncKeyState('D') & 0x8000 == 0x8000)
+		{
+			cam_pos.x -= 1;
+		}
+		wvp_cb.data(
+			perspectiveFov(45.f, 640.f, 480.f, .1f, 1000.f) * lookAt(cam_pos, vec3(0, 0, 0), vec3(0, 1, 0)));
 	}
 	
 	void resized() override
@@ -118,8 +164,11 @@ public:
 	void render(float t, float dt) override
 	{
 		s.bind(_dev);
+		wvp_cb.bind(_dev);
+		wvp_cb.update(_dev);
 		s.update(_dev);
 		m->draw(_dev);
+		wvp_cb.unbind(_dev);
 		s.unbind(_dev);
 		//_dev->d2context()->BeginDraw();
 		//_dev->d2context()->DrawRectangle(D2D1::RectF(50, 50, 100, 100), brush.Get(), 5);

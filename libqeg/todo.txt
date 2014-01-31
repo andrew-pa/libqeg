@@ -1,0 +1,8 @@
+
+- Cameras
+- ConstBuf
+- Texture loading (dds)
+- Shaders (phong, ...)
+
+
+- Create a device wide buffer pool, so that you can allocate a whole bunch of buffers at the same time, at least for GL
