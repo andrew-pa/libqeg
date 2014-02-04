@@ -28,6 +28,7 @@ namespace qeg
 			else if(shs == shader_stage::pixel_shader)
 				oss << "ps_";
 			oss << "reg_" << slot;
+			string s = oss.str();
 			return (GLchar*)oss.str().c_str();
 		}
 #endif
@@ -42,11 +43,15 @@ namespace qeg
 		}
 #elif OPENGL
 		{
-			glGenBuffers(1, &_buf);
-			glBindBuffer(GL_UNIFORM_BUFFER, _buf);
-			glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_DYNAMIC_DRAW);
-			_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs));
-			glUniformBlockBinding(sh.program_id(), _ix, slot);
+			glGenBuffers(1, &_buf); check_gl
+				glBindBuffer(GL_UNIFORM_BUFFER, _buf); check_gl
+				glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_STREAM_DRAW); check_gl
+				_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs)); check_gl
+			if (_ix == GL_INVALID_INDEX)
+				OutputDebugString(L"Invalid Index");				
+			glBindBufferRange(GL_UNIFORM_BUFFER, slot, _buf, 0, sizeof(T)); check_gl
+				glUniformBlockBinding(sh.program_id(), _ix, slot); check_gl
+				
 		}
 #endif
 		~constant_buffer()
@@ -75,8 +80,8 @@ namespace qeg
 		}
 #elif OPENGL
 		{
-			glBindBuffer(GL_UNIFORM_BUFFER, _buf);
-			glBindBufferBase(GL_UNIFORM_BUFFER, _slot, _buf);
+			//glBindBuffer(GL_UNIFORM_BUFFER, _buf);
+			//glBindBufferBase(GL_UNIFORM_BUFFER, _slot, _buf);
 		}
 #endif
 
@@ -96,8 +101,8 @@ namespace qeg
 		}
 #elif OPENGL
 		{			
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			glBindBufferBase(GL_UNIFORM_BUFFER, (ovslot > 0 ? ovslot : _slot), 0);
+			//glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			//glBindBufferBase(GL_UNIFORM_BUFFER, (ovslot > 0 ? ovslot : _slot), 0);
 		}
 #endif
 
@@ -112,7 +117,8 @@ namespace qeg
 		{
 			if (!changed) return;
 			changed = false;
-			glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_DYNAMIC_DRAW);
+			glBindBuffer(GL_UNIFORM_BUFFER, _buf); check_gl
+				glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_DYNAMIC_DRAW); check_gl
 		}
 #endif
 

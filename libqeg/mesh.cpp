@@ -123,49 +123,50 @@ namespace qeg
 	mesh::mesh(const string& n)
 		: _name(n)
 	{
-		glGenVertexArrays(1, &vtx_array);
+		glGenVertexArrays(1, &vtx_array); check_gl
 	}
 	mesh::~mesh()
 	{
-		glDeleteVertexArrays(1, &vtx_array);
+		glDeleteVertexArrays(1, &vtx_array); check_gl
 	}
 
 	mesh_psnmtx::mesh_psnmtx(device* _dev, const vector<vec3>& pos, const vector<vec3>& norm, const vector<vec2>& tex,
 		const vector<uint16>& indices, const string& n)
 		: mesh(n), idxcnt(indices.size())//, ps(pos), nm(norm), tx(tex), ixs(indices)
 	{
-		glBindVertexArray(vtx_array);
-		glGenBuffers(4, bufid);
+		glBindVertexArray(vtx_array); check_gl
+			glGenBuffers(4, bufid); check_gl
 		
-		glBindBuffer(GL_ARRAY_BUFFER, positions_buffer());
-		glBufferData(GL_ARRAY_BUFFER, pos.size()*sizeof(vec3), pos.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, normals_buffer());
-		glBufferData(GL_ARRAY_BUFFER, norm.size()*sizeof(vec3), norm.data(), GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, texcoords_buffer());
-		glBufferData(GL_ARRAY_BUFFER, tex.size()*sizeof(vec2), tex.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, positions_buffer()); check_gl
+			glBufferData(GL_ARRAY_BUFFER, pos.size()*sizeof(vec3), pos.data(), GL_STATIC_DRAW); check_gl
+			glBindBuffer(GL_ARRAY_BUFFER, normals_buffer()); check_gl
+			glBufferData(GL_ARRAY_BUFFER, norm.size()*sizeof(vec3), norm.data(), GL_STATIC_DRAW); check_gl
+			glBindBuffer(GL_ARRAY_BUFFER, texcoords_buffer()); check_gl
+			glBufferData(GL_ARRAY_BUFFER, tex.size()*sizeof(vec2), tex.data(), GL_STATIC_DRAW); check_gl
 		
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer());
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16), indices.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer()); check_gl
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16), indices.data(), GL_STATIC_DRAW); check_gl
 	}
 
 	void mesh_psnmtx::draw(device* _dev, prim_draw_type dt,
 		int index_offset, int oindex_count, int vertex_offset)
 	{
-		glBindVertexArray(vtx_array);
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, positions_buffer());
+		glBindVertexArray(vtx_array); check_gl
+			glEnableVertexAttribArray(0); check_gl
+			glBindBuffer(GL_ARRAY_BUFFER, positions_buffer()); check_gl
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 
-			(void*)(vertex_offset*sizeof(vec3)));
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, normals_buffer());
+		(void*)(vertex_offset*sizeof(vec3))); check_gl
+		glEnableVertexAttribArray(1); check_gl
+		glBindBuffer(GL_ARRAY_BUFFER, normals_buffer()); check_gl
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0,
-			(void*)(vertex_offset*sizeof(vec3)));
-		glEnableVertexAttribArray(2);
-		glBindBuffer(GL_ARRAY_BUFFER, texcoords_buffer());
+			(void*)(vertex_offset*sizeof(vec3))); check_gl
+			glEnableVertexAttribArray(2); check_gl
+			glBindBuffer(GL_ARRAY_BUFFER, texcoords_buffer()); check_gl
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0,
 			(void*)(vertex_offset*sizeof(vec2)));
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer()); check_gl
 		glDrawElements((GLenum)dt, (oindex_count > 0 ? idxcnt : oindex_count), 
-			GL_UNSIGNED_SHORT, (void*)(index_offset*sizeof(uint16)));
+		GL_UNSIGNED_SHORT, (void*)(index_offset*sizeof(uint16))); check_gl
 	}
 
 	mesh_psnmtx::~mesh_psnmtx()

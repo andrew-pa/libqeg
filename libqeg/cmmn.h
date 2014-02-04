@@ -197,6 +197,9 @@ namespace qeg
 	//get_gl_format_internal
 	// returns values like GL_RGBA
 	GLenum get_gl_format_internal(pixel_format f);
+
+	void __check_gl();
+#define check_gl __check_gl();
 #endif
 
 	//ErrorCodeexception

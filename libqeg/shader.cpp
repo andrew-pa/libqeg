@@ -47,11 +47,13 @@ namespace qeg
 	{
 		char buf[512];
 		GLsizei len = 0;
+		OutputDebugStringA(fn.c_str());
 		glGetShaderInfoLog(shader, 512, &len, buf);
 		if (len > 0)
 		{
 			ostringstream oss;
 			oss << "Shader " << shader << " (" << fn << ")" << " error: " << buf;
+			OutputDebugStringA(buf);
 			throw exception(oss.str().c_str());
 		}
 	}
@@ -67,12 +69,12 @@ namespace qeg
 		}
 
 		if(ps_data != nullptr)
-		{
-			const GLchar* psd = (GLchar*)vs_data->data;
+		{			
+			_idfp = glCreateShader(GL_FRAGMENT_SHADER);
+			const GLchar* psd = (GLchar*)ps_data->data;
 			glShaderSource(_idfp, 1, &psd, nullptr);
 			glCompileShader(_idfp);
 			validate_shader(_idfp, (GLchar*)ps_data->data);
-			_idfp = glCreateShader(GL_FRAGMENT_SHADER);
 		}
 
 		_id = glCreateProgram();

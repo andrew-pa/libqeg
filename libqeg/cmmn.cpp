@@ -43,11 +43,12 @@ namespace qeg
 
 		datablob<byte>* fileData = new datablob<byte>(fileInfo.EndOfFile.LowPart);
 
+		DWORD al = 0;
 		if (!ReadFile(
 			file,
 			fileData->data,
 			fileData->length,
-			nullptr,
+			&al,
 			nullptr
 			))
 		{
@@ -225,6 +226,18 @@ namespace qeg
 
 		default:
 			throw exception("invalid format");
+		}
+	}
+
+	void __check_gl()
+	{
+		GLenum e;
+		if ((e = glGetError()) != GL_NO_ERROR)
+		{
+			ostringstream oss;
+			oss << "GL error: " << e << endl;
+			OutputDebugStringA(oss.str().c_str());
+			throw error_code_exception(e, "GL error");
 		}
 	}
 #endif

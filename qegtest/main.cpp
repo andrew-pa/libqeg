@@ -105,6 +105,10 @@ mat4x4 dx_perspectiveFov(float fov, float width, float height, float znear, floa
 	return rm;
 }
 
+
+
+
+
 class qegtest_app : public app
 {
 	//ComPtr<ID2D1SolidColorBrush> brush;
@@ -116,23 +120,36 @@ class qegtest_app : public app
 public:
 	qegtest_app()
 		: app(L"libqeg test", vec2(640, 480), true),
-		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso")
+		s(_dev, read_data_from_package(L"simple.vs.sh"), read_data_from_package(L"simple.ps.sh")
 #ifdef DIRECTX
 		, shader::layout_posnomtex, 3
 #endif
 			), 
-			wvp_cb(_dev, s, 0, mat4(1), shader_stage::vertex_shader)
+			wvp_cb(_dev, s, 1, mat4(1), shader_stage::vertex_shader)
 	{
+		check_gl
 		wvp_cb.data(
 			perspectiveFov(45.f, 640.f, 480.f, .1f, 1000.f) * lookAt(vec3(0, 0, -15), vec3(0, 0, 0), vec3(0, 1, 0)));
 		cam_pos = vec3(0, 5, -15);
 		//_dev->d2context()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::GreenYellow), &brush);		
 		m = create_box(_dev, "box0", 1);
+#ifdef OPENGL
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CW);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LEQUAL);
+		glDepthRange(0.0f, 1.0f);
+		glEnable(GL_DEPTH_CLAMP);
+#elif DIRECTX
 		ID3D11RasterizerState* rs;
 		CD3D11_RASTERIZER_DESC rsd(D3D11_FILL_SOLID, D3D11_CULL_BACK, TRUE, 0, 0, 0, TRUE, FALSE, FALSE, FALSE);
 		
 		_dev->ddevice()->CreateRasterizerState(&rsd, &rs);
 		_dev->context()->RSSetState(rs);
+#endif
 	}
 
 	void update(float t, float dt) override

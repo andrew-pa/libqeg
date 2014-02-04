@@ -23,4 +23,8 @@
     <FxCompile Include="simple.ps.hlsl" />
     <FxCompile Include="simple.vs.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\DebugGL\simple.ps.sh" />
+    <None Include="..\DebugGL\simple.vs.sh" />
+  </ItemGroup>
 </Project>
