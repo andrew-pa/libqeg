@@ -213,7 +213,6 @@ namespace qeg
 		ID3D11Buffer* bufs[4];
 #endif
 #ifdef OPENGL
-		GLuint vtx_array;
 		GLuint bufid[4];
 #endif
 	public:

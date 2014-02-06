@@ -115,8 +115,10 @@ class qegtest_app : public app
 
 	mesh* m;
 	shader s;
-	constant_buffer<mat4> wvp_cb;
+	//constant_buffer<mat4> wvp_cb;
 	vec3 cam_pos;
+
+	GLuint u_wvpidx;
 public:
 	qegtest_app()
 		: app(L"libqeg test", vec2(640, 480), true),
@@ -124,25 +126,26 @@ public:
 #ifdef DIRECTX
 		, shader::layout_posnomtex, 3
 #endif
-			), 
-			wvp_cb(_dev, s, 1, mat4(1), shader_stage::vertex_shader)
+			)
+		//wvp_cb(_dev, s, 0, mat4(1), shader_stage::vertex_shader)
 	{
 		check_gl
-		wvp_cb.data(
-			perspectiveFov(45.f, 640.f, 480.f, .1f, 1000.f) * lookAt(vec3(0, 0, -15), vec3(0, 0, 0), vec3(0, 1, 0)));
+		//wvp_cb.data(
+		//	perspectiveFov(45.f, 640.f, 480.f, .1f, 1000.f) * lookAt(vec3(0, 0, -15), vec3(0, 0, 0), vec3(0, 1, 0)));
 		cam_pos = vec3(0, 5, -15);
 		//_dev->d2context()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::GreenYellow), &brush);		
 		m = create_box(_dev, "box0", 1);
 #ifdef OPENGL
-		glEnable(GL_CULL_FACE);
+		u_wvpidx = glGetUniformLocation(s.program_id(), "u_wvp");
+	/*	glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		glFrontFace(GL_CW);
+		glFrontFace(GL_CCW);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
 		glDepthFunc(GL_LEQUAL);
 		glDepthRange(0.0f, 1.0f);
-		glEnable(GL_DEPTH_CLAMP);
+		glEnable(GL_DEPTH_CLAMP);*/
 #elif DIRECTX
 		ID3D11RasterizerState* rs;
 		CD3D11_RASTERIZER_DESC rsd(D3D11_FILL_SOLID, D3D11_CULL_BACK, TRUE, 0, 0, 0, TRUE, FALSE, FALSE, FALSE);
@@ -170,8 +173,9 @@ public:
 		{
 			cam_pos.x -= 1;
 		}
-		wvp_cb.data(
-			perspectiveFov(45.f, 640.f, 480.f, .1f, 1000.f) * lookAt(cam_pos, vec3(0, 0, 0), vec3(0, 1, 0)));
+		auto wvp = perspectiveFov(45.f, 640.f, 480.f, .1f, 1000.f) * lookAt(cam_pos, vec3(0, 0, 0), vec3(0, 1, 0));
+		glUniformMatrix4fv(u_wvpidx, 1, GL_FALSE, &wvp[0][0]);
+		//wvp_cb.data(wvp);
 	}
 	
 	void resized() override
@@ -181,11 +185,11 @@ public:
 	void render(float t, float dt) override
 	{
 		s.bind(_dev);
-		wvp_cb.bind(_dev);
-		wvp_cb.update(_dev);
+	//	wvp_cb.bind(_dev);
+	//	wvp_cb.update(_dev);
 		s.update(_dev);
 		m->draw(_dev);
-		wvp_cb.unbind(_dev);
+	//	wvp_cb.unbind(_dev);
 		s.unbind(_dev);
 		//_dev->d2context()->BeginDraw();
 		//_dev->d2context()->DrawRectangle(D2D1::RectF(50, 50, 100, 100), brush.Get(), 5);

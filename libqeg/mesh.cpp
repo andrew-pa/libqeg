@@ -127,7 +127,7 @@ namespace qeg
 	}
 	mesh::~mesh()
 	{
-		glDeleteVertexArrays(1, &vtx_array); check_gl
+		//glDeleteVertexArrays(1, &vtx_array); check_gl
 	}
 
 	mesh_psnmtx::mesh_psnmtx(device* _dev, const vector<vec3>& pos, const vector<vec3>& norm, const vector<vec2>& tex,
@@ -152,21 +152,26 @@ namespace qeg
 		int index_offset, int oindex_count, int vertex_offset)
 	{
 		glBindVertexArray(vtx_array); check_gl
-			glEnableVertexAttribArray(0); check_gl
-			glBindBuffer(GL_ARRAY_BUFFER, positions_buffer()); check_gl
+		
+		glEnableVertexAttribArray(0); check_gl
+		glBindBuffer(GL_ARRAY_BUFFER, positions_buffer()); check_gl
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 
-		(void*)(vertex_offset*sizeof(vec3))); check_gl
+			(void*)(0)); check_gl
+		
 		glEnableVertexAttribArray(1); check_gl
 		glBindBuffer(GL_ARRAY_BUFFER, normals_buffer()); check_gl
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0,
-			(void*)(vertex_offset*sizeof(vec3))); check_gl
-			glEnableVertexAttribArray(2); check_gl
-			glBindBuffer(GL_ARRAY_BUFFER, texcoords_buffer()); check_gl
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0,
-			(void*)(vertex_offset*sizeof(vec2)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0,
+			(void*)(0)); check_gl
+		
+		glEnableVertexAttribArray(2); check_gl
+		glBindBuffer(GL_ARRAY_BUFFER, texcoords_buffer()); check_gl
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0,
+			(void*)(0));
+		
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer()); check_gl
-		glDrawElements((GLenum)dt, (oindex_count > 0 ? idxcnt : oindex_count), 
-		GL_UNSIGNED_SHORT, (void*)(index_offset*sizeof(uint16))); check_gl
+		
+		glDrawElements((GLenum)dt, (oindex_count == -1 ? idxcnt : oindex_count), 
+			GL_UNSIGNED_SHORT, (void*)0); check_gl
 	}
 
 	mesh_psnmtx::~mesh_psnmtx()
