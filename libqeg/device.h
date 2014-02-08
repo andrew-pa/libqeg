@@ -14,7 +14,6 @@ namespace qeg
 		HDC dc;
 		HGLRC rc;
 		vec2 _rtsize;
-		propr(vec2, size, { return _rtsize; });
 #endif
 #ifdef DIRECTX	
 	protected:		
@@ -56,7 +55,6 @@ namespace qeg
 
 
 		propr(D3D_FEATURE_LEVEL, feature_lvl, { return featureLevel; });
-		propr(vec2, size, { return win_bnds; });
 		propr(HWND, window, { return _window; });
 #endif
 #endif
@@ -77,6 +75,12 @@ namespace qeg
 		void update_render_target();
 		void present();
 		void resize(vec2 ns);
+		
+#ifdef OPENGL
+		propr(vec2, size, { return _rtsize; });
+#elif DIRECTX
+		propr(vec2, size, { return win_bnds; });
+#endif
 	};
 };
 

@@ -324,7 +324,10 @@ else
 
 		oss << ssource << "> " << ssev << "[" << stype << "] (" << id << ") " << msg;
 		if (sev == GL_DEBUG_SEVERITY_HIGH)
+		{
+			OutputDebugStringA(("GL error: " + oss.str()).c_str());
 			throw exception(("GL error: " + oss.str()).c_str());
+		}
 		else
 			OutputDebugStringA(oss.str().c_str());
 	}
@@ -424,6 +427,7 @@ else
 	
 	void device::resize(vec2 ns)
 	{
+		_rtsize = ns;
 	}
 
 	device::~device()
