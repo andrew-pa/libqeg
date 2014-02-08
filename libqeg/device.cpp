@@ -330,7 +330,7 @@ else
 	}
 
 	device::device(vec2 _s, HWND win_)
-		: dc(GetDC(win_))
+		: dc(GetDC(win_)), _rtsize(_s)
 	{
 		PIXELFORMATDESCRIPTOR pfd;
 		ZeroMemory(&pfd, sizeof(pfd));
@@ -353,7 +353,7 @@ else
 			WGL_CONTEXT_MAJOR_VERSION_ARB, 4, // Set the MAJOR version of OpenGL to 3
 			WGL_CONTEXT_MINOR_VERSION_ARB, 0, // Set the MINOR version of OpenGL to 2
 			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB
-#ifdef DEBUG
+#ifdef _DEBUG
 			| WGL_CONTEXT_DEBUG_BIT_ARB
 #endif
 			, // Set our OpenGL context to be forward compatible
@@ -382,7 +382,7 @@ else
 		glDebugMessageCallbackARB((GLDEBUGPROCARB)&debug_gl_callback, this);
 #endif
 
-		rt_sk.push(new render_texture2d(_rtsize, 0, 0));
+		rt_sk.push(new render_texture2d(vec2(-1,-1), 0, 0));
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -415,7 +415,10 @@ else
 	void device::update_render_target()
 	{	
 		glBindFramebuffer(GL_FRAMEBUFFER, rt_sk.top()->frame_buffer());
-		glViewport(0, 0, rt_sk.top()->size().x, rt_sk.top()->size().y);
+		if (rt_sk.top()->size().x == -1)
+			glViewport(0, 0, size().x, size().y);
+		else
+			glViewport(0, 0, rt_sk.top()->size().x, rt_sk.top()->size().y);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	
