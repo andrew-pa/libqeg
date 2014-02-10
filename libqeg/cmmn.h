@@ -29,6 +29,7 @@ using namespace glm;
 
 #ifdef WIN32
 #include <Windows.h>
+#include "vsdostream.h"
 #endif
 
 #ifdef DIRECTX
@@ -68,6 +69,13 @@ namespace qeg
 	inline float randfn() { return ((randf() * 2) - 1); }
 
 #define array_size(ar) sizeof(ar) / sizeof(ar[0])
+
+	static const ostream cdo = 
+	#ifdef WIN32
+		vsdostream();
+	#elif
+		std::cerr;
+	#endif
 
 #ifdef DIRECTX
 	//HRexception
