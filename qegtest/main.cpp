@@ -5,6 +5,7 @@
 #include <shader.h>
 #include <mesh.h>
 #include <constant_buffer.h>
+#include <camera.h>
 using namespace qeg;
 
 
@@ -134,7 +135,7 @@ class qegtest_app : public app
 	mesh* m;
 	shader s;
 	constant_buffer<mat4> wvp_cb;
-	vec3 cam_pos;
+	camera c;
 	//GLuint shaderp;
 	//GLuint VBO;
 
@@ -160,13 +161,15 @@ class qegtest_app : public app
 public:
 	qegtest_app()
 		: app(L"libqeg test", vec2(640, 480), true),
-		s(_dev, read_data_from_package(L"simple.vs.sh"), read_data_from_package(L"simple.ps.sh")
+		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso")
 #ifdef DIRECTX
 		, shader::layout_posnomtex, 3
 #endif
 			),
-			wvp_cb(_dev, s, 0, mat4(1), shader_stage::vertex_shader)
+			wvp_cb(_dev, s, 0, mat4(1), shader_stage::vertex_shader),
+			c(vec3(0, 0, -10), vec3(0, 0, 1), 45.f, _dev->size())
 	{
+		c.target(vec3(0, .1f, 0));
 		//shaderp = glCreateProgram();
 		//add_shader(pVS, GL_VERTEX_SHADER);
 		//add_shader(pFS, GL_FRAGMENT_SHADER);
@@ -206,11 +209,15 @@ public:
 
 	void update(float t, float dt) override
 	{
-		wvp_cb.data(perspectiveFov(45.f, _dev->size().x, _dev->size().y, 0.01f, 1000.f) * lookAt(vec3(0, 2, -5), vec3(0, 0.2f, 0), vec3(0, 1, 0)));
+		c.forward(sinf(t));
+		c.update_view();
+		wvp_cb.data(perspectiveFov(45.f, _dev->size().x, _dev->size().y, 0.01f, 1000.f) * c.view());
+			//lookAt(vec3(0, 2, -5), vec3(0, 0.2f, 0), vec3(0, 1, 0)));
 	}
 	
 	void resized() override
 	{
+		c.update_proj(_dev->size());
 	}
 
 	void render(float t, float dt) override
