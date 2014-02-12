@@ -47,8 +47,8 @@ namespace qeg
 				glBindBuffer(GL_UNIFORM_BUFFER, _buf); check_gl
 				glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_DYNAMIC_DRAW); check_gl
 				_ix = glGetUniformBlockIndex(sh.program_id(), "vs_reg_0"/*generate_block_name(slot, shs)*/); check_gl
-			if (_ix == GL_INVALID_INDEX)
-				OutputDebugString(L"Invalid Index");				
+				if (_ix == GL_INVALID_INDEX)
+					throw exception("glGetUniformBlockIndex returned a invalid index");			
 			glBindBufferRange(GL_UNIFORM_BUFFER, slot, _buf, 0, sizeof(T)); check_gl
 				glUniformBlockBinding(sh.program_id(), _ix, slot); check_gl
 				

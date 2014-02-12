@@ -234,9 +234,7 @@ namespace qeg
 		GLenum e;
 		if ((e = glGetError()) != GL_NO_ERROR)
 		{
-			ostringstream oss;
-			oss << "GL error: " << e << endl;
-			OutputDebugStringA(oss.str().c_str());
+			cdlog << "GL error: " << e << endl;
 			throw error_code_exception(e, "GL error");
 		}
 	}

@@ -160,16 +160,20 @@ class qegtest_app : public app
 
 public:
 	qegtest_app()
-		: app(L"libqeg test", vec2(640, 480), true),
+		: app(L"libqeg test", vec2(640, 480), false),
 		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso")
 #ifdef DIRECTX
 		, shader::layout_posnomtex, 3
 #endif
 			),
 			wvp_cb(_dev, s, 0, mat4(1), shader_stage::vertex_shader),
-			c(vec3(0, 0, -10), vec3(0, 0, 1), 45.f, _dev->size())
+			c(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size())
 	{
 		c.target(vec3(0, .1f, 0));
+	
+#ifdef OPENGL
+#endif
+		
 		//shaderp = glCreateProgram();
 		//add_shader(pVS, GL_VERTEX_SHADER);
 		//add_shader(pFS, GL_FRAGMENT_SHADER);
@@ -209,10 +213,35 @@ public:
 
 	void update(float t, float dt) override
 	{
-		c.forward(sinf(t));
+		if ((GetAsyncKeyState('W') & 0x8000) == 0x8000)
+			c.forward(5.f*dt);
+		if ((GetAsyncKeyState('S') & 0x8000) == 0x8000)
+			c.forward(-5.f*dt);
+
+		if ((GetAsyncKeyState('A') & 0x8000) == 0x8000)
+			c.straft(-5.f*dt);
+		if ((GetAsyncKeyState('D') & 0x8000) == 0x8000)
+			c.straft(5.f*dt);
+
+		if ((GetAsyncKeyState('Q') & 0x8000) == 0x8000)
+			c.position().y += 5.f*dt;
+		if ((GetAsyncKeyState('E') & 0x8000) == 0x8000)
+			c.position().y -= 5.f*dt;
+
+		if ((GetAsyncKeyState(VK_UP) & 0x8000) == 0x8000)
+			c.pitch(-30.f*dt);
+		if ((GetAsyncKeyState(VK_DOWN) & 0x8000) == 0x8000)
+			c.pitch(30.f*dt);
+
+		if ((GetAsyncKeyState(VK_LEFT) & 0x8000) == 0x8000)
+			c.transform(glm::rotate(mat4(1), -30.f*dt, vec3(0, 1, 0)));
+		if ((GetAsyncKeyState(VK_RIGHT) & 0x8000) == 0x8000)
+			c.transform(glm::rotate(mat4(1), 30.f*dt, vec3(0, 1, 0)));
+
+
 		c.update_view();
-		wvp_cb.data(perspectiveFov(45.f, _dev->size().x, _dev->size().y, 0.01f, 1000.f) * c.view());
-			//lookAt(vec3(0, 2, -5), vec3(0, 0.2f, 0), vec3(0, 1, 0)));
+		wvp_cb.data(c.projection()*c.view());//perspectiveFov(45.f, _dev->size().x, _dev->size().y, 0.01f, 1000.f) 
+			//*lookAt(vec3(3, 2, -5), vec3(0, 0.2f, 0), vec3(0, 1, 0)));
 	}
 	
 	void resized() override

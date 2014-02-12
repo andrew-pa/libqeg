@@ -15,7 +15,7 @@ namespace qeg
 		HWND wnd;
 #endif
 	public:
-		app(const wstring& title, vec2 winsize, bool vfps = false, float tmpf = 1.f / 100.f);
+		app(const wstring& title, vec2 winsize, bool vfps = false, float tmpf = 1.f / 1000.f);
 
 		~app() { delete _dev; }
 		

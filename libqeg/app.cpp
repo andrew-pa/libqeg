@@ -8,9 +8,8 @@ namespace qeg
 	static bool size_changed;
 
 	app::app(const wstring& title, vec2 winsize, bool vfps, float tmpf)
+		: fps(0), mpf(0), var_fps(vfps), targ_mpf(tmpf)
 	{
-		fps = 0; mpf = 0;
-		var_fps = var_fps; targ_mpf = targ_mpf;
 		this_app = this;
 		size_changed = false;
 		//Create Window
@@ -91,9 +90,8 @@ namespace qeg
 				{
 					fps = (float)fc;
 					mpf = 1000.f / fps;
-					wostringstream wos;
-					wos << ":FPS: FPS = " << fps << "\tMPF = " << mpf << endl;
-					OutputDebugString(wos.str().c_str());
+					cdlog << ":FPS: FPS = " << fps << "\tMPF = " << mpf << endl;
+				    //OutputDebugString(wos.str().c_str());
 					fc = 0;
 					ft = 0.0f;
 				}

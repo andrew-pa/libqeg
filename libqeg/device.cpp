@@ -325,11 +325,12 @@ else
 		oss << ssource << "> " << ssev << "[" << stype << "] (" << id << ") " << msg;
 		if (sev == GL_DEBUG_SEVERITY_HIGH)
 		{
-			OutputDebugStringA(("GL error: " + oss.str()).c_str());
+			cdlog << "GL error: " + oss.str();
+			//OutputDebugStringA(("GL error: " + oss.str()).c_str());
 			throw exception(("GL error: " + oss.str()).c_str());
 		}
 		else
-			OutputDebugStringA(oss.str().c_str());
+			cdlog << "GL: " << oss.str();//OutputDebugStringA(oss.str().c_str());
 	}
 
 	device::device(vec2 _s, HWND win_)

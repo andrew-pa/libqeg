@@ -47,13 +47,14 @@ namespace qeg
 	{
 		char buf[512];
 		GLsizei len = 0;
-		OutputDebugStringA(fn.c_str());
+		//OutputDebugStringA(fn.c_str());
 		glGetShaderInfoLog(shader, 512, &len, buf);
 		if (len > 0)
 		{
 			ostringstream oss;
 			oss << "Shader " << shader << " (" << fn << ")" << " error: " << buf;
-			OutputDebugStringA(buf);
+			cdlog << "Shader Compile Error:: " << oss.str() << endl;
+			//OutputDebugStringA(buf);
 			throw exception(oss.str().c_str());
 		}
 	}
@@ -91,9 +92,10 @@ namespace qeg
 			glGetProgramInfoLog(_id, 512, &len, buf);
 			if (len > 0)
 			{
-				OutputDebugString(L"GL Program error: ");
-				OutputDebugStringA(buf);
-				OutputDebugString(L"\n");
+				//OutputDebugString(L"GL Program error: ");
+				//OutputDebugStringA(buf);
+				//OutputDebugString(L"\n");
+				cdlog << "GL Program error: " << buf << endl;
 				throw exception(buf);
 			}
 			glValidateProgram(_id);

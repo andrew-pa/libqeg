@@ -1,7 +1,7 @@
 // This is a wrapper to make ::OutputDebugStringA behave like std::ostream
 // Derived from code written by Sven Axelsson
 // Documented: http://www.codeproject.com/KB/debug/debugout.aspx
-
+#pragma once
 #include <Windows.h>
 #include <ostream>
 #include <sstream>
@@ -19,7 +19,7 @@ namespace qeg
 			{        
 				sync();    
 			}
-			protected:    
+		protected:    
 			int sync() 
 			{       
 				output_debug_string(str().c_str());        
@@ -43,7 +43,7 @@ namespace qeg
 		{
 		public:
 			basic_dostream() 
-				: std::basic_ostream<CharT, TraitsT(new basic_debugbuf<CharT, TraitsT>()) {}   
+				: std::basic_ostream<CharT, TraitsT>(new basic_debugbuf<CharT, TraitsT>()) {}   
 				~basic_dostream()     
 				{        
 					delete rdbuf();     

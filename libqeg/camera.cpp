@@ -18,12 +18,15 @@ namespace qeg
 	void camera::update_view()
 	{
 		_look = normalize(_look);
-		_up = normalize(cross(_look, _right));
-		_right = cross(_up, _look);
+		_up = normalize(_up);
+		_right = cross(_look, _up);
+		_up = cross(_right, _look);
+		_view = lookAt(_pos, target(), _up);
+		//return;
 
 		float px = -dot(_pos, _right);
 		float py = -dot(_pos, _up);
-		float pz = -dot(_pos, _look);
+		float pz = dot(_pos, _look);
 
 		_view = mat4(1);
 		_view[0][0] = _right.x;
@@ -45,6 +48,6 @@ namespace qeg
 		_look = vec3(vec4(_look, 0)*t);
 		_up = vec3(vec4(_up, 0)*t);
 		_right = vec3(vec4(_right, 0)*t);
-		_pos = vec3(vec4(_pos, 1)*t);
+		//_pos = vec3(vec4(_pos, 1)*t);
 	}
 }

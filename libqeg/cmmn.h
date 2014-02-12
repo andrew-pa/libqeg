@@ -70,9 +70,9 @@ namespace qeg
 
 #define array_size(ar) sizeof(ar) / sizeof(ar[0])
 
-	static const ostream cdlog = 
+	static auto cdlog = 
 	#ifdef WIN32
-		vsdostream();
+		windows_dep::dostream();
 	#elif
 		std::cerr;
 	#endif

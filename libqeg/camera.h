@@ -15,7 +15,7 @@ namespace qeg
 		float _nz;
 		float _fz;
 	public:
-		camera(vec3 p, vec3 l, float fov_, vec2 ss, vec3 u = vec3(0, 1, 0), float nz_ = 0.01f, float fz_ = 0.01f);
+		camera(vec3 p, vec3 l, float fov_, vec2 ss, vec3 u = vec3(0, 1, 0), float nz_ = 0.01f, float fz_ = 1000.f);
 		camera(){}
 
 		void update_proj(vec2 size);
@@ -29,7 +29,10 @@ namespace qeg
 		proprw(vec3, position, { return _pos; });
 		proprw(vec3, look, { return _look; });
 		propr(vec3, target, { return _pos + _look; });
-		inline void target(vec3 p) { _look = p - _pos; }
+		void target(vec3 p)
+		{ 
+			_look = p - _pos;
+		}
 		proprw(vec3, up, { return _up; });
 		proprw(vec3, right, { return _right; });
 		proprw(float, fov, { return _fov; });

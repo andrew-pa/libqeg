@@ -118,6 +118,7 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="texture2d.h" />
     <ClInclude Include="timer.h" />
+    <ClInclude Include="vsdostream.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
