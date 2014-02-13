@@ -109,6 +109,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="app.h" />
+    <ClInclude Include="aux_cameras.h" />
     <ClInclude Include="basic_input.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cmmn.h" />
@@ -123,6 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="aux_cameras.cpp" />
     <ClCompile Include="basic_input.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="cmmn.cpp" />

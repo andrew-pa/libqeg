@@ -5,6 +5,7 @@ namespace qeg
 {
 	class camera
 	{
+	protected:
 		mat4 _proj;
 		mat4 _view;
 		vec3 _pos;
@@ -14,12 +15,13 @@ namespace qeg
 		float _fov;
 		float _nz;
 		float _fz;
+		camera(float fov_, float nz_, float fz_) : _fov(fov_), _nz(nz_), _fz(fz_) { }
 	public:
 		camera(vec3 p, vec3 l, float fov_, vec2 ss, vec3 u = vec3(0, 1, 0), float nz_ = 0.01f, float fz_ = 1000.f);
-		camera(){}
+		camera() : _proj(1), _view(1), _pos(0), _look(0), _up(0), _right(0), _fov(0), _nz(0), _fz(0){}
 
-		void update_proj(vec2 size);
-		void update_view();
+		virtual void update_proj(vec2 size);
+		virtual void update_view();
 
 		inline void look_at(vec3 p, vec3 targ, vec3 u) { _pos = p; target(targ); _up = u; }
 
