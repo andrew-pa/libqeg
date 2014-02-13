@@ -1,0 +1,24 @@
+#version 400 core
+
+layout(location = 0) in vec3 pos;
+layout(location = 1) in vec3 norm;
+layout(location = 2) in vec2 tex;
+
+layout(std140) uniform vs_reg_0
+{
+	mat4 wvp;
+} t;
+
+out vec3 posW;
+out vec3 normW;
+out vec2 texc;
+
+void main()
+{
+	vec4 v = vec4(pos, 1);
+	vec4 p = v*t.wvp;
+	gl_Position = p;
+	posW = pos;
+	normW = norm;
+	texc = tex;
+}

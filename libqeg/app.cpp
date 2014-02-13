@@ -1,5 +1,7 @@
 #include "app.h"
 #include "timer.h"
+#include "basic_input.h"
+#include <windowsx.h>
 
 namespace qeg
 {
@@ -26,6 +28,21 @@ namespace qeg
 				this_app->_dev->resize(vec2(LOWORD(lp), HIWORD(lp)));
 				size_changed = true;
 				return 0;
+			}
+			else if(msg == WM_MOUSEMOVE || msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP 
+				|| msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP || msg == WM_RBUTTONDOWN 
+				|| msg == WM_RBUTTONUP)
+			{
+				input::mouse::__update(vec2(GET_X_LPARAM(lp), GET_Y_LPARAM(lp)), 
+					check_flag(wp, MK_LBUTTON), check_flag(wp, MK_MBUTTON), check_flag(wp, MK_RBUTTON));
+			}
+			else if(msg == WM_KEYDOWN)
+			{
+				input::keyboard::__update((input::key)wp, true);
+			}
+			else if (msg == WM_KEYUP)
+			{
+				input::keyboard::__update((input::key)wp, false);
 			}
 			else if (msg == WM_DESTROY)
 			{

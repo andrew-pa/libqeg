@@ -6,6 +6,7 @@
 #include <mesh.h>
 #include <constant_buffer.h>
 #include <camera.h>
+#include <basic_input.h>
 using namespace qeg;
 
 
@@ -93,6 +94,81 @@ mesh* create_box(device* _dev, const string& name, float d)
 	return new mesh_psnmtx(_dev, p, n, t, vector<uint16>(i, i + 36), name);
 }
 
+const float pi = 3.14159;
+mesh* create_sphere(device* device, float radius, qeg::uint sliceCount, qeg::uint stackCount, const string& mesh_name)
+{
+	typedef vertex_position_normal_texture dvertex;
+
+	vector<vec3> p, n;
+	vector<vec2> t;
+	std::vector<uint16> indices;
+
+	dvertex topv(0.0f, +radius, 0.0f, 0.0f, +1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+	dvertex botv(0.0f, -radius, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+
+	p.push_back(vec3(0, radius, 0)); n.push_back(vec3(0, 1, 0)); t.push_back(vec2(0, 0));
+
+	float dphi = pi / stackCount;
+	float dtheta = 2.0f*pi / sliceCount;
+
+	for (UINT i = 1; i <= stackCount - 1; ++i)
+	{
+		float phi = i*dphi;
+		for (UINT j = 0; j <= sliceCount; ++j)
+		{
+			float theta = j*dtheta;
+			vec3 pos;
+			pos.x = radius * sinf(phi) * cosf(theta);
+			pos.y = radius * cosf(phi);
+			pos.z = radius * sinf(phi) * sinf(theta);
+			p.push_back(pos);
+			n.push_back(normalize(pos));
+			t.push_back(vec2(theta / pi*2, phi / pi));
+			/*auto P = XMLoadFloat3(&v.pos);
+			XMStoreFloat3(&v.norm, XMVector3Normalize(P));
+			v.texc = float2(theta / XM_2PI, phi / XM_PI);*/
+			//vertices->push_back(v);
+		}
+	}
+
+	p.push_back(vec3(0, -radius, 0)); n.push_back(vec3(0, -1, 0)); t.push_back(vec2(0, 1));
+
+	//vertices->push_back(botv);
+
+	for (uint16 i = 1; i <= sliceCount; ++i)
+	{
+		indices.push_back(0);
+		indices.push_back(i + 1);
+		indices.push_back(i);
+	}
+
+	uint16 bi = 1;
+	uint16 rvc = sliceCount + 1;
+	for (uint16 i = 0; i < stackCount - 2; ++i)
+	{
+		for (qeg::uint j = 0; j < sliceCount; ++j)
+		{
+			indices.push_back(bi + i*rvc + j);
+			indices.push_back(bi + i*rvc + j + 1);
+			indices.push_back(bi + (i + 1)*rvc + j);
+			indices.push_back(bi + (i + 1)*rvc + j);
+			indices.push_back(bi + (i*rvc + j + 1));
+			indices.push_back(bi + (i + 1)*rvc + j + 1);
+		}
+	}
+
+	uint16 spi = (uint16)p.size() - 1;
+	bi = spi - rvc;
+	for (qeg::uint i = 0; i < sliceCount; ++i)
+	{
+		indices.push_back(spi);
+		indices.push_back(bi + i);
+		indices.push_back(bi + i + 1);
+	}
+
+
+	return new mesh_psnmtx(device, p, n, t, indices, mesh_name);
+}
 
 #include <DirectXMath.h>
 mat4x4 dx_perspectiveFov(float fov, float width, float height, float znear, float zfar)
@@ -134,7 +210,16 @@ class qegtest_app : public app
 
 	mesh* m;
 	shader s;
-	constant_buffer<mat4> wvp_cb;
+	struct wvpcbd
+	{
+		mat4 wvp;
+		mat4 inw;
+		vec4 t;
+		wvpcbd() {}
+		wvpcbd(mat4 a, mat4 b, vec4 _t)
+			: wvp(a), inw(b), t(_t){}
+	};
+	constant_buffer<wvpcbd> wvp_cb;
 	camera c;
 	//GLuint shaderp;
 	//GLuint VBO;
@@ -161,12 +246,12 @@ class qegtest_app : public app
 public:
 	qegtest_app()
 		: app(L"libqeg test", vec2(640, 480), false),
-		s(_dev, read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso")
+		s(_dev, read_data_from_package(L"simple.vs.sh"), read_data_from_package(L"simple.ps.sh")
 #ifdef DIRECTX
 		, shader::layout_posnomtex, 3
 #endif
 			),
-			wvp_cb(_dev, s, 0, mat4(1), shader_stage::vertex_shader),
+			wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
 			c(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size())
 	{
 		c.target(vec3(0, .1f, 0));
@@ -193,7 +278,7 @@ public:
 		//	OutputDebugStringA(ErrorLog);
 		//}
 		//glUseProgram(shaderp);
-		m = create_box(_dev, "box0", 1);
+		m = create_sphere(_dev, 1.f, 6400, 6400, "sphere0");//create_box(_dev, "box0", 1);
 		//vec3 Vertices[3];
 		//Vertices[0] = vec3(-1.0f, -1.0f, 0.0f);
 		//Vertices[1] = vec3(1.0f, -1.0f, 0.0f);
@@ -213,34 +298,49 @@ public:
 
 	void update(float t, float dt) override
 	{
-		if ((GetAsyncKeyState('W') & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::key_w))
 			c.forward(5.f*dt);
-		if ((GetAsyncKeyState('S') & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::key_s))
 			c.forward(-5.f*dt);
 
-		if ((GetAsyncKeyState('A') & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::key_a))
 			c.straft(-5.f*dt);
-		if ((GetAsyncKeyState('D') & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::key_d))
 			c.straft(5.f*dt);
 
-		if ((GetAsyncKeyState('Q') & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::key_q))
 			c.position().y += 5.f*dt;
-		if ((GetAsyncKeyState('E') & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::key_e))
 			c.position().y -= 5.f*dt;
 
-		if ((GetAsyncKeyState(VK_UP) & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::up)) //(GetAsyncKeyState(VK_UP) & 0x8000) == 0x8000)
 			c.pitch(-30.f*dt);
-		if ((GetAsyncKeyState(VK_DOWN) & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::down))
 			c.pitch(30.f*dt);
-
-		if ((GetAsyncKeyState(VK_LEFT) & 0x8000) == 0x8000)
+		
+		if (input::keyboard::get_state().key_down(input::key::left))
 			c.transform(glm::rotate(mat4(1), -30.f*dt, vec3(0, 1, 0)));
-		if ((GetAsyncKeyState(VK_RIGHT) & 0x8000) == 0x8000)
+		if (input::keyboard::get_state().key_down(input::key::right))
 			c.transform(glm::rotate(mat4(1), 30.f*dt, vec3(0, 1, 0)));
 
-
+		if(input::mouse::get_state().right)
+		{
+			c.fov() += 45.f*dt;
+			c.update_proj(_dev->size());
+		}
+		if (input::mouse::get_state().left)
+		{
+			c.fov() -= 45.f*dt;
+			c.update_proj(_dev->size());
+		}
+  
 		c.update_view();
-		wvp_cb.data(c.projection()*c.view());//perspectiveFov(45.f, _dev->size().x, _dev->size().y, 0.01f, 1000.f) 
+		wvp_cb.data(wvpcbd(c.projection()*c.view()*
+			rotate(mat4(1), t * 100, vec3(.2f, .7f, .6f)), glm::inverse(transpose(rotate(mat4(1), t * 100, vec3(.2f, .7f, .6f)))), vec4(t)));
+		//wvp_cb.data().wvp = mat4(c.projection()*c.view()*
+		//	rotate(mat4(1), t * 100, vec3(.2f, .7f, .6f)));
+		//wvp_cb.data().inw = inverse(transpose(rotate(mat4(1), t * 100, vec3(.2f, .7f, .6f)));
+		//wvp_cb.data();//perspectiveFov(45.f, _dev->size().x, _dev->size().y, 0.01f, 1000.f) 
 			//*lookAt(vec3(3, 2, -5), vec3(0, 0.2f, 0), vec3(0, 1, 0)));
 	}
 	

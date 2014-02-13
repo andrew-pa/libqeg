@@ -326,7 +326,7 @@ else
 		if (sev == GL_DEBUG_SEVERITY_HIGH)
 		{
 			cdlog << "GL error: " + oss.str();
-			//OutputDebugStringA(("GL error: " + oss.str()).c_str());
+			OutputDebugStringA(("GL error: " + oss.str()).c_str());
 			throw exception(("GL error: " + oss.str()).c_str());
 		}
 		else

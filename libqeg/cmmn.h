@@ -70,6 +70,8 @@ namespace qeg
 
 #define array_size(ar) sizeof(ar) / sizeof(ar[0])
 
+#define check_flag(v, f) (((v)&(f))==(f))
+
 	static auto cdlog = 
 	#ifdef WIN32
 		windows_dep::dostream();

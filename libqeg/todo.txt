@@ -1,6 +1,7 @@
 
 - Cameras
-- ConstBuf
+- Good Mouse Camera control
+- improve shader situation
 - Texture loading (dds)
 - Shaders (phong, ...)
 
