@@ -6,6 +6,7 @@
 #include <mesh.h>
 #include <constant_buffer.h>
 #include <camera.h>
+#include <aux_cameras.h>
 #include <basic_input.h>
 using namespace qeg;
 
@@ -94,7 +95,6 @@ mesh* create_box(device* _dev, const string& name, float d)
 	return new mesh_psnmtx(_dev, p, n, t, vector<uint16>(i, i + 36), name);
 }
 
-const float pi = 3.14159;
 mesh* create_sphere(device* device, float radius, qeg::uint sliceCount, qeg::uint stackCount, const string& mesh_name)
 {
 	typedef vertex_position_normal_texture dvertex;
@@ -185,7 +185,9 @@ class qegtest_app : public app
 			: wvp(a), inw(b), t(_t){}
 	};
 	constant_buffer<wvpcbd> wvp_cb;
-	camera c;
+	orbit_camera c;
+	float theta;
+	float phi;
 
 public:
 	qegtest_app()
@@ -198,7 +200,8 @@ public:
 #endif
 			),
 			wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
-			c(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size())
+			c(0, 0.1f, 5.f, vec3(0), 45.f, _dev->size()),//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
+			theta(0), phi(0.1f)
 	{
 		c.target(vec3(0, .1f, 0));
 
@@ -214,30 +217,39 @@ public:
 
 	void update(float t, float dt) override
 	{
-		if (input::keyboard::get_state().key_down(input::key::key_w))
-			c.forward(5.f*dt);
-		if (input::keyboard::get_state().key_down(input::key::key_s))
-			c.forward(-5.f*dt);
+		//if (input::keyboard::get_state().key_down(input::key::key_w))
+		//	c.forward(5.f*dt);
+		//if (input::keyboard::get_state().key_down(input::key::key_s))
+		//	c.forward(-5.f*dt);
 
-		if (input::keyboard::get_state().key_down(input::key::key_a))
-			c.straft(-5.f*dt);
-		if (input::keyboard::get_state().key_down(input::key::key_d))
-			c.straft(5.f*dt);
+		//if (input::keyboard::get_state().key_down(input::key::key_a))
+		//	c.straft(-5.f*dt);
+		//if (input::keyboard::get_state().key_down(input::key::key_d))
+		//	c.straft(5.f*dt);
 
-		if (input::keyboard::get_state().key_down(input::key::key_q))
-			c.position().y += 5.f*dt;
-		if (input::keyboard::get_state().key_down(input::key::key_e))
-			c.position().y -= 5.f*dt;
+		//if (input::keyboard::get_state().key_down(input::key::key_q))
+		//	c.position().y += 5.f*dt;
+		//if (input::keyboard::get_state().key_down(input::key::key_e))
+		//	c.position().y -= 5.f*dt;
 
-		if (input::keyboard::get_state().key_down(input::key::up)) //(GetAsyncKeyState(VK_UP) & 0x8000) == 0x8000)
-			c.pitch(-30.f*dt);
-		if (input::keyboard::get_state().key_down(input::key::down))
-			c.pitch(30.f*dt);
-		
-		if (input::keyboard::get_state().key_down(input::key::left))
-			c.transform(glm::rotate(mat4(1), -30.f*dt, vec3(0, 1, 0)));
-		if (input::keyboard::get_state().key_down(input::key::right))
-			c.transform(glm::rotate(mat4(1), 30.f*dt, vec3(0, 1, 0)));
+		//if (input::keyboard::get_state().key_down(input::key::up)) //(GetAsyncKeyState(VK_UP) & 0x8000) == 0x8000)
+		//	c.pitch(-30.f*dt);
+		//if (input::keyboard::get_state().key_down(input::key::down))
+		//	c.pitch(30.f*dt);
+		//
+		//if (input::keyboard::get_state().key_down(input::key::left))
+		//	c.transform(glm::rotate(mat4(1), -30.f*dt, vec3(0, 1, 0)));
+		//if (input::keyboard::get_state().key_down(input::key::right))
+		//	c.transform(glm::rotate(mat4(1), 30.f*dt, vec3(0, 1, 0)));
+
+		c.update(dt);
+
+
+		/*c.position().x = 5.f * sinf(radians(phi)) * cosf(radians(theta));
+		c.position().z = 5.f * sinf(radians(phi)) * sinf(radians(theta));
+		c.position().y = 5.f * cosf(radians(phi));
+		c.look_at(c.position(), vec3(0), vec3(0, 1, 0));*/
+
 
 		if(input::mouse::get_state().right)
 		{

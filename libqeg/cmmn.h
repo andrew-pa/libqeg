@@ -72,6 +72,8 @@ namespace qeg
 
 #define check_flag(v, f) (((v)&(f))==(f))
 
+	const float pi = 3.141592653589793238462643383279502884197169399375105820974944592307816406286f;
+
 	static auto cdlog = 
 	#ifdef WIN32
 		windows_dep::dostream();

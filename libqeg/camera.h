@@ -15,11 +15,12 @@ namespace qeg
 		float _fov;
 		float _nz;
 		float _fz;
-		camera(float fov_, float nz_, float fz_) : _fov(fov_), _nz(nz_), _fz(fz_) { }
+		camera(float fov_, float nz_, float fz_) : _fov(fov_), _nz(nz_), _fz(fz_), _up(0, 1, 0), _look(0, 0, 1), _right(1, 0, 0), _pos(5, 5, 5) { }
 	public:
 		camera(vec3 p, vec3 l, float fov_, vec2 ss, vec3 u = vec3(0, 1, 0), float nz_ = 0.01f, float fz_ = 1000.f);
 		camera() : _proj(1), _view(1), _pos(0), _look(0), _up(0), _right(0), _fov(0), _nz(0), _fz(0){}
 
+		virtual void update(float dt) { }
 		virtual void update_proj(vec2 size);
 		virtual void update_view();
 

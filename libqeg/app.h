@@ -9,13 +9,13 @@ namespace qeg
 	protected:
 		device* _dev;
 		float fps; float mpf;
-		float var_fps; float targ_mpf;
+		bool var_fps; float targ_mpf;
 
 #ifdef WIN32
 		HWND wnd;
 #endif
 	public:
-		app(const wstring& title, vec2 winsize, bool vfps = false, float tmpf = 1.f / 1000.f);
+		app(const wstring& title, vec2 winsize, bool vfps = false, float tmpf = 1.f/70.f);
 
 		~app() { delete _dev; }
 		

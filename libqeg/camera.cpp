@@ -18,15 +18,17 @@ namespace qeg
 	void camera::update_view()
 	{
 		_look = normalize(_look);
+		if (length(_right) == 0.0f)
+			cdlog << "error!";
 		_up = normalize(_up);
 		_right = cross(_look, _up);
 		_up = cross(_right, _look);
-		_view = lookAt(_pos, target(), _up);
+//		_view = lookAt(_pos, target(), _up);
 		//return;
 
-		float px = -dot(_pos, _right);
-		float py = -dot(_pos, _up);
-		float pz = dot(_pos, _look);
+		float px = -dot(_right, _pos);
+		float py = -dot(_up, _pos);
+		float pz = dot(_look, _pos);
 
 		_view = mat4(1);
 		_view[0][0] = _right.x;

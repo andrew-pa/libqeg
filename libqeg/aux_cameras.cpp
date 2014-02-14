@@ -36,14 +36,34 @@ namespace qeg
 	orbit_camera::orbit_camera(float t, float p, float r, vec3 tar, float fov_, vec2 ss, float nz_, float fz_)
 		: camera(fov_, nz_, fz_), th(t), ph(p), ra(r)
 	{
-		target(tar);
+		_up = vec3(0, 1, 0);
+		_right = cross(_up, _look);
 		update_view();
 		update_proj(ss);
 	}
 
+	void orbit_camera::update(float dt)
+	{
+		if (input::keyboard::get_state().key_down(input::key::left))
+			th += (45.f)*dt;
+		if (input::keyboard::get_state().key_down(input::key::right))
+			th -= (45.f)*dt;
+		if (input::keyboard::get_state().key_down(input::key::up))
+			ph -= (45.f)*dt;
+		if (input::keyboard::get_state().key_down(input::key::down))
+			ph += 45.f*dt;
+		if (input::keyboard::get_state().key_down(input::key::next))
+			ra += (5.f)*dt;
+		if (input::keyboard::get_state().key_down(input::key::prior))
+			ra -= 5.f*dt;
+	}
+
 	void orbit_camera::update_view()
 	{
-		
+		_pos.x = ra*sinf(radians(ph))*cosf(radians(th));
+		_pos.y = ra*cosf(radians(ph));
+		_pos.z = ra*sinf(radians(ph))*sinf(radians(th));
+		look_at(_pos, vec3(0), vec3(0,1,0));
 		camera::update_view();
 	}
 }

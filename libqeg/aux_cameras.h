@@ -16,7 +16,7 @@ namespace qeg
 		proprw(float, move_speed, { return ms; });
 		proprw(float, rotate_speed, { return rs; });
 
-		void update(float dt);
+		void update(float dt) override;
 	};
 
 	class orbit_camera :
@@ -32,7 +32,7 @@ namespace qeg
 		proprw(float, phi, { return ph; });
 		proprw(float, radius, { return ra; });
 
-		void update(float dt);
+		void update(float dt) override;
 		void update_view() override;
 	};
 }

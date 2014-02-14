@@ -74,4 +74,9 @@ namespace qeg
 			glDeleteTextures(1, &_id);
 	}
 #endif
+
+    texture2d* texture2d::load_dds(device& dev, datablob<byte>* data)
+	{
+
+	}
 }
