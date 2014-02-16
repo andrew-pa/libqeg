@@ -388,6 +388,7 @@ else
 
 		rt_sk.push(new render_texture2d(vec2(-1,-1), 0, 0));
 
+		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glClearColor(1.f, .5f, 0.f, 0.f);

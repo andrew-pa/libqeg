@@ -55,6 +55,7 @@ using Microsoft::WRL::ComPtr;
 #include <GL/wglew.h>
 #pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "SOIL.lib")
 #endif
 
 namespace qeg
@@ -175,7 +176,7 @@ namespace qeg
 		RG32_UINT = GL_RG32UI,
 		RG32_SINT = GL_RG32I,
 		RGBA8_TYPELESS = GL_RGBA8UI,
-		RGBA8_UNORM = GL_RGBA8,
+		RGBA8_UNORM = GL_RGBA,
 		RGBA8_UINT = GL_RGBA8UI,
 		RGBA8_SNORM = GL_RGBA8_SNORM,
 		RGBA8_SINT = GL_RGBA8I,
@@ -200,6 +201,7 @@ namespace qeg
 		R8_UINT = GL_R8UI,
 		R8_SNORM = GL_R8_SNORM,
 		R8_SINT = GL_R8I,
+		BGR8_UNORM = GL_BGR,
 	};
 
 	//get_gl_format_type

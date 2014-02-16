@@ -8,6 +8,7 @@
 #include <camera.h>
 #include <aux_cameras.h>
 #include <basic_input.h>
+#include <texture2d.h>
 using namespace qeg;
 
 
@@ -186,8 +187,8 @@ class qegtest_app : public app
 	};
 	constant_buffer<wvpcbd> wvp_cb;
 	orbit_camera c;
-	float theta;
-	float phi;
+
+	texture2d* tx;
 
 public:
 	qegtest_app()
@@ -200,12 +201,14 @@ public:
 #endif
 			),
 			wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
-			c(0, 0.1f, 5.f, vec3(0), 45.f, _dev->size()),//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
-			theta(0), phi(0.1f)
+			c(45, 45, 5.f, vec3(0), 45.f, _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
 	{
 		c.target(vec3(0, .1f, 0));
 
-		m = create_sphere(_dev, 1.f, 64, 64, "sphere0");//create_box(_dev, "box0", 1);
+		m = create_sphere(_dev, 1, 64, 64, "s0"); //create_box(_dev, "box0", 1);
+
+		tx = texture2d::load_dds(_dev, read_data_from_package(L"img_test.bmp"));
+
 #ifdef DIRECTX
 		ID3D11RasterizerState* rs;
 		CD3D11_RASTERIZER_DESC rsd(D3D11_FILL_SOLID, D3D11_CULL_BACK, TRUE, 0, 0, 0, TRUE, FALSE, FALSE, FALSE);
@@ -217,39 +220,7 @@ public:
 
 	void update(float t, float dt) override
 	{
-		//if (input::keyboard::get_state().key_down(input::key::key_w))
-		//	c.forward(5.f*dt);
-		//if (input::keyboard::get_state().key_down(input::key::key_s))
-		//	c.forward(-5.f*dt);
-
-		//if (input::keyboard::get_state().key_down(input::key::key_a))
-		//	c.straft(-5.f*dt);
-		//if (input::keyboard::get_state().key_down(input::key::key_d))
-		//	c.straft(5.f*dt);
-
-		//if (input::keyboard::get_state().key_down(input::key::key_q))
-		//	c.position().y += 5.f*dt;
-		//if (input::keyboard::get_state().key_down(input::key::key_e))
-		//	c.position().y -= 5.f*dt;
-
-		//if (input::keyboard::get_state().key_down(input::key::up)) //(GetAsyncKeyState(VK_UP) & 0x8000) == 0x8000)
-		//	c.pitch(-30.f*dt);
-		//if (input::keyboard::get_state().key_down(input::key::down))
-		//	c.pitch(30.f*dt);
-		//
-		//if (input::keyboard::get_state().key_down(input::key::left))
-		//	c.transform(glm::rotate(mat4(1), -30.f*dt, vec3(0, 1, 0)));
-		//if (input::keyboard::get_state().key_down(input::key::right))
-		//	c.transform(glm::rotate(mat4(1), 30.f*dt, vec3(0, 1, 0)));
-
 		c.update(dt);
-
-
-		/*c.position().x = 5.f * sinf(radians(phi)) * cosf(radians(theta));
-		c.position().z = 5.f * sinf(radians(phi)) * sinf(radians(theta));
-		c.position().y = 5.f * cosf(radians(phi));
-		c.look_at(c.position(), vec3(0), vec3(0, 1, 0));*/
-
 
 		if(input::mouse::get_state().right)
 		{
@@ -275,9 +246,13 @@ public:
 	void render(float t, float dt) override
 	{
 		s.bind(_dev);
+		tx->bind(_dev, 0);
+		auto i = glGetUniformLocation(s.program_id(), "tex");
+		glUniform1i(i, 0);
 		wvp_cb.bind(_dev);
 		wvp_cb.update(_dev);
 		m->draw(_dev);
+		tx->unbind(_dev, 0);
 		wvp_cb.unbind(_dev);
 		s.unbind(_dev);
 	}

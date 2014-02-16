@@ -138,6 +138,9 @@
   <ItemGroup>
     <Text Include="todo.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="dds_loader.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

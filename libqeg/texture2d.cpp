@@ -1,5 +1,12 @@
 #include "texture2d.h"
 
+#ifdef DIRECTX
+#include "dds_loader.h"
+#elif OPENGL
+#include <SOIL.h>
+//#include <gli/gli.hpp>
+#endif
+
 namespace qeg
 {
 #ifdef DIRECTX
@@ -30,6 +37,15 @@ namespace qeg
 		chr(dev.ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
 	}
 
+
+	texture2d::texture2d(ComPtr<ID3D11ShaderResourceView> srv_)
+		: srv(srv_)
+	{
+		ComPtr<ID3D11Resource> rs;
+		srv->GetResource(&rs);
+		rs.As(&texd);
+	}
+
 	void texture2d::bind(device& dev, int slot)
 	{
 		dev.context()->PSSetShaderResources(slot, 1, srv.GetAddressOf());
@@ -45,7 +61,7 @@ namespace qeg
 #endif
 
 #ifdef OPENGL
-	texture2d::texture2d(device& dev, vec2 size_, pixel_format f, void* data, bool gen_mips)
+	texture2d::texture2d(device* dev, vec2 size_, pixel_format f, void* data, bool gen_mips)
 		: _size(size_)
 	{
 		glGenTextures(1, &_id);
@@ -56,13 +72,13 @@ namespace qeg
 			glGenerateMipmap(GL_TEXTURE_2D);
 	}
 
-	void texture2d::bind(device& dev, int slot)
+	void texture2d::bind(device* dev, int slot)
 	{
 		glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GL_TEXTURE_2D, _id);
 	}
 
-	void texture2d::unbind(device& dev, int slot)
+	void texture2d::unbind(device* dev, int slot)
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -75,8 +91,31 @@ namespace qeg
 	}
 #endif
 
-    texture2d* texture2d::load_dds(device& dev, datablob<byte>* data)
+#ifdef DIRECTX
+	texture2d* texture2d::load_dds(device* dev, datablob<byte>* data)
 	{
-
+		ID3D11ShaderResourceView* tv;
+		qeg::dds_loader::CreateDDSTextureFromMemory(dev->ddevice().Get(), data->data, data->length, nullptr, &tv, 2048);
+		return new texture2d(tv);
 	}
+#elif OPENGL
+	texture2d* texture2d::load_dds(device* dev, datablob<byte>* data)
+	{
+		int width, height, chn;
+		unsigned char* image =
+			SOIL_load_image_from_memory(data->data, data->length, &width, &height, &chn, SOIL_LOAD_RGBA);//SOIL_load_image("img.png", &width, &height, 0, SOIL_LOAD_RGB);
+		GLuint ti;
+		glGenTextures(1, &ti);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, ti);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+			GL_UNSIGNED_BYTE, image);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		return new texture2d(vec2(width, height), ti);
+	}
+#endif
 }
