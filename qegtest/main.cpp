@@ -9,6 +9,7 @@
 #include <aux_cameras.h>
 #include <basic_input.h>
 #include <texture2d.h>
+#include <states.h>
 using namespace qeg;
 
 
@@ -189,25 +190,33 @@ class qegtest_app : public app
 	orbit_camera c;
 
 	texture2d* tx;
+	sampler_state smpl;
 
 public:
 	qegtest_app()
-		: app(L"libqeg test", vec2(640, 480), false),
-		s(_dev, 
+		: app(
+#ifdef DIRECTX
+			L"libqeg test (DirectX)", 
+#elif OPENGL
+			L"libqeg test (OpenGL)",
+#endif
+			vec2(640, 480), false),
+		s(_dev,
 #ifdef OPENGL
 		read_data_from_package(L"simple.vs.sh"), read_data_from_package(L"simple.ps.sh")
 #elif DIRECTX
 		read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso"), shader::layout_posnomtex, 3
 #endif
-			),
-			wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
-			c(45, 45, 5.f, vec3(0), 45.f, _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
+		),
+		wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
+		c(45, 45, 5.f, vec3(0), 45.f, _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
+		, smpl(_dev)
 	{
 		c.target(vec3(0, .1f, 0));
 
 		m = create_sphere(_dev, 1, 64, 64, "s0"); //create_box(_dev, "box0", 1);
 
-		tx = texture2d::load_dds(_dev, read_data_from_package(L"img_test.bmp"));
+		tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 
 #ifdef DIRECTX
 		ID3D11RasterizerState* rs;
@@ -221,17 +230,6 @@ public:
 	void update(float t, float dt) override
 	{
 		c.update(dt);
-
-		if(input::mouse::get_state().right)
-		{
-			c.fov() += 45.f*dt;
-			c.update_proj(_dev->size());
-		}
-		if (input::mouse::get_state().left)
-		{
-			c.fov() -= 45.f*dt;
-			c.update_proj(_dev->size());
-		}
   
 		c.update_view();
 		auto world = mat4(1);// rotate(mat4(1), t * 100, vec3(.2f, .7f, .6f));
@@ -247,9 +245,11 @@ public:
 	{
 		s.bind(_dev);
 		tx->bind(_dev, 0, s);
+		smpl.bind(_dev, 0);
 		wvp_cb.bind(_dev);
 		wvp_cb.update(_dev);
 		m->draw(_dev);
+		smpl.unbind(_dev, 0);
 		tx->unbind(_dev, 0);
 		wvp_cb.unbind(_dev);
 		s.unbind(_dev);

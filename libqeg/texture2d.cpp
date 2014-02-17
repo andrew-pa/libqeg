@@ -10,7 +10,7 @@
 namespace qeg
 {
 #ifdef DIRECTX
-	texture2d::texture2d(device& dev, vec2 size_, pixel_format f, void* data, bool gen_mips, size_t sys_pitch)
+	texture2d::texture2d(device* dev, vec2 size_, pixel_format f, void* data, bool gen_mips, size_t sys_pitch)
 		: _size(size_)
 	{
 		CD3D11_TEXTURE2D_DESC txd((DXGI_FORMAT)f, size_.x, size_.y, 1U, 0U,
@@ -19,8 +19,8 @@ namespace qeg
 		D3D11_SUBRESOURCE_DATA initdata = { 0 };
 		initdata.pSysMem = data;
 		initdata.SysMemPitch = sys_pitch;
-		chr(dev.ddevice()->CreateTexture2D(&txd, (data == nullptr ? nullptr : &initdata), &texd));
-		chr(dev.ddevice()->CreateShaderResourceView(texd.Get(), &srd, &srv));
+		chr(dev->ddevice()->CreateTexture2D(&txd, (data == nullptr ? nullptr : &initdata), &texd));
+		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srd, &srv));
 	}
 
 	texture2d::texture2d(device& dev, CD3D11_TEXTURE2D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc)
@@ -46,14 +46,15 @@ namespace qeg
 		rs.As(&texd);
 	}
 
-	void texture2d::bind(device& dev, int slot, shader& s)
+	void texture2d::bind(device* dev, int slot, shader& s)
 	{
-		dev.context()->PSSetShaderResources(slot, 1, srv.GetAddressOf());
+		dev->context()->PSSetShaderResources(slot, 1, srv.GetAddressOf());
 	}
 
-	void texture2d::unbind(device& dev, int slot, shader& s)
+	void texture2d::unbind(device* dev, int slot)
 	{
-		dev.context()->PSSetShaderResources(slot, 1, nullptr);
+		ID3D11ShaderResourceView* srvnll[] = { nullptr };
+		dev->context()->PSSetShaderResources(slot, 1, srvnll);
 	}
 
 
