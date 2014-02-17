@@ -246,9 +246,7 @@ public:
 	void render(float t, float dt) override
 	{
 		s.bind(_dev);
-		tx->bind(_dev, 0);
-		auto i = glGetUniformLocation(s.program_id(), "tex");
-		glUniform1i(i, 0);
+		tx->bind(_dev, 0, s);
 		wvp_cb.bind(_dev);
 		wvp_cb.update(_dev);
 		m->draw(_dev);

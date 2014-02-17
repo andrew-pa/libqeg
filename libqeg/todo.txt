@@ -1,8 +1,10 @@
 
+- Const Buffer GL fix
+- Texture binding
+- Textures w/ SOIL on all platforms
 - Cameras
 - Good Mouse Camera control
 - improve shader situation
-- Texture loading (dds)
 - Shaders (phong, ...)
 
 

@@ -46,12 +46,12 @@ namespace qeg
 		rs.As(&texd);
 	}
 
-	void texture2d::bind(device& dev, int slot)
+	void texture2d::bind(device& dev, int slot, shader& s)
 	{
 		dev.context()->PSSetShaderResources(slot, 1, srv.GetAddressOf());
 	}
 
-	void texture2d::unbind(device& dev, int slot)
+	void texture2d::unbind(device& dev, int slot, shader& s)
 	{
 		dev.context()->PSSetShaderResources(slot, 1, nullptr);
 	}
@@ -70,12 +70,22 @@ namespace qeg
 			size_.x, size_.y, 0, (GLenum)f, get_gl_format_type(f), data);
 		if (gen_mips)
 			glGenerateMipmap(GL_TEXTURE_2D);
+	}		
+	
+	const GLchar* generate_tex_name(int slot)
+	{
+		GLchar* nm = new GLchar[32];
+		sprintf(nm, "tex_%i", slot);
+		return nm;
 	}
 
-	void texture2d::bind(device* dev, int slot)
+	void texture2d::bind(device* dev, int slot, shader& s)
 	{
 		glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GL_TEXTURE_2D, _id);
+
+		auto i = glGetUniformLocation(s.program_id(), generate_tex_name(slot));
+		glUniform1i(i, slot);
 	}
 
 	void texture2d::unbind(device* dev, int slot)

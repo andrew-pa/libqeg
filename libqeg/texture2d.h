@@ -1,6 +1,7 @@
 #pragma once
 #include "cmmn.h"
 #include "device.h"
+#include "shader.h"
 
 namespace qeg
 {
@@ -34,7 +35,7 @@ namespace qeg
 		static texture2d* load_dds(device* dev, datablob<byte>* data);
 		//static texture2d* load_bmp(device& dev, datablob<byte>* data);
 
-		void bind(device* dev, int slot);
+		void bind(device* dev, int slot, shader& s);
 		void unbind(device* dev, int slot);
 
 		propr(vec2, size, { return _size; });

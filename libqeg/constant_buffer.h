@@ -20,16 +20,16 @@ namespace qeg
 		GLuint _buf;
 		GLuint _ix;
 
-		GLchar* generate_block_name(int slot, shader_stage shs)
+		const GLchar* generate_block_name(int slot, shader_stage shs)
 		{
-			ostringstream oss;
+			GLchar* nm = new GLchar[32];
+			GLchar* shss = new GLchar[8];
 			if(shs == shader_stage::vertex_shader)
-				oss << "vs_";
+				shss = "vs";
 			else if(shs == shader_stage::pixel_shader)
-				oss << "ps_";
-			oss << "reg_" << slot;
-			string s = oss.str();
-			return (GLchar*)oss.str().c_str();
+				shss = "ps";
+			sprintf(nm, "%s_block_%i", shss, slot);
+			return nm;
 		}
 #endif
 	public:
@@ -46,7 +46,7 @@ namespace qeg
 			glGenBuffers(1, &_buf); check_gl
 				glBindBuffer(GL_UNIFORM_BUFFER, _buf); check_gl
 				glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_DYNAMIC_DRAW); check_gl
-				_ix = glGetUniformBlockIndex(sh.program_id(), "vs_reg_0"/*generate_block_name(slot, shs)*/); check_gl
+				_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs)); check_gl
 				if (_ix == GL_INVALID_INDEX)
 					throw exception("glGetUniformBlockIndex returned a invalid index");			
 			glBindBufferRange(GL_UNIFORM_BUFFER, slot, _buf, 0, sizeof(T)); check_gl
