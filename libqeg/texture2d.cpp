@@ -4,7 +4,6 @@
 #include "dds_loader.h"
 #elif OPENGL
 #include <SOIL.h>
-//#include <gli/gli.hpp>
 #endif
 
 namespace qeg
@@ -46,15 +45,31 @@ namespace qeg
 		rs.As(&texd);
 	}
 
-	void texture2d::bind(device* dev, int slot, shader& s)
+	void texture2d::bind(device* dev, int slot, shader_stage ss, shader& s)
 	{
-		dev->context()->PSSetShaderResources(slot, 1, srv.GetAddressOf());
+		switch (ss)
+		{
+		case qeg::shader_stage::pixel_shader:
+			dev->context()->PSSetShaderResources(slot, 1, srv.GetAddressOf());
+			return;
+		case qeg::shader_stage::vertex_shader:
+			dev->context()->VSSetShaderResources(slot, 1, srv.GetAddressOf());
+			return;
+		}
 	}
 
-	void texture2d::unbind(device* dev, int slot)
+	void texture2d::unbind(device* dev, int slot, shader_stage ss)
 	{
-		ID3D11ShaderResourceView* srvnll[] = { nullptr };
-		dev->context()->PSSetShaderResources(slot, 1, srvnll);
+		ID3D11ShaderResourceView* srvnll[] = { nullptr };		
+		switch (ss)
+		{
+		case qeg::shader_stage::pixel_shader:
+			dev->context()->PSSetShaderResources(slot, 1, srvnll);
+			return;
+		case qeg::shader_stage::vertex_shader:
+			dev->context()->VSSetShaderResources(slot, 1, srvnll);
+			return;
+		}
 	}
 
 
@@ -73,23 +88,28 @@ namespace qeg
 			glGenerateMipmap(GL_TEXTURE_2D);
 	}		
 	
-	const GLchar* generate_tex_name(int slot)
+	const GLchar* generate_tex_name(int slot, shader_stage ss)
 	{
 		GLchar* nm = new GLchar[32];
-		sprintf(nm, "tex_%i", slot);
+		GLchar* shss = new GLchar[8];
+		if(ss == shader_stage::vertex_shader)
+			shss = "vs";
+		else if(ss == shader_stage::pixel_shader)
+			shss = "ps";
+		sprintf(nm, "%s_tex_%i", shss, slot);
 		return nm;
 	}
 
-	void texture2d::bind(device* dev, int slot, shader& s)
+	void texture2d::bind(device* dev, int slot, shader_stage ss, shader& s)
 	{
 		glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GL_TEXTURE_2D, _id);
 
-		auto i = glGetUniformLocation(s.program_id(), generate_tex_name(slot));
+		auto i = glGetUniformLocation(s.program_id(), generate_tex_name(slot, ss));
 		glUniform1i(i, slot);
 	}
 
-	void texture2d::unbind(device* dev, int slot)
+	void texture2d::unbind(device* dev, int slot, shader_stage ss)
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}

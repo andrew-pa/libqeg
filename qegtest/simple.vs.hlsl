@@ -26,8 +26,8 @@ cbuffer vs_reg_0 : register(b0)
 VertexShaderOutput main(VertexShaderInput input)
 {
 	VertexShaderOutput output;
-	float4 pos = float4(input.pos, 1.0f);// +input.norm*float3(sin(t.x*.2f + input.pos.z * 3),
-	//	cos(t.y*.6f + input.pos.y * 3), sin(t.x*.3f + input.pos.x * 3)), 1.0f);
+	float4 pos = float4(input.pos + input.norm*float3(sin(t.x*.2f + input.pos.z * 3),
+		cos(t.y*.6f + input.pos.y * 3), sin(t.x*.3f + input.pos.x * 3)), 1.0f);
 	output.posW = pos;
 	pos = mul(pos, wvp);
 	//pos.z = (pos.z + 1) / 2;

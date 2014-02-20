@@ -68,10 +68,18 @@ namespace qeg
 #endif
 	}
 
-	void sampler_state::bind(device* _dev, int slot)
+	void sampler_state::bind(device* _dev, int slot, shader_stage ss)
 	{
 #ifdef DIRECTX
-		_dev->context()->PSSetSamplers(slot, 1, sampl_state.GetAddressOf());
+		switch (ss)
+		{
+		case qeg::shader_stage::pixel_shader:
+			_dev->context()->PSSetSamplers(slot, 1, sampl_state.GetAddressOf());
+			return;
+		case qeg::shader_stage::vertex_shader:
+			_dev->context()->VSSetSamplers(slot, 1, sampl_state.GetAddressOf());
+			return;
+		}
 #elif OPENGL
 		glActiveTexture(GL_TEXTURE0 + slot);
 		if(min_filter == texture_filter::anisotropic)
@@ -115,11 +123,19 @@ namespace qeg
 #endif
 	}
 
-	void sampler_state::unbind(device* _dev, int slot)
+	void sampler_state::unbind(device* _dev, int slot, shader_stage ss)
 	{
 #ifdef DIRECTX
-		ID3D11SamplerState* nullsmps[] = { nullptr };
-		_dev->context()->PSSetSamplers(slot, 1, nullsmps);
+		ID3D11SamplerState* nullsmps[] = { nullptr };		
+		switch (ss)
+		{
+		case qeg::shader_stage::pixel_shader:
+			_dev->context()->PSSetSamplers(slot, 1, nullsmps);
+			return;
+		case qeg::shader_stage::vertex_shader:
+			_dev->context()->VSSetSamplers(slot, 1, nullsmps);
+			return;
+		}
 #elif OPENGL
 		//could do something here, but why?
 #endif

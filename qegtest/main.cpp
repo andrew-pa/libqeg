@@ -244,13 +244,13 @@ public:
 	void render(float t, float dt) override
 	{
 		s.bind(_dev);
-		tx->bind(_dev, 0, s);
-		smpl.bind(_dev, 0);
+		tx->bind(_dev, 0, shader_stage::pixel_shader, s);
+		smpl.bind(_dev, 0, shader_stage::pixel_shader);
 		wvp_cb.bind(_dev);
 		wvp_cb.update(_dev);
 		m->draw(_dev);
-		smpl.unbind(_dev, 0);
-		tx->unbind(_dev, 0);
+		smpl.unbind(_dev, 0, shader_stage::pixel_shader);
+		tx->unbind(_dev, 0, shader_stage::pixel_shader);
 		wvp_cb.unbind(_dev);
 		s.unbind(_dev);
 	}

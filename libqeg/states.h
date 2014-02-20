@@ -53,8 +53,8 @@ namespace qeg
 			uint max_ansio = 16, vec4 bordercolor = vec4(.5f, .5f, .5f, 1),
 			float mipLODbias = 0, float minLOD = -FLT_MAX, float maxLOD = FLT_MAX);
 
-		void bind(device* _dev, int slot);
+		void bind(device* _dev, int slot, shader_stage ss);
 		void update(device* _dev);
-		void unbind(device* _dev, int slot);
+		void unbind(device* _dev, int slot, shader_stage ss);
 	};
 }

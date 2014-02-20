@@ -1,11 +1,10 @@
 
-- Const Buffer GL fix
-- Texture binding
-- Textures w/ SOIL on all platforms
-- Cameras
-- Good Mouse Camera control
+
 - improve shader situation
+- Good Mouse Camera control
+- Geometry and Tessellation shaders?
 - Shaders (phong, ...)
+- Textures w/ SOIL on all platforms
 
 
 - Create a device wide buffer pool, so that you can allocate a whole bunch of buffers at the same time, at least for GL

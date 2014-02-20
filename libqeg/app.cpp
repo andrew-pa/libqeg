@@ -117,7 +117,7 @@ namespace qeg
 					if (tm.delta_time() < targ_mpf)
 					{
 						float missing = targ_mpf - tm.delta_time();
-						Sleep(ceil(missing * 1000));
+						Sleep((DWORD)ceil(missing * 1000));
 					}
 				}
 				//Sleep(10);
