@@ -57,4 +57,52 @@ namespace qeg
 		void update(device* _dev);
 		void unbind(device* _dev, int slot, shader_stage ss);
 	};
+
+	enum class fill_mode 
+	{
+#ifdef DIRECTX
+		wireframe = D3D11_FILL_WIREFRAME,
+		solid = D3D11_FILL_SOLID,
+#elif OPENGL
+		//wireframe = GL_LINE,
+		solid = GL_FILL,
+#endif
+	};
+
+	enum class cull_mode
+	{
+#ifdef DIRECTX
+		none = D3D11_CULL_NONE,
+		front = D3D11_CULL_FRONT,
+		back = D3D11_CULL_BACK,
+#elif OPENGL
+		none = -1,
+		front = GL_FRONT,
+		back = GL_BACK,
+#endif
+	};
+
+	struct rasterizer_state
+	{
+#ifdef DIRECTX
+		ComPtr<ID3D11RasterizerState> rss;
+#endif
+	public:
+		fill_mode fillmode;
+		cull_mode cullmode;
+		bool front_tri_cw;
+		int depth_bias;
+		float slope_scaled_depth_bias;
+		rasterizer_state(device* _dev, fill_mode fm = fill_mode::solid, cull_mode cm = cull_mode::back,
+			bool fcc = 
+#ifdef DIRECTX
+			true, //stupid hack
+#elif OPENGL
+			false,
+#endif
+			int db = 0, float ssdb = 0);
+		void bind(device* _dev);
+		void update(device* _dev);
+		void unbind(device* _dev);
+	};
 }

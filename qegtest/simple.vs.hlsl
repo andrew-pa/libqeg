@@ -16,7 +16,7 @@ struct VertexShaderOutput
 
 };
 
-cbuffer vs_reg_0 : register(b0)
+cbuffer __raeawegaweagw_ : register(b0)
 {
 	float4x4 wvp;
 	float4x4 inw;

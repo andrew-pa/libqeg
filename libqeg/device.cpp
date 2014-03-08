@@ -57,6 +57,10 @@ namespace qeg
 		chr(_device.As(&dxgidevice));
 		chr(_d2factory->CreateDevice(dxgidevice.Get(), &_d2device));
 		chr(_d2device->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &_d2context));
+		
+		CD3D11_RASTERIZER_DESC rsd(D3D11_FILL_SOLID, D3D11_CULL_BACK, TRUE, 0, 0, 0, TRUE, FALSE, FALSE, FALSE);
+		_device->CreateRasterizerState(&rsd, &default_rsstate);
+		_bind_default_rs_state();
 	}
 
 	void device::create_window_size_depres()

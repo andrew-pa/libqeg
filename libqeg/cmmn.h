@@ -21,10 +21,9 @@ using namespace std;
 #define propr(t, n, gc) inline t n() const gc
 
 //using GLM for GL and DX because I am lazy
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_projection.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/matrix_operation.hpp>
 using namespace glm;
 
 #ifdef WIN32
@@ -60,10 +59,10 @@ using Microsoft::WRL::ComPtr;
 
 namespace qeg
 {
-	typedef unsigned int uint;
-	typedef unsigned int uint32;
-	typedef unsigned short uint16;
-	typedef unsigned char uint8;
+	//typedef unsigned int uint;
+	//typedef unsigned int uint32;
+	//typedef unsigned short uint16;
+	//typedef unsigned char uint8;
 	typedef unsigned char byte;
 
 	inline float randf() { return ((float)rand() / (float)RAND_MAX); }

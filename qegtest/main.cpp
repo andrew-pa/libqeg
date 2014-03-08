@@ -97,7 +97,7 @@ mesh* create_box(device* _dev, const string& name, float d)
 	return new mesh_psnmtx(_dev, p, n, t, vector<uint16>(i, i + 36), name);
 }
 
-mesh* create_sphere(device* device, float radius, qeg::uint sliceCount, qeg::uint stackCount, const string& mesh_name)
+mesh* create_sphere(device* device, float radius, uint sliceCount, uint stackCount, const string& mesh_name)
 {
 	typedef vertex_position_normal_texture dvertex;
 
@@ -148,7 +148,7 @@ mesh* create_sphere(device* device, float radius, qeg::uint sliceCount, qeg::uin
 	uint16 rvc = sliceCount + 1;
 	for (uint16 i = 0; i < stackCount - 2; ++i)
 	{
-		for (qeg::uint j = 0; j < sliceCount; ++j)
+		for (uint j = 0; j < sliceCount; ++j)
 		{
 			indices.push_back(bi + i*rvc + j);
 			indices.push_back(bi + i*rvc + j + 1);
@@ -161,7 +161,7 @@ mesh* create_sphere(device* device, float radius, qeg::uint sliceCount, qeg::uin
 
 	uint16 spi = (uint16)p.size() - 1;
 	bi = spi - rvc;
-	for (qeg::uint i = 0; i < sliceCount; ++i)
+	for (uint i = 0; i < sliceCount; ++i)
 	{
 		indices.push_back(spi);
 		indices.push_back(bi + i);
@@ -191,7 +191,6 @@ class qegtest_app : public app
 
 	texture2d* tx;
 	sampler_state smpl;
-
 public:
 	qegtest_app()
 		: app(
@@ -209,7 +208,7 @@ public:
 #endif
 		),
 		wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
-		c(45, 45, 5.f, vec3(0), 45.f, _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
+		c(45, 45, 5.f, vec3(0), radians(45.f), _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
 		, smpl(_dev)
 	{
 		c.target(vec3(0, .1f, 0));
@@ -218,19 +217,11 @@ public:
 
 		tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 
-#ifdef DIRECTX
-		ID3D11RasterizerState* rs;
-		CD3D11_RASTERIZER_DESC rsd(D3D11_FILL_SOLID, D3D11_CULL_BACK, TRUE, 0, 0, 0, TRUE, FALSE, FALSE, FALSE);
-		
-		_dev->ddevice()->CreateRasterizerState(&rsd, &rs);
-		_dev->context()->RSSetState(rs);
-#endif
 	}
 
 	void update(float t, float dt) override
 	{
 		c.update(dt);
-  
 		c.update_view();
 		auto world = mat4(1);// rotate(mat4(1), t * 100, vec3(.2f, .7f, .6f));
 		wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t)));
@@ -261,3 +252,76 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE, LPSTR cmdLine, int cmdShow)
 	qegtest_app a;
 	a.run();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+////random code
+//
+////ray gen -> intersect -> shade -> final
+//
+//struct ray { vec3 o, d; vec2 screen_pos; uint lvl; };
+//
+//vector<ray> gen_ray()
+//{
+//}
+//
+//struct hitrec { float t; vec3 n; vec2 texc; ray r; };
+//
+//vector<hitrec> intersect(const vector<ray>& r)
+//{
+//}
+//
+//vector<vec3> shade(const vector<hitrec>& hrs, vector<ray>& nxt)
+//{
+//}
+//
+//template <typename T>
+//vector<T> op(const vector<T>& a, const vector<T>& b, function<T(const T& a, const T& b)> fn)
+//{
+//	vector<T> res;
+//
+//	for (int i = 0; i < a.size() && i < b.size(); ++i)
+//	{
+//		res.push_back(fn(a[i], b[i]));
+//	}
+//
+//	return res;
+//}
+//
+//vector<vec3> raytrace()
+//{
+//	vector<vec3> frmbuffer;
+//	auto rs = gen_ray();
+//	auto hr = intersect(rs);
+//	vector<ray> nrs; vector<vec3> surf1;
+//	auto surf0 = shade(hr, nrs);
+//	uint idx = 0;
+//	while(idx < 10)
+//	{
+//		auto r = op<vec3>(surf0, (surf1 = shade(intersect(nrs), rs)), [&](const vec3& a, const vec3& b) { return a * b; });
+//		frmbuffer = op<vec3>(frmbuffer, r, [&](const vec3& a, const vec3& b) { return a + b; });
+//		swap(rs, nrs);
+//		rs.clear();
+//		swap(surf0, surf1);
+//		surf1.clear();
+//		idx++;
+//	}
+//	return frmbuffer;
+//}
+//
+////0 surf indrct0
+////surf*indrct0 surf1 indrct1
+////surf*indrct0 + surf1*indrct1

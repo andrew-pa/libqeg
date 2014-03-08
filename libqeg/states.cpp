@@ -140,6 +140,62 @@ namespace qeg
 		//could do something here, but why?
 #endif
 	}
+
+
+
+
+	rasterizer_state::rasterizer_state(device* _dev, fill_mode fm, cull_mode cm,
+		bool fcc, int db,  float ssdb)
+		: fillmode(fm), cullmode(cm), front_tri_cw(fcc), depth_bias(db), slope_scaled_depth_bias(ssdb)
+	{
+#ifdef DIRECTX
+		CD3D11_RASTERIZER_DESC rsd((D3D11_FILL_MODE)fm, (D3D11_CULL_MODE) cm, fcc, db, 0.f, ssdb, TRUE, FALSE, FALSE, FALSE);
+		_dev->ddevice()->CreateRasterizerState(&rsd, &rss);
+#elif OPENGL
+#endif
+	}
+
+	void rasterizer_state::bind(device* _dev)
+	{
+#ifdef DIRECTX
+		_dev->context()->RSSetState(rss.Get());
+#elif OPENGL
+		if (cullmode == cull_mode::none)
+			glDisable(GL_CULL_FACE);
+		else
+		{
+			glEnable(GL_CULL_FACE);
+			glCullFace((GLenum)cullmode);
+			
+		}
+		glFrontFace(front_tri_cw ? GL_CW : GL_CCW);
+		if (depth_bias != 0 || slope_scaled_depth_bias != 0)
+			glPolygonOffset(slope_scaled_depth_bias, depth_bias);
+		else
+			glPolygonOffset(0, 0);
+#endif
+	}
+
+	void rasterizer_state::update(device* _dev)
+	{
+#ifdef DIRECTX
+		CD3D11_RASTERIZER_DESC rsd((D3D11_FILL_MODE)fillmode, (D3D11_CULL_MODE)cullmode, front_tri_cw, depth_bias, 0.f, slope_scaled_depth_bias, TRUE, FALSE, FALSE, FALSE);
+		_dev->ddevice()->CreateRasterizerState(&rsd, &rss);
+#elif OPENGL
+#endif
+	}
+
+	void rasterizer_state::unbind(device* _dev)
+	{
+#ifdef DIRECTX
+		_dev->_bind_default_rs_state();
+#elif OPENGL
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+		glPolygonOffset(0, 0);
+#endif
+	}
 }
 
 

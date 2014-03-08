@@ -44,6 +44,13 @@ namespace qeg
 		ComPtr<ID2D1Device> _d2device;
 		ComPtr<ID2D1DeviceContext> _d2context;
 		ComPtr<ID2D1Bitmap1> d2target_bitmap;
+
+		ComPtr<ID3D11RasterizerState> default_rsstate;
+
+		void _bind_default_rs_state()
+		{
+			_context->RSSetState(default_rsstate.Get());
+		}
 	public:
 		propr(ComPtr<ID3D11Device2>, ddevice, { return _device; });
 		propr(ComPtr<ID3D11DeviceContext2>, context, { return _context; });
@@ -80,6 +87,7 @@ namespace qeg
 		propr(vec2, size, { return _rtsize; });
 #elif DIRECTX
 		propr(vec2, size, { return win_bnds; });
+		friend struct rasterizer_state; //for _bind_default_rs_state
 #endif
 	};
 };

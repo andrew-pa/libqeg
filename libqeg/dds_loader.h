@@ -24,7 +24,7 @@
 
 #ifdef DIRECTX
 using namespace Microsoft::WRL;
-typedef uint uint32;
+//typedef uint uint32;
 namespace qeg
 {
 	namespace dds_loader

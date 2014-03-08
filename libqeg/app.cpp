@@ -108,7 +108,8 @@ namespace qeg
 					fps = (float)fc;
 					mpf = 1000.f / fps;
 					cdlog << ":FPS: FPS = " << fps << "\tMPF = " << mpf << endl;
-				    //OutputDebugString(wos.str().c_str());
+					cdlog.flush();
+					//OutputDebugString(wos.str().c_str());
 					fc = 0;
 					ft = 0.0f;
 				}
@@ -119,7 +120,7 @@ namespace qeg
 						float missing = targ_mpf - tm.delta_time();
 						Sleep((DWORD)ceil(missing * 1000));
 					}
-				}
+				}					
 				//Sleep(10);
 			}
 		}
