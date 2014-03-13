@@ -1,38 +1,29 @@
 #pragma pack_matrix( row_major )
-
-struct VertexShaderInput
+struct __shader_input_t
 {
-	float3 pos : POSITION;
-	float3 norm : NORMAL;
-	float2 texc : TEXCOORD;
+float3 pos : POSITION;
+float3 norm : NORMAL;
+float2 tex : TEXCOORD;
 };
-
-struct VertexShaderOutput
+struct __shader_output_t
 {
-	float4 pos : SV_POSITION;
-	float3 posW : POSITION;
-	float2 texc : TEXCOORD0;
-	float3 normW : NORMAL;
-
+float4 pos : SV_POSITION;
+float3 posW : POSITION;
+float3 normW : NORMAL;
+float2 texc : TEXCOORD;
 };
-
-cbuffer __raeawegaweagw_ : register(b0)
-{
-	float4x4 wvp;
-	float4x4 inw;
-	float4 t;
+cbuffer ___reg_0___ : register(b0){
+float4x4 wvp;
+float4x4 inw;
+float4 t;
 };
-
-VertexShaderOutput main(VertexShaderInput input)
-{
-	VertexShaderOutput output;
-	float4 pos = float4(input.pos + input.norm*float3(sin(t.x*.2f + input.pos.z * 3),
-		cos(t.y*.6f + input.pos.y * 3), sin(t.x*.3f + input.pos.x * 3)), 1.0f);
-	output.posW = pos;
-	pos = mul(pos, wvp);
-	//pos.z = (pos.z + 1) / 2;
-	output.pos = pos;
-	output.texc = input.texc;
-	output.normW = mul(input.norm, inw);
-	return output;
+__shader_output_t main(__shader_input_t input){
+__shader_output_t output;
+float4 v = float4(input.pos + input.norm * float3(sin(t.x * .2 + input.pos.z * 3.0), cos(t.x * .6 + input.pos.y * 3.0), sin(t.x * .3 + input.pos.x * 3.0)), 1);
+float4 p = mul(v, wvp);
+output.pos = p;
+output.posW = input.pos;
+output.normW = mul(float4(input.norm, 0), inw);
+output.texc = input.tex;
+return output;
 }
