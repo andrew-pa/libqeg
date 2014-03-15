@@ -202,7 +202,7 @@ public:
 			vec2(640, 480), false),
 		s(_dev,
 #ifdef OPENGL
-		read_data_from_package(L"simple.vs.sh"), read_data_from_package(L"simple.ps.sh")
+		read_data_from_package(L"simple.vs.glsl"), read_data_from_package(L"simple.ps.glsl")
 #elif DIRECTX
 		read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso"), shader::layout_posnomtex, 3
 #endif

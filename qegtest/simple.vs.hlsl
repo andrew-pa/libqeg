@@ -23,7 +23,7 @@ float4 v = float4(input.pos + input.norm * float3(sin(t.x * .2 + input.pos.z * 3
 float4 p = mul(v, wvp);
 output.pos = p;
 output.posW = input.pos;
-output.normW = mul(float4(input.norm, 0), inw);
+output.normW = mul(float4(input.norm, 0), inw).xyz;
 output.texc = input.tex;
 return output;
 }

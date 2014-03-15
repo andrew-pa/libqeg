@@ -64,7 +64,8 @@ namespace qeg
 		{
 			_idvp = glCreateShader(GL_VERTEX_SHADER);
 			const GLchar* vsd = (GLchar*)vs_data->data;
-			glShaderSource(_idvp, 1, &vsd, nullptr);
+			const GLint vsl = vs_data->length;
+			glShaderSource(_idvp, 1, &vsd, &vsl);
 			glCompileShader(_idvp);
 			validate_shader(_idvp, (GLchar*)vs_data->data);
 		}
@@ -73,7 +74,8 @@ namespace qeg
 		{			
 			_idfp = glCreateShader(GL_FRAGMENT_SHADER);
 			const GLchar* psd = (GLchar*)ps_data->data;
-			glShaderSource(_idfp, 1, &psd, nullptr);
+			const GLint psl = ps_data->length;
+			glShaderSource(_idfp, 1, &psd, &psl);
 			glCompileShader(_idfp);
 			validate_shader(_idfp, (GLchar*)ps_data->data);
 		}
