@@ -7,19 +7,19 @@ namespace qeg
 	template <typename index_type>
 	struct format_for_index_type
 	{
-		static const pixel_format format = pixel_format::UNKNOWN;
+		static const buffer_format format = buffer_format::UNKNOWN;
 	};
 
 	template <>
 	struct format_for_index_type<uint32>
 	{
-		static const pixel_format format = pixel_format::R32_UINT;
+		static const buffer_format format = buffer_format::R32_UINT;
 	};
 
 	template <>
 	struct format_for_index_type<uint16>
 	{
-		static const pixel_format format = pixel_format::R16_UINT;
+		static const buffer_format format = buffer_format::R16_UINT;
 	};
 
 #ifdef OPENGL

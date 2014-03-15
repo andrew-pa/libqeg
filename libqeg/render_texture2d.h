@@ -17,7 +17,7 @@ namespace qeg
 		GLuint depthbuf;
 #endif
 	public:
-		render_texture2d(device& dev, vec2 size, pixel_format f = pixel_format::RGBA32_FLOAT);
+		render_texture2d(device& dev, vec2 size, buffer_format f = buffer_format::RGBA32_FLOAT);
 		~render_texture2d();
 
 #ifdef DIRECTX

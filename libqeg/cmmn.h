@@ -99,9 +99,9 @@ namespace qeg
 		}
 	}
 
-	//pixel_format
-	//format of a pixel, used to describe textures, render targets
-	enum class pixel_format
+	//buffer_format
+	//format of a pixel, used to describe textures, render targets, buffers
+	enum class buffer_format
 	{
 		UNKNOWN = DXGI_FORMAT_UNKNOWN,
 		RGBA32_TYPELESS = DXGI_FORMAT_R32G32B32A32_TYPELESS,
@@ -153,7 +153,9 @@ namespace qeg
 #endif
 
 #ifdef OPENGL	
-	enum class pixel_format
+	//buffer_format
+	//format of a pixel, used to describe textures, render targets, buffers
+	enum class buffer_format
 	{
 		UNKNOWN = GL_NONE,
 		RGBA32_TYPELESS = GL_RGBA32UI,
@@ -205,17 +207,17 @@ namespace qeg
 
 	//get_gl_format_type
 	// returns values like GL_FLOAT
-	GLenum get_gl_format_type(pixel_format f);
+	GLenum get_gl_format_type(buffer_format f);
 
 	//get_gl_format_internal
 	// returns values like GL_RGBA
-	GLenum get_gl_format_internal(pixel_format f);
+	GLenum get_gl_format_internal(buffer_format f);
 
 	void __check_gl();
 #define check_gl __check_gl();
 #endif
 
-	//ErrorCodeexception
+	//error_code_exception
 	// exception the resulted from a error code that is failing
 	struct error_code_exception : public exception
 	{

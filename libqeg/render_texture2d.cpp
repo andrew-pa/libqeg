@@ -3,7 +3,7 @@
 namespace qeg
 {
 #ifdef DIRECTX
-	render_texture2d::render_texture2d(device& dev, vec2 size_, pixel_format f)
+	render_texture2d::render_texture2d(device& dev, vec2 size_, buffer_format f)
 		: texture2d(dev, CD3D11_TEXTURE2D_DESC((DXGI_FORMAT)f, size_.x, size_.y, 1, 1, 
 			D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE))
 	{
@@ -22,7 +22,7 @@ namespace qeg
 	{
 	}
 #elif defined(OPENGL)
-	render_texture2d::render_texture2d(device& dev, vec2 size, pixel_format f)
+	render_texture2d::render_texture2d(device& dev, vec2 size, buffer_format f)
 	{	
 		glGenFramebuffers(1, &framebuf);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuf);
