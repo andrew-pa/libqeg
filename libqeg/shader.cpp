@@ -10,6 +10,7 @@ namespace qeg
 		{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 1, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    2, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
+
 	shader::shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data, 
 		const D3D11_INPUT_ELEMENT_DESC lo[], size_t cnt)
 	{
@@ -18,6 +19,66 @@ namespace qeg
 		if (ps_data != nullptr)
 			chr(_dev->ddevice()->CreatePixelShader(ps_data->data, ps_data->length, nullptr, &pixel_sh));
 		chr(_dev->ddevice()->CreateInputLayout(lo, cnt, vs_data->data, vs_data->length, &inplo));
+	}	
+	
+	shader::shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data)
+	{
+		if (vs_data != nullptr)
+			chr(_dev->ddevice()->CreateVertexShader(vs_data->data, vs_data->length, nullptr, &vertex_sh));
+		if (ps_data != nullptr)
+			chr(_dev->ddevice()->CreatePixelShader(ps_data->data, ps_data->length, nullptr, &pixel_sh));
+
+		ID3D11ShaderReflection* vsref;
+		chr(D3DReflect(vs_data->data, vs_data->length,
+			IID_ID3D11ShaderReflection, (void**)&vsref));
+		D3D11_SHADER_DESC shd;
+		vsref->GetDesc(&shd);
+
+		vector<D3D11_INPUT_ELEMENT_DESC> eled;
+		for (uint i = 0; i < shd.InputParameters; ++i)
+		{
+			D3D11_SIGNATURE_PARAMETER_DESC pd;
+			vsref->GetInputParameterDesc(i, &pd);
+
+			D3D11_INPUT_ELEMENT_DESC ed;
+			ed.SemanticName = pd.SemanticName;
+			ed.SemanticIndex = pd.SemanticIndex;
+			ed.InputSlot = 0;
+			ed.AlignedByteOffset = i == 0 ? 0 : D3D11_APPEND_ALIGNED_ELEMENT;
+			ed.InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+			ed.InstanceDataStepRate = 0;
+
+			if (pd.Mask == 1)
+			{
+				if (pd.ComponentType == D3D_REGISTER_COMPONENT_UINT32)  ed.Format = DXGI_FORMAT_R32_UINT;
+				else if (pd.ComponentType == D3D_REGISTER_COMPONENT_SINT32)  ed.Format = DXGI_FORMAT_R32_SINT;
+				else if (pd.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) ed.Format = DXGI_FORMAT_R32_FLOAT;
+			}
+			else if (pd.Mask <= 3)
+			{
+				if (pd.ComponentType == D3D_REGISTER_COMPONENT_UINT32)  ed.Format = DXGI_FORMAT_R32G32_UINT;
+				else if (pd.ComponentType == D3D_REGISTER_COMPONENT_SINT32)  ed.Format = DXGI_FORMAT_R32G32_SINT;
+				else if (pd.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) ed.Format = DXGI_FORMAT_R32G32_FLOAT;
+			}
+			else if (pd.Mask <= 7)
+			{
+				if (pd.ComponentType == D3D_REGISTER_COMPONENT_UINT32)  ed.Format = DXGI_FORMAT_R32G32B32_UINT;
+				else if (pd.ComponentType == D3D_REGISTER_COMPONENT_SINT32)  ed.Format = DXGI_FORMAT_R32G32B32_SINT;
+				else if (pd.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) ed.Format = DXGI_FORMAT_R32G32B32_FLOAT;
+			}
+			else if (pd.Mask <= 15)
+			{
+				if (pd.ComponentType == D3D_REGISTER_COMPONENT_UINT32)  ed.Format = DXGI_FORMAT_R32G32B32A32_UINT;
+				else if (pd.ComponentType == D3D_REGISTER_COMPONENT_SINT32)  ed.Format = DXGI_FORMAT_R32G32B32A32_SINT;
+				else if (pd.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32) ed.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			}
+
+			eled.push_back(ed);
+		}
+
+		chr(_dev->ddevice()->CreateInputLayout(eled.data(), eled.size(), vs_data->data, vs_data->length, &inplo));
+
+		vsref->Release();
 	}
 
 	void shader::bind(device* _dev)

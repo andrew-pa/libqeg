@@ -19,7 +19,7 @@ float4 t;
 };
 __shader_output_t main(__shader_input_t input){
 __shader_output_t output;
-float4 v = float4(input.pos + input.norm * float3(sin(t.x * .2 + input.pos.z * 3.0), cos(t.x * .6 + input.pos.y * 3.0), sin(t.x * .3 + input.pos.x * 3.0)), 1);
+float4 v =  float4(input.pos + input.norm * float3(sin(t.x * .2 + input.pos.z * 3.0), cos(t.x * .6 + input.pos.y * 3.0), sin(t.x * .3 + input.pos.x * 3.0)), 1);
 float4 p = mul(v, wvp);
 output.pos = p;
 output.posW = input.pos;

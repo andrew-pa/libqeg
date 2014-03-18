@@ -23,20 +23,25 @@ namespace qeg
 	};
 
 #ifdef OPENGL
+	//gl_vertex_attrib
+	//	represents a vertex attribute, is GL equivalent to D3D11_INPUT_ELEMENT_DESC struct
 	struct gl_vertex_attrib
 	{
 		GLuint idx;
 		GLuint count;
+		GLuint offset;
 		GLenum type;
-		gl_vertex_attrib(GLuint i, GLuint c, GLenum t)
-			: idx(i), count(c), type(t) {}
-		inline void apply()
+		gl_vertex_attrib(GLuint i, GLuint c, GLenum t, GLuint o)
+			: idx(i), count(c), type(t), offset(o) {}
+		inline void apply(GLuint stride)
 		{
-			glVertexAttribPointer(idx, count, type, GL_FALSE, 0, (void*)0);
+			glVertexAttribPointer(idx, count, type, GL_FALSE, stride, (void*)offset);
 		}
 	};
 #endif
 
+	//vertex_position
+	//	vertex with only position coord
 	struct vertex_position
 	{
 #ifdef DIRECTX
@@ -52,6 +57,8 @@ namespace qeg
 		}
 	};
 
+	//vertex_position_normal_texture
+	// vertex with position coords, normal, and texture coords. Frequently used
 	struct vertex_position_normal_texture
 	{
 #ifdef DIRECTX
@@ -72,6 +79,8 @@ namespace qeg
 			: pos(px, py, pz), norm(nx, ny, nz), tex(tx, ty){}
 	};
 
+	//prim_draw_type
+	//	Describes how the GPU should handle the vertex data
 	enum class prim_draw_type
 	{
 #ifdef DIRECTX
@@ -90,6 +99,8 @@ namespace qeg
 #endif
 	};
 
+	//mesh
+	//	base class for all meshes
 	class mesh
 	{
 	protected:
@@ -107,7 +118,107 @@ namespace qeg
 		propr(GLuint, vertex_array, { return vtx_array; });
 #endif
 	};
+	
+	//interleaved_mesh<vertex_type, index_type>
+	//	interleaved_mesh is a mesh that uses interleaved vertices, where each vertex is a struct
+	//	vertex_type: vertex data, as a struct. see vertex_position and vertex_position_normal_texture for examples of implementation. 
+	//	index_type:  type for index values. uint16 or uint32 usually
+	template<typename vertex_type, typename index_type> class interleaved_mesh : public mesh
+	{
+		uint idx_cnt;
+		uint vtx_cnt;
+#ifdef DIRECTX
+		ComPtr<ID3D11Buffer> vtx_buf;
+		ComPtr<ID3D11Buffer> idx_buf;
+#elif OPENGL
+		union
+		{
+			GLuint bufs[2];
+			GLuint vtx_buf;
+			GLuint idx_buf;
+		};
+#endif
+	public:
+		interleaved_mesh(device* _dev, const vector<vertex_type>& vs, const vector<index_type>& is, 
+			const string& name)
+			: mesh(name)
+#ifdef DIRECTX
+			, vtx_cnt(vs.size()), idx_cnt(is.size())
+		{
+			CD3D11_BUFFER_DESC vd(sizeof(vertex_type)*vs.size(), D3D11_BIND_VERTEX_BUFFER);
+			CD3D11_BUFFER_DESC id(sizeof(index_type)*is.size(), D3D11_BIND_INDEX_BUFFER);
+			D3D11_SUBRESOURCE_DATA sdd = {0};
+			sdd.pSysMem = vs.data();
+			chr(_dev->ddevice()->CreateBuffer(&vd, &sdd, &vtx_buf));
+			sdd.pSysMem = is.data();
+			chr(_dev->ddevice()->CreateBuffer(&id, &sdd, &idx_buf));
+		}
+#elif OPENGL
+		{
+			glBindVertexArray(vtx_array);
+			glGenBuffers(2, bufs);
+			
+			glBindBuffer(GL_ARRAY_BUFFER, vtx_buf);
+			glBindBuffer(GL_ARRAY_BUFFER, vs.size()*sizeof(vertex_type), vs.data(), GL_STATIC_DRAW);
+			auto vabs = vertex_type::get_vertex_attribs();
+			for (const auto& v : vabs)
+			{
+				glEnableVertexAttribArray(v.idx);
+				v.apply(sizeof(vertex_type));
+			}
 
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, is.size()*sizeof(index_type), is.data(), GL_STATIC_DRAW);
+		}
+#endif
+		
+		void draw(device* _dev, prim_draw_type dt = prim_draw_type::triangle_list,
+			int index_offset = 0, int oindex_count = -1, int vertex_offset = 0) override
+#ifdef DIRECTX
+		{
+			uint strides[] = { sizeof(vertex_type) };
+			uint offsets[] = {0};
+			_dev->context()->IASetVertexBuffers(0, 1, vtx_buf.GetAddressOf(), strides, offsets);
+			_dev->context()->IASetIndexBuffer(idx_buf.Get(), (DXGI_FORMAT)format_for_index_type<index_type>().format, 0);
+			_dev->context()->IASetPrimitiveTopology((D3D11_PRIMITIVE_TOPOLOGY)dt);
+			_dev->context()->DrawIndexed((oindex_count > 0 ? oindex_count : idx_cnt), index_offset, vertex_offset);
+
+		}
+#elif OPENGL
+		{
+			glBindVertexArray(vtx_array);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer());
+			glDrawElements((GLenum)dt, (oindex_count == -1 ? idxcnt : oindex_count),
+				GL_UNSIGNED_SHORT, (void*)0);
+		}
+#endif
+		
+		~interleaved_mesh()
+#ifdef DIRECTX
+		{
+		}
+#elif OPENGL
+		{
+			glDeleteBuffers(2, bufs);
+		}
+#endif
+
+		propr(uint, index_count, { return idx_cnt; });
+		propr(uint, vertex_count, { return vtx_cnt; });
+#ifdef DIRECTX
+		propr(ID3D11Buffer*, vertex_buffer, { return vtx_buf; });
+		propr(ID3D11Buffer*, index_buffer, { return idx_buf; });
+#elif OPENGL
+		propr(GLuint, vertex_buffer, { return vtx_buf; });
+		propr(GLuint, index_buffer, { return idx_buf; });
+#endif
+	};
+
+
+	//use interleaved mesh instead!
+	//mesh_psnmtx
+	//	a mesh implementation that stores the positions, normals and texture coords of each vertex in a seperate stream.
+	//	shader::layout_posnormtex layout works for this mesh
 	class mesh_psnmtx : public mesh
 	{
 		uint idxcnt;

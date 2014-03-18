@@ -37,6 +37,7 @@ using Microsoft::WRL::ComPtr;
 #include <d3d11_2.h>
 #include <d2d1_2.h>
 #include <dwrite_2.h>
+#include <d3dcompiler.h>
 #ifdef LINK
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -45,6 +46,8 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "windowscodecs.lib")
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "xinput.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "dxguid.lib")
 #endif
 #endif
 
@@ -140,6 +143,7 @@ namespace qeg
 		R32_SINT,
 		R16_TYPELESS = DXGI_FORMAT_R16_TYPELESS,
 		R16_FLOAT,
+		_D16_UNORM,
 		R16_UNORM,
 		R16_UINT,
 		R16_SNORM,

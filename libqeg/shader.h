@@ -18,11 +18,10 @@ namespace qeg
 		GLuint _id, _idvp, _idfp;
 #endif
 	public:
-		shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data
 #ifdef DIRECTX
-			, const D3D11_INPUT_ELEMENT_DESC lo[], size_t cnt
+		shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data, const D3D11_INPUT_ELEMENT_DESC lo[], size_t cnt);
 #endif
-			);
+		shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data);
 		~shader();
 
 		virtual void bind(device* _dev);

@@ -13,7 +13,7 @@
 using namespace qeg;
 
 
-mesh* create_box(device* _dev, const string& name, float d)
+mesh* create_box(device* _dev, const string& name, float d, bool interleaved = false)
 {
 	typedef vertex_position_normal_texture dvertex;
 	vertex_position_normal_texture* v = new vertex_position_normal_texture[24];
@@ -84,6 +84,12 @@ mesh* create_box(device* _dev, const string& name, float d)
 	i[30] = 20; i[31] = 21; i[32] = 22;
 	i[33] = 20; i[34] = 22; i[35] = 23;
 
+	if(interleaved)
+	{
+		return new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, 
+			vector<vertex_position_normal_texture>(v, &v[24]), vector<uint16>(i, &i[36]), name);
+	}
+
 	auto indexCount = 36;
 	auto vertexCount = 24;
 	vector<vec3> p, n;
@@ -97,7 +103,7 @@ mesh* create_box(device* _dev, const string& name, float d)
 	return new mesh_psnmtx(_dev, p, n, t, vector<uint16>(i, i + 36), name);
 }
 
-mesh* create_sphere(device* device, float radius, uint sliceCount, uint stackCount, const string& mesh_name)
+mesh* create_sphere(device* device, float radius, uint sliceCount, uint stackCount, const string& mesh_name, bool interleaved = false)
 {
 	typedef vertex_position_normal_texture dvertex;
 
@@ -168,6 +174,15 @@ mesh* create_sphere(device* device, float radius, uint sliceCount, uint stackCou
 		indices.push_back(bi + i + 1);
 	}
 
+	if(interleaved)
+	{
+			vector<vertex_position_normal_texture> v;
+			for (int i = 0; i < p.size(); ++i)
+			{
+				v.push_back(vertex_position_normal_texture(p[i], n[i], t[i]));
+			}
+			return new interleaved_mesh<vertex_position_normal_texture, uint16>(device, v, indices, mesh_name);
+	}
 
 	return new mesh_psnmtx(device, p, n, t, indices, mesh_name);
 }
@@ -204,7 +219,7 @@ public:
 #ifdef OPENGL
 		read_data_from_package(L"simple.vs.glsl"), read_data_from_package(L"simple.ps.glsl")
 #elif DIRECTX
-		read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso"), shader::layout_posnomtex, 3
+		read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso")
 #endif
 		),
 		wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
@@ -213,7 +228,7 @@ public:
 	{
 		c.target(vec3(0, .1f, 0));
 
-		m = create_sphere(_dev, 1, 64, 64, "s0"); //create_box(_dev, "box0", 1);
+		m = create_sphere(_dev, 1, 64, 64, "s0", true); //create_box(_dev, "box0", 1);
 
 		tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 
