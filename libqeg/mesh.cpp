@@ -99,18 +99,18 @@ namespace qeg
 
 #ifdef OPENGL
 
-	gl_vertex_attrib* vertex_position::get_vertex_attribs()
+	vector<gl_vertex_attrib> vertex_position::get_vertex_attribs()
 	{
-		static gl_vertex_attrib va[] = 
+		static vector<gl_vertex_attrib> va = 
 		{
 			{ 0, 3, GL_FLOAT, offsetof(vertex_position, pos) },
 		};
 		return va;
 	}
 
-	gl_vertex_attrib* vertex_position_normal_texture::get_vertex_attribs()
+	vector<gl_vertex_attrib> vertex_position_normal_texture::get_vertex_attribs()
 	{
-		static gl_vertex_attrib va[] =
+		static vector<gl_vertex_attrib> va =
 		{
 			{ 0, 3, GL_FLOAT, offsetof(vertex_position_normal_texture, pos) },
 			{ 1, 3, GL_FLOAT, offsetof(vertex_position_normal_texture, norm) },

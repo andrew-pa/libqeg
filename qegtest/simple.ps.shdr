@@ -1,0 +1,21 @@
+$pixel_shader
+
+input
+{
+	vec4 pos : rs_position;
+	vec3 posW : position;
+	vec3 normW : normal;
+	vec2 texc : texcoord;
+}
+
+output
+{
+	vec4 color : target0;
+}
+
+texture2D tex(0)
+
+void main()
+{
+		output.color = vec4((sample_texture(tex, input.texc).xyz + abs(input.normW)*max(0, dot(input.normW, vec3(0, 1, 0)))) + abs(input.normW)*vec3(.2,.2,.0) , 1);
+}

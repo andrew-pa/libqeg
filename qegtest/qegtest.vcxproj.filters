@@ -20,11 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="simple.ps.hlsl" />
-    <FxCompile Include="simple.vs.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\DebugGL\simple.ps.sh" />
-    <None Include="..\DebugGL\simple.vs.sh" />
+    <CustomBuild Include="simple.ps.shdr" />
+    <CustomBuild Include="simple.vs.shdr" />
   </ItemGroup>
 </Project>

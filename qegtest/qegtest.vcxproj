@@ -54,11 +54,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
     <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\andre_000\Source\libqeg\DebugDX;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>C:\Users\andre_000\Source\cosl\Debug;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
     <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\andre_000\Source\libqeg\DebugGL;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)-gl</TargetName>
+    <ExecutablePath>C:\Users\andre_000\Source\cosl\Debug;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
     <ClCompile>
@@ -102,22 +104,27 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="simple.ps.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Pixel</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile Include="simple.vs.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">5.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">5.0</ShaderModel>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\DebugGL\simple.ps.sh" />
-    <None Include="..\DebugGL\simple.vs.sh" />
+    <CustomBuild Include="simple.ps.shdr">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tps_5_0 /nologo /Fo$(OutDir)%(Filename).csh</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Translating shader</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">$(OutDir)%(Filename).csh</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">cosl.exe -glsl 400 %(FullPath) $(OutDir)%(Filename).csh</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)%(Filename).csh</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">false</LinkObjects>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</TreatOutputAsContent>
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Translating Shader</Message>
+    </CustomBuild>
+    <CustomBuild Include="simple.vs.shdr">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tvs_5_0 /nologo /Fo$(OutDir)%(Filename).csh</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">$(OutDir)%(Filename).csh</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">cosl.exe -glsl 400 %(FullPath) $(OutDir)%(Filename).csh</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Translating Shader</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)%(Filename).csh</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

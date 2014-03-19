@@ -215,20 +215,14 @@ public:
 			L"libqeg test (OpenGL)",
 #endif
 			vec2(640, 480), false),
-		s(_dev,
-#ifdef OPENGL
-		read_data_from_package(L"simple.vs.glsl"), read_data_from_package(L"simple.ps.glsl")
-#elif DIRECTX
-		read_data_from_package(L"simple.vs.cso"), read_data_from_package(L"simple.ps.cso")
-#endif
-		),
+		s(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")),
 		wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
 		c(45, 45, 5.f, vec3(0), radians(45.f), _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
 		, smpl(_dev)
 	{
 		c.target(vec3(0, .1f, 0));
 
-		m = create_sphere(_dev, 1, 64, 64, "s0", true); //create_box(_dev, "box0", 1);
+		m = create_sphere(_dev, 1, 64, 64, "s0", false); //create_box(_dev, "box0", 1);
 
 		tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 

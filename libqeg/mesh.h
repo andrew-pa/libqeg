@@ -48,7 +48,7 @@ namespace qeg
 		static const D3D11_INPUT_ELEMENT_DESC d3d_input_layout[];
 #endif
 #ifdef OPENGL
-		static gl_vertex_attrib* get_vertex_attribs();
+		static vector<gl_vertex_attrib> get_vertex_attribs();
 #endif
 		vec3 pos;
 		vertex_position(vec3 p)
@@ -65,7 +65,7 @@ namespace qeg
 		static const D3D11_INPUT_ELEMENT_DESC d3d_input_layout[];
 #endif
 #ifdef OPENGL
-		static gl_vertex_attrib* get_vertex_attribs();
+		static vector<gl_vertex_attrib> get_vertex_attribs();
 #endif
 		vec3 pos;
 		vec3 norm;
@@ -141,9 +141,8 @@ namespace qeg
 	public:
 		interleaved_mesh(device* _dev, const vector<vertex_type>& vs, const vector<index_type>& is, 
 			const string& name)
-			: mesh(name)
+			: mesh(name), vtx_cnt(vs.size()), idx_cnt(is.size())
 #ifdef DIRECTX
-			, vtx_cnt(vs.size()), idx_cnt(is.size())
 		{
 			CD3D11_BUFFER_DESC vd(sizeof(vertex_type)*vs.size(), D3D11_BIND_VERTEX_BUFFER);
 			CD3D11_BUFFER_DESC id(sizeof(index_type)*is.size(), D3D11_BIND_INDEX_BUFFER);
@@ -154,21 +153,22 @@ namespace qeg
 			chr(_dev->ddevice()->CreateBuffer(&id, &sdd, &idx_buf));
 		}
 #elif OPENGL
+
 		{
 			glBindVertexArray(vtx_array);
 			glGenBuffers(2, bufs);
 			
 			glBindBuffer(GL_ARRAY_BUFFER, vtx_buf);
-			glBindBuffer(GL_ARRAY_BUFFER, vs.size()*sizeof(vertex_type), vs.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, vs.size()*sizeof(vertex_type), vs.data(), GL_STATIC_DRAW);
 			auto vabs = vertex_type::get_vertex_attribs();
 			for (const auto& v : vabs)
 			{
 				glEnableVertexAttribArray(v.idx);
-				v.apply(sizeof(vertex_type));
+				glVertexAttribPointer(v.idx, v.count, v.type, GL_FALSE, sizeof(vertex_type), (void*)v.offset);
 			}
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, is.size()*sizeof(index_type), is.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, is.size()*sizeof(index_type), is.data(), GL_STATIC_DRAW);
 		}
 #endif
 		
@@ -188,7 +188,7 @@ namespace qeg
 		{
 			glBindVertexArray(vtx_array);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer());
-			glDrawElements((GLenum)dt, (oindex_count == -1 ? idxcnt : oindex_count),
+			glDrawElements((GLenum)dt, (oindex_count == -1 ? idx_cnt : oindex_count),
 				GL_UNSIGNED_SHORT, (void*)0);
 		}
 #endif
