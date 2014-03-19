@@ -145,14 +145,8 @@ namespace qeg
 			glBufferData(GL_ARRAY_BUFFER, tex.size()*sizeof(vec2), tex.data(), GL_STATIC_DRAW); check_gl
 		
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer()); check_gl
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16), indices.data(), GL_STATIC_DRAW); check_gl
-	}
-
-	void mesh_psnmtx::draw(device* _dev, prim_draw_type dt,
-		int index_offset, int oindex_count, int vertex_offset)
-	{
-		glBindVertexArray(vtx_array); check_gl
-		
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint16), indices.data(), GL_STATIC_DRAW); check_gl		
+			
 		glEnableVertexAttribArray(0); check_gl
 		glBindBuffer(GL_ARRAY_BUFFER, positions_buffer()); check_gl
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 
@@ -167,6 +161,14 @@ namespace qeg
 		glBindBuffer(GL_ARRAY_BUFFER, texcoords_buffer()); check_gl
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0,
 			(void*)(0));
+	}
+
+	void mesh_psnmtx::draw(device* _dev, prim_draw_type dt,
+		int index_offset, int oindex_count, int vertex_offset)
+	{
+		glBindVertexArray(vtx_array); check_gl
+		
+
 		
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer()); check_gl
 		

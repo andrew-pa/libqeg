@@ -222,7 +222,7 @@ public:
 	{
 		c.target(vec3(0, .1f, 0));
 
-		m = create_sphere(_dev, 1, 64, 64, "s0", false); //create_box(_dev, "box0", 1);
+		m = create_sphere(_dev, 1, 64, 64, "s0", true); //create_box(_dev, "box0", 1);
 
 		tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 

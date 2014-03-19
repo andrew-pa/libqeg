@@ -131,12 +131,8 @@ namespace qeg
 		ComPtr<ID3D11Buffer> vtx_buf;
 		ComPtr<ID3D11Buffer> idx_buf;
 #elif OPENGL
-		union
-		{
-			GLuint bufs[2];
 			GLuint vtx_buf;
 			GLuint idx_buf;
-		};
 #endif
 	public:
 		interleaved_mesh(device* _dev, const vector<vertex_type>& vs, const vector<index_type>& is, 
@@ -156,19 +152,20 @@ namespace qeg
 
 		{
 			glBindVertexArray(vtx_array);
-			glGenBuffers(2, bufs);
+			glGenBuffers(1, &vtx_buf);
+			glGenBuffers(1, &idx_buf);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, is.size()*sizeof(index_type), is.data(), GL_STATIC_DRAW);
 			
 			glBindBuffer(GL_ARRAY_BUFFER, vtx_buf);
 			glBufferData(GL_ARRAY_BUFFER, vs.size()*sizeof(vertex_type), vs.data(), GL_STATIC_DRAW);
+
 			auto vabs = vertex_type::get_vertex_attribs();
 			for (const auto& v : vabs)
 			{
 				glEnableVertexAttribArray(v.idx);
 				glVertexAttribPointer(v.idx, v.count, v.type, GL_FALSE, sizeof(vertex_type), (void*)v.offset);
 			}
-
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, is.size()*sizeof(index_type), is.data(), GL_STATIC_DRAW);
 		}
 #endif
 		
@@ -186,8 +183,8 @@ namespace qeg
 		}
 #elif OPENGL
 		{
-			glBindVertexArray(vtx_array);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer());
+			glBindVertexArray(vtx_array);			
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
 			glDrawElements((GLenum)dt, (oindex_count == -1 ? idx_cnt : oindex_count),
 				GL_UNSIGNED_SHORT, (void*)0);
 		}
