@@ -6,12 +6,12 @@ namespace qeg
 	{
 		mouse::state mouse_cst, mouse_lst;
 
-		const mouse::state& mouse::get_state()
+		const mouse::state mouse::get_state()
 		{
 			return mouse_cst;
 		}
 
-		const mouse::state& mouse::get_delta_state()
+		const mouse::state mouse::get_delta_state()
 		{
 			return mouse::state(mouse_cst.pos - mouse_lst.pos, 
 				!mouse_lst.left   && mouse_cst.left, 

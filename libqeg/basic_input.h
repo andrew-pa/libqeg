@@ -17,9 +17,9 @@ namespace qeg
 					: pos(p), left(l), middle(m), right(r)
 				{}
 			};
-			static const state& get_state();
+			static const state get_state();
 
-			static const state& get_delta_state();
+			static const state get_delta_state();
 
 			static void __update(vec2 p, bool left, bool middle, bool right);
 		};
@@ -159,7 +159,7 @@ namespace qeg
 				bool key_down(key k) const;
 				bool key_pressed(key k) const;
 			};
-			inline static const state& get_state() { return state();  }
+			inline static const state get_state() { return state();  }
 
 			static void __update(key kc, bool s);
 		};

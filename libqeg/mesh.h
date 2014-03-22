@@ -40,6 +40,8 @@ namespace qeg
 	};
 #endif
 
+#define DEF_VERTEX_MC(t) t(vec3 position, vec3 normal, vec3 tangent, vec2 texcoords)
+
 	//vertex_position
 	//	vertex with only position coord
 	struct vertex_position
@@ -55,6 +57,9 @@ namespace qeg
 			: pos(p)
 		{
 		}
+
+		DEF_VERTEX_MC(vertex_position)
+			: pos(position) {}
 	};
 
 	//vertex_position_normal_texture
@@ -77,6 +82,33 @@ namespace qeg
 		}
 		vertex_position_normal_texture(float px, float py, float pz, float nx, float ny, float nz, float tx = 0, float ty = 0, float tz = 0, float u = 0, float v = 0)
 			: pos(px, py, pz), norm(nx, ny, nz), tex(tx, ty){}
+
+		DEF_VERTEX_MC(vertex_position_normal_texture)
+			: pos(position), norm(normal), tex(texcoords) {}
+	};
+
+	//vertex_position_normal_tangent_texture
+	// vertex with position coords, normal, tangent, and texture coords. Frequently used with bump mapping
+	struct vertex_position_normal_tangent_texture
+	{
+#ifdef DIRECTX
+		static const D3D11_INPUT_ELEMENT_DESC d3d_input_layout[];
+#endif
+#ifdef OPENGL
+		static vector<gl_vertex_attrib> get_vertex_attribs();
+#endif
+		vec3 pos;
+		vec3 norm;
+		vec3 tang;
+		vec2 tex;
+		vertex_position_normal_tangent_texture(){}
+		vertex_position_normal_tangent_texture(vec3 p, vec3 n, vec3 tg, vec2 t)
+			: pos(p), norm(n), tex(t)
+		{
+		}
+/*
+		DEF_VERTEX_MC(vertex_position_normal_tangent_texture)
+			: pos(position), norm(normal), tex(texcoords), tang(tangent){}*/
 	};
 
 	//prim_draw_type
@@ -97,6 +129,13 @@ namespace qeg
 		line_strip = GL_LINE_STRIP,
 		point_list = GL_POINTS,
 #endif
+	};
+
+	template <typename vertex_type, typename index_type>
+	struct sys_gen_mesh
+	{
+		vector<vertex_type> vertices;
+		vector<index_type> indices;
 	};
 
 	//mesh
@@ -168,6 +207,9 @@ namespace qeg
 			}
 		}
 #endif
+		interleaved_mesh(device* _dev, const sys_gen_mesh<vertex_type,index_type>& gm, const string& nm)
+			: interleaved_mesh(_dev, gm.vertices, gm.indices, nm)
+		{}
 		
 		void draw(device* _dev, prim_draw_type dt = prim_draw_type::triangle_list,
 			int index_offset = 0, int oindex_count = -1, int vertex_offset = 0) override
@@ -196,7 +238,8 @@ namespace qeg
 		}
 #elif OPENGL
 		{
-			glDeleteBuffers(2, bufs);
+			glDeleteBuffers(1, &vtx_buf);
+			glDeleteBuffers(1, &idx_buf);
 		}
 #endif
 
@@ -211,6 +254,169 @@ namespace qeg
 #endif
 	};
 
+	template <typename vertex_type, typename index_type>
+	sys_gen_mesh<vertex_type,index_type> generate_sphere(float radius, uint slice_count, uint stack_count)
+	{
+		sys_gen_mesh<vertex_type, index_type> m;
+
+		m.vertices.push_back(vertex_type(vec3(0.f, radius, 0.f), vec3(0, 1, 0), vec3(1, 0, 0), vec2(0, 0)));
+
+		float dphi = pi / stack_count;
+		float dtheta = 2.f*pi / slice_count;
+
+		for (uint i = 1; i <= stack_count - 1; ++i)
+		{
+			float phi = i*dphi;
+			for (uint j = 0; j <= slice_count; ++j)
+			{
+				float theta = j*dtheta;
+				vec3 p = vec3(radius*sinf(phi)*cosf(theta),
+							  radius*cosf(phi),
+							  radius*sinf(phi)*sinf(theta));
+				vec3 t = normalize(vec3(-radius*sinf(phi)*sinf(theta),
+					0.f,
+					radius*sinf(phi)*cosf(theta)));
+				m.vertices.push_back(vertex_type(p, normalize(p), t, vec2(theta / (2.f*pi), phi / (2.f*pi))));
+
+			}
+		}
+
+		m.vertices.push_back(vertex_type(vec3(0.f, -radius, 0.f), vec3(0, -1, 0), vec3(1, 0, 0), vec2(0, 1)));
+
+		for (index_type i = 1; i <= slice_count; ++i)
+		{
+			m.indices.push_back(0);
+			m.indices.push_back(i + 1);
+			m.indices.push_back(i);
+		}
+
+		index_type bi = 1;
+		index_type rvc = slice_count + 1;
+		for (index_type i = 0; i < stack_count - 2; ++i)
+		{
+			for (uint j = 0; j < slice_count; ++j)
+			{
+				m.indices.push_back(bi + i*rvc + j);
+				m.indices.push_back(bi + i*rvc + j + 1);
+				m.indices.push_back(bi + (i + 1)*rvc + j);
+				m.indices.push_back(bi + (i + 1)*rvc + j);
+				m.indices.push_back(bi + (i*rvc + j + 1));
+				m.indices.push_back(bi + (i + 1)*rvc + j + 1);
+			}
+		}
+
+		index_type spi = (index_type)m.vertices.size() - 1;
+		bi = spi - rvc;
+		for (uint i = 0; i < slice_count; ++i)
+		{
+			m.indices.push_back(spi);
+			m.indices.push_back(bi + i);
+			m.indices.push_back(bi + i + 1);
+		}
+
+		return m;
+	}
+	
+	template <typename vertex_type, typename index_type>
+	sys_gen_mesh<vertex_type, index_type> generate_plane(vec2 dims, vec2 div, vec3 norm = vec3(0,1,0))
+	{
+		sys_gen_mesh<vertex_type, index_type> m;
+
+		vec3 nw = normalize(norm);
+		vec3 t = (fabsf(nw.x) > .1 ? vec3(0, 1, 0) : vec3(1, 0, 0));
+		vec3 nu = normalize(cross(t, nw));
+		vec3 nv = cross(nw, nu);
+
+		vec2 hdims = .5f*dims;
+
+		vec2 dxy = dims / (div - vec2(1));
+
+		vec2 duv = 1.f / (div - vec2(1));
+
+		for (float i = 0; i < div.y; ++i)
+		{
+			float y = hdims.y - i*dxy.y;
+			for (float j = 0; j < div.x; ++j)
+			{
+				float x = -hdims.x - j*dxy.x;
+				
+				vec3 p = nu*x + nv*y;
+
+				m.vertices.push_back(vertex_type(p, nw, nu, vec2(j,i)*duv));
+			}
+		}
+
+		for (uint i = 0; i < div.x - 1; ++i)
+		{
+			for (uint j = 0; j < div.y - 1; ++j)
+			{
+				m.indices.push_back(i*div.y + j);
+				m.indices.push_back(i*div.y + j + 1);
+				m.indices.push_back((i+1)*div.y + j);
+
+				m.indices.push_back((i+1)*div.y + j);
+				m.indices.push_back(i*div.y + j + 1);
+				m.indices.push_back((i+1)*div.y + j+1);
+			}
+		}
+
+		reverse(m.indices.begin(), m.indices.end());
+
+		return m;
+	}
+
+	template <typename vertex_type, typename index_type>
+	sys_gen_mesh<vertex_type, index_type> generate_torus(vec2 r, int div)
+	{
+		int ring_count = div;
+		int stack_count = div;
+		sys_gen_mesh<vertex_type, index_type> m;
+
+		vector<vertex_position_normal_tangent_texture> frvtx;
+		for (int i = 0; i < div + 1; ++i)
+		{
+			vec4 p = vec4(r.y, 0.f, 0.f,1.f)*rotate(mat4(1), radians(i*360.f / (float)div), vec3(0, 0, 1))
+				+ vec4(r.x, 0.f, 0.f, 1.f);
+			vec2 tx = vec2(0, (float)i / div);
+			vec4 tg = vec4(0.f, -1.f, 0.f, 1.f)*rotate(mat4(1), radians(i*360.f / (float)div), vec3(0, 0, 1));
+			vec3 n = cross(vec3(tg), vec3(0.f, 0.f, -1.f));
+			m.vertices.push_back(vertex_type(vec3(p), vec3(n), vec3(tg), tx));
+			frvtx.push_back(vertex_position_normal_tangent_texture(vec3(p), n, vec3(tg), tx));
+		}
+
+		for (int ring = 1; ring < ring_count + 1; ++ring)
+		{
+			mat4 rot = rotate(mat4(1), radians(ring*360.f / (float)div), vec3(0, 1, 0));
+			for (int i = 0; i < stack_count + 1; ++i)
+			{
+				vec4 p = vec4(frvtx[i].pos.x, frvtx[i].pos.y, frvtx[i].pos.z, 1.f);
+				vec4 nr = vec4(frvtx[i].norm.x, frvtx[i].norm.y, frvtx[i].norm.z, 0.f);
+				vec4 tg = vec4(frvtx[i].tang.x, frvtx[i].tang.y, frvtx[i].tang.z, 0.f);
+				p = p*rot;
+				nr = nr*rot;
+				tg = tg*rot;
+
+				m.vertices.push_back(vertex_type(vec3(p), vec3(nr),
+					vec3(tg), vec2(2.f*ring / (float)div, frvtx[i].tex.y)));
+			}
+		}
+
+		for (int ring = 0; ring < ring_count; ++ring)
+		{
+			for (int i = 0; i < stack_count; ++i)
+			{
+				m.indices.push_back(ring*(div + 1) + i);
+				m.indices.push_back((ring+1)*(div + 1) + i);
+				m.indices.push_back(ring*(div + 1) + i +1);
+
+				m.indices.push_back(ring*(div + 1) + i + 1);
+				m.indices.push_back((ring+1)*(div + 1) + i);
+				m.indices.push_back((ring+1)*(div + 1) + i + 1);
+			}
+		}
+		
+		return m;
+	}
 
 	//use interleaved mesh instead!
 	//mesh_psnmtx

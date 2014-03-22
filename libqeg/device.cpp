@@ -67,7 +67,7 @@ namespace qeg
 	{
 		RECT cre;
 		GetClientRect(_window, &cre);
-		win_bnds = vec2(convdp(cre.right - cre.left), convdp(cre.bottom - cre.top));
+		win_bnds = vec2(convdp((float)(cre.right - cre.left)), convdp((float)(cre.bottom - cre.top)));
 		
 		render_target.Reset();
 		depth_stencil.Reset();
@@ -247,7 +247,7 @@ else
 			h = _device->GetDeviceRemovedReason();
 			RECT cre;
 			GetClientRect(_window, &cre);
-			auto ns = vec2(convdp(cre.right - cre.left), convdp(cre.bottom - cre.top));
+			auto ns = vec2(convdp((float)(cre.right - cre.left)), convdp((float)(cre.bottom - cre.top)));
 			_swap_chain = nullptr;
 			create_device_res();
 			create_d2d_res();
@@ -425,9 +425,9 @@ else
 	{	
 		glBindFramebuffer(GL_FRAMEBUFFER, rt_sk.top()->frame_buffer());
 		if (rt_sk.top()->size().x == -1)
-			glViewport(0, 0, size().x, size().y);
+			glViewport(0, 0, (GLsizei)size().x, (GLsizei)size().y);
 		else
-			glViewport(0, 0, rt_sk.top()->size().x, rt_sk.top()->size().y);
+			glViewport(0, 0, (GLsizei)rt_sk.top()->size().x, (GLsizei)rt_sk.top()->size().y);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	

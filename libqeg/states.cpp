@@ -86,7 +86,7 @@ namespace qeg
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)max_anisotropy);
 		}
 		else
 		{
@@ -170,7 +170,7 @@ namespace qeg
 		}
 		glFrontFace(front_tri_cw ? GL_CW : GL_CCW);
 		if (depth_bias != 0 || slope_scaled_depth_bias != 0)
-			glPolygonOffset(slope_scaled_depth_bias, depth_bias);
+			glPolygonOffset(slope_scaled_depth_bias, (GLfloat)depth_bias);
 		else
 			glPolygonOffset(0, 0);
 #endif

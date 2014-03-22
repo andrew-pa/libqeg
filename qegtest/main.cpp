@@ -23,7 +23,10 @@ mesh* create_box(device* _dev, const string& name, float d, bool interleaved = f
 	float d2 = 0.5f*d;
 
 	// Fill in the front face vertex data. 
-	v[0] = dvertex(-w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	v[0] = dvertex(-w2, -h2, -d2,
+		0.0f, 0.0f, -1.0f,
+		1.0f, 0.0f, 0.0f, 
+		0.0f, 1.0f);
 	v[1] = dvertex(-w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 	v[2] = dvertex(+w2, +h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	v[3] = dvertex(+w2, -h2, -d2, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
@@ -177,7 +180,7 @@ mesh* create_sphere(device* device, float radius, uint sliceCount, uint stackCou
 	if(interleaved)
 	{
 			vector<vertex_position_normal_texture> v;
-			for (int i = 0; i < p.size(); ++i)
+			for (uint i = 0; i < p.size(); ++i)
 			{
 				v.push_back(vertex_position_normal_texture(p[i], n[i], t[i]));
 			}
@@ -202,7 +205,7 @@ class qegtest_app : public app
 			: wvp(a), inw(b), t(_t){}
 	};
 	constant_buffer<wvpcbd> wvp_cb;
-	orbit_camera c;
+	fps_camera c;
 
 	texture2d* tx;
 	sampler_state smpl;
@@ -217,23 +220,31 @@ public:
 			vec2(640, 480), false),
 		s(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")),
 		wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
-		c(45, 45, 5.f, vec3(0), radians(45.f), _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
+		c(vec3(0.5f, 8.f, -28), vec3(0,0,0.1), radians(40.f), _dev->size(), 4.f, 2.f) //(45, 45, 5.f, vec3(0), radians(45.f), _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
 		, smpl(_dev)
 	{
 		c.target(vec3(0, .1f, 0));
 
-		m = create_sphere(_dev, 1, 64, 64, "s0", true); //create_box(_dev, "box0", 1);
+		m = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
+			generate_torus<vertex_position_normal_texture, uint16>(vec2(2, .7f), 256), "torus0");
+			//generate_plane<vertex_position_normal_texture, uint16>(vec2(6), vec2(64), vec3(0, 1, 0)), "plane0");
+			//generate_sphere<vertex_position_normal_texture,uint16>(2.f, 64, 64), "sphere0"); 
+			//create_sphere(_dev, 1.3f, 64, 64, "s0", true); 
+			//create_box(_dev, "box0", 1, true);
 
 		tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 
+		//auto m = generate_plane<vertex_position_normal_texture, uint16>(vec2(10, 10), uvec2(16, 16), vec3(1, 0, 0));
+
+		//generate_cube<vertex_position,uint16>(vec3(0, 0, 0));
 	}
 
 	void update(float t, float dt) override
 	{
 		c.update(dt);
 		c.update_view();
-		auto world = mat4(1);// rotate(mat4(1), t * 100, vec3(.2f, .7f, .6f));
-		wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t)));
+		//auto world = mat4(1);// rotate(mat4(1), t * 100, vec3(.2f, .7f, .6f));
+		//wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t)));
 	}
 	
 	void resized() override
@@ -247,8 +258,19 @@ public:
 		tx->bind(_dev, 0, shader_stage::pixel_shader, s);
 		smpl.bind(_dev, 0, shader_stage::pixel_shader);
 		wvp_cb.bind(_dev);
+
+		auto world = mat4(1);
+		wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t, 0, 0, 0)));
 		wvp_cb.update(_dev);
 		m->draw(_dev);
+
+		for (float i = 0; i < 6; ++i)
+		{
+		world = translate(mat4(1), vec3(10*cosf(i+t*.4f), sinf((t+i*.3f)*3), 10*sinf(i+t*.4f)));
+		wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t, i, 0, 0)));
+		wvp_cb.update(_dev);
+		m->draw(_dev);
+		}
 		smpl.unbind(_dev, 0, shader_stage::pixel_shader);
 		tx->unbind(_dev, 0, shader_stage::pixel_shader);
 		wvp_cb.unbind(_dev);

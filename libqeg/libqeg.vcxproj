@@ -129,7 +129,6 @@
     <ClCompile Include="basic_input.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="cmmn.cpp" />
-    <ClCompile Include="constant_buffer.cpp" />
     <ClCompile Include="device.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="render_texture2d.cpp" />

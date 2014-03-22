@@ -18,15 +18,15 @@ namespace qeg
 		texture2d(vec2 s_, GLuint i_)
 			: _size(s_), _id(i_){}
 #endif
-		vec2 _size;
+		uvec2 _size;
 	public:
 		texture2d(){}
 		~texture2d();
 
-		texture2d(vec2 _s)
+		texture2d(uvec2 _s)
 			: _size(_s) { }
 
-		texture2d(device* dev, vec2 size, buffer_format f, void* data = nullptr, bool gen_mips = false
+		texture2d(device* dev, uvec2 size, buffer_format f, void* data = nullptr, bool gen_mips = false
 #ifdef DIRECTX
 			, size_t sys_pitch = 4
 #endif
@@ -38,7 +38,7 @@ namespace qeg
 		void bind(device* dev, int slot, shader_stage ss, shader& s);
 		void unbind(device* dev, int slot, shader_stage ss);
 
-		propr(vec2, size, { return _size; });
+		propr(uvec2, size, { return _size; });
 #ifdef DIRECTX
 		propr(ComPtr<ID3D11Texture2D>, texture2D, { return texd; });
 		propr(ComPtr<ID3D11ShaderResourceView>, shader_resource_view, { return srv; });

@@ -9,7 +9,7 @@
 namespace qeg
 {
 #ifdef DIRECTX
-	texture2d::texture2d(device* dev, vec2 size_, buffer_format f, void* data, bool gen_mips, size_t sys_pitch)
+	texture2d::texture2d(device* dev, uvec2 size_, buffer_format f, void* data, bool gen_mips, size_t sys_pitch)
 		: _size(size_)
 	{
 		CD3D11_TEXTURE2D_DESC txd((DXGI_FORMAT)f, size_.x, size_.y, 1U, 0U,
@@ -77,7 +77,7 @@ namespace qeg
 #endif
 
 #ifdef OPENGL
-	texture2d::texture2d(device* dev, vec2 size_, buffer_format f, void* data, bool gen_mips)
+	texture2d::texture2d(device* dev, uvec2 size_, buffer_format f, void* data, bool gen_mips)
 		: _size(size_)
 	{
 		glGenTextures(1, &_id);

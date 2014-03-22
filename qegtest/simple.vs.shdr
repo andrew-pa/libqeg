@@ -22,13 +22,37 @@ cbuffer(0)
 	vec4 t;
 }
 
+float rand(vec2 n) { 
+	return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+}
+
+float noise(vec2 n) {
+	vec2 d = vec2(0.0, 1.0);
+	vec2 b = floor(n);
+	vec2 f = smoothstep(vec2(0.0,0.0), vec2(1.0,1.0), fract(n));
+	return mix(mix(rand(b), rand(b + d.yx), f.x), mix(rand(b + d.xy), rand(b + d.yy), f.x), f.y);
+}
+
+float fbm(vec2 n) {
+	vec2 nx = n;
+	float total = 0.0;
+	float amplitude = 1.0;
+	for (int i = 0; i < 10; ++i) {
+		total += noise(nx) * amplitude;
+		nx += nx;
+		amplitude *= 0.5;
+	}
+	return total;
+}
+
 void main()
 {
-	vec4 v = vec4(input.pos + input.norm*vec3(sin(t.x*.2 + input.pos.z*3.0), 
-		cos(t.x*.6 + input.pos.y * 3.0), sin(t.x*.3 + input.pos.x*3.0)) , 1);
+	float offset = noise((input.tex - t.xx*.1)*15)*.4f + .2;//(sin(input.pos.x*(15+sin(t.x+.3)))+sin(input.pos.y*(15+sin(t.x-.3)))+sin(input.pos.z*(15+sin(t.x))))*.2;
+	vec4 v = vec4(input.pos,1);// + offset*input.norm, 1); 
+	//vec4(input.pos + (noise((input.tex - t.xx*.1)*15)*.4f + .2)*input.norm, 1);//vec4(input.pos + input.norm*vec3(sin(t.x*.2 + input.pos.z*3.0), cos(t.x*.6 + input.pos.y * 3.0), sin(t.x*.3 + input.pos.x*3.0)) , 1);
 	vec4 p = mul(v,wvp);
 	output.pos = p;
 	output.posW = input.pos;
 	output.normW = mul(vec4(input.norm, 0),inw).xyz;
-	output.texc = input.tex;
+	output.texc = input.tex + vec2(t.x*.1, t.x*(-.1));
 }
