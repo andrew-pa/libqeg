@@ -10,7 +10,7 @@ namespace qeg
 	{
 		T _data;
 		bool changed;		
-		int _slot;
+		uint _slot;
 
 #ifdef DIRECTX
 		ComPtr<ID3D11Buffer> _buf;
@@ -33,7 +33,7 @@ namespace qeg
 		}
 #endif
 	public:
-		constant_buffer(device* _dev, const shader& sh, int slot,  T d = T(), shader_stage shs = shader_stage::pixel_shader)
+		constant_buffer(device* _dev, const shader& sh, uint slot,  T d = T(), shader_stage shs = shader_stage::pixel_shader)
 			: _data(d), _slot(slot), changed(true)
 #ifdef DIRECTX
 			, _ss(shs)
@@ -71,38 +71,34 @@ namespace qeg
 		{
 			if (_ss == shader_stage::vertex_shader)
 			{
-				_dev->context()->VSSetConstantBuffers((ovslot > 0 ? ovslot : _slot), 1, _buf.GetAddressOf());
+				_dev->context()->VSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
 			}
 			else if (_ss == shader_stage::pixel_shader)
 			{
-				_dev->context()->PSSetConstantBuffers((ovslot > 0 ? ovslot : _slot), 1, _buf.GetAddressOf());
+				_dev->context()->PSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
 			}
 		}
 #elif OPENGL
 		{
-			//glBindBuffer(GL_UNIFORM_BUFFER, _buf);
-			//glBindBufferBase(GL_UNIFORM_BUFFER, _slot, _buf);
 		}
 #endif
 
-		void unbind(device* _dev, int ovslot = -1)
+		void unbind(device* _dev)
 #ifdef DIRECTX 
 		{				
 			ID3D11Buffer* nb[] = { nullptr };
 
 			if (_ss == shader_stage::vertex_shader)
 			{
-				_dev->context()->VSSetConstantBuffers((ovslot > 0 ? ovslot : _slot), 1,nb);
+				_dev->context()->VSSetConstantBuffers(_slot, 1,nb);
 			}
 			else if (_ss == shader_stage::pixel_shader)
 			{
-				_dev->context()->PSSetConstantBuffers((ovslot > 0 ? ovslot : _slot), 1, nb);
+				_dev->context()->PSSetConstantBuffers(_slot, 1, nb);
 			}
 		}
 #elif OPENGL
 		{			
-			//glBindBuffer(GL_UNIFORM_BUFFER, 0);
-			//glBindBufferBase(GL_UNIFORM_BUFFER, (ovslot > 0 ? ovslot : _slot), 0);
 		}
 #endif
 
@@ -122,9 +118,23 @@ namespace qeg
 		}
 #endif
 
+		void set_slot(uint slot, const shader& sh, shader_stage shs = shader_stage::pixel_shader)
+		{
+			_slot = slot;
+#ifdef DIRECTX
+			_ss = shs;
+#elif OPENGL
+			glBindBuffer(GL_UNIFORM_BUFFER, _buf);
+			_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs));
+			if (_ix == GL_INVALID_INDEX)
+				throw exception("glGetUniformBlockIndex returned a invalid index");
+			glBindBufferRange(GL_UNIFORM_BUFFER, slot, _buf, 0, sizeof(T));
+			glUniformBlockBinding(sh.program_id(), _ix, slot); 
+#endif
+		}
 
 #ifdef DIRECTX
-		proprw(int, slot, { return _slot; });
+		propr(uint, slot, { return _slot; });
 		propr(ComPtr<ID3D11Buffer>, buffer, { return _buf; });
 #endif
 	};

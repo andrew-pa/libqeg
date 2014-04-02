@@ -1,5 +1,46 @@
 
 
+
+
+
+Load Resources in a uniform way
+	- shaders
+	- models
+	- textures
+Advanced Texture types and Texture C++ class hierarchy
+	- Texture Arrays in shaders (as in Texture2D bleg[5])
+	- Texture Arrays in C++ (as in Texture2DArray...)
+	- 3D Textures
+	- Texture Cubes
+	- Depth Render Textures
+	- Render Texture Cubes
+	- Render to multi textures
+	- Procedural textures
+Resource packages?
+Gamepad input (xinput)
+Improved cameras
+AUX stuff
+	- shaders (phong, ...)
+	- GI?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 - improve shader situation
 - Good Mouse Camera control
 - Geometry and Tessellation shaders?

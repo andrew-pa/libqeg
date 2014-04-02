@@ -13,6 +13,7 @@ namespace qeg
 
 #ifdef WIN32
 		HWND wnd;
+		wstring _title;
 #endif
 	public:
 		app(const wstring& title, vec2 winsize, bool vfps = false, float tmpf = 1.f/70.f);

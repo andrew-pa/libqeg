@@ -217,16 +217,15 @@ public:
 #elif OPENGL
 			L"libqeg test (OpenGL)",
 #endif
-			vec2(640, 480), false),
+			vec2(640, 480), false, 1.f/60.f),
 		s(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")),
 		wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
-		c(vec3(0.5f, 8.f, -28), vec3(0,0,0.1), radians(40.f), _dev->size(), 4.f, 2.f) //(45, 45, 5.f, vec3(0), radians(45.f), _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
+		c(vec3(0.5f, 8.f, -28), vec3(0,0,0.1), radians(40.f), _dev->size(), 6.f, 2.f) //(45, 45, 5.f, vec3(0), radians(45.f), _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
 		, smpl(_dev)
 	{
-		c.target(vec3(0, .1f, 0));
 
 		m = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
-			generate_torus<vertex_position_normal_texture, uint16>(vec2(2, .7f), 256), "torus0");
+			generate_torus<vertex_position_normal_texture, uint16>(vec2(2, .7f), 64), "torus0");
 			//generate_plane<vertex_position_normal_texture, uint16>(vec2(6), vec2(64), vec3(0, 1, 0)), "plane0");
 			//generate_sphere<vertex_position_normal_texture,uint16>(2.f, 64, 64), "sphere0"); 
 			//create_sphere(_dev, 1.3f, 64, 64, "s0", true); 
@@ -264,13 +263,13 @@ public:
 		wvp_cb.update(_dev);
 		m->draw(_dev);
 
-		for (float i = 0; i < 6; ++i)
-		{
-		world = translate(mat4(1), vec3(10*cosf(i+t*.4f), sinf((t+i*.3f)*3), 10*sinf(i+t*.4f)));
-		wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t, i, 0, 0)));
-		wvp_cb.update(_dev);
-		m->draw(_dev);
-		}
+		//for (float i = 0; i < 6; ++i)
+		//{
+		//world = translate(mat4(1), vec3(10*cosf(i+t*.4f), sinf((t+i*.3f)*3), 10*sinf(i+t*.4f)));
+		//wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t, i, 0, 0)));
+		//wvp_cb.update(_dev);
+		//m->draw(_dev);
+		//}
 		smpl.unbind(_dev, 0, shader_stage::pixel_shader);
 		tx->unbind(_dev, 0, shader_stage::pixel_shader);
 		wvp_cb.unbind(_dev);

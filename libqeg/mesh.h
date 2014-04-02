@@ -132,7 +132,7 @@ namespace qeg
 	};
 
 	template <typename vertex_type, typename index_type>
-	struct sys_gen_mesh
+	struct sys_mesh
 	{
 		vector<vertex_type> vertices;
 		vector<index_type> indices;
@@ -207,7 +207,7 @@ namespace qeg
 			}
 		}
 #endif
-		interleaved_mesh(device* _dev, const sys_gen_mesh<vertex_type,index_type>& gm, const string& nm)
+		interleaved_mesh(device* _dev, const sys_mesh<vertex_type,index_type>& gm, const string& nm)
 			: interleaved_mesh(_dev, gm.vertices, gm.indices, nm)
 		{}
 		
@@ -255,9 +255,9 @@ namespace qeg
 	};
 
 	template <typename vertex_type, typename index_type>
-	sys_gen_mesh<vertex_type,index_type> generate_sphere(float radius, uint slice_count, uint stack_count)
+	sys_mesh<vertex_type,index_type> generate_sphere(float radius, uint slice_count, uint stack_count)
 	{
-		sys_gen_mesh<vertex_type, index_type> m;
+		sys_mesh<vertex_type, index_type> m;
 
 		m.vertices.push_back(vertex_type(vec3(0.f, radius, 0.f), vec3(0, 1, 0), vec3(1, 0, 0), vec2(0, 0)));
 
@@ -318,9 +318,9 @@ namespace qeg
 	}
 	
 	template <typename vertex_type, typename index_type>
-	sys_gen_mesh<vertex_type, index_type> generate_plane(vec2 dims, vec2 div, vec3 norm = vec3(0,1,0))
+	sys_mesh<vertex_type, index_type> generate_plane(vec2 dims, vec2 div, vec3 norm = vec3(0,1,0))
 	{
-		sys_gen_mesh<vertex_type, index_type> m;
+		sys_mesh<vertex_type, index_type> m;
 
 		vec3 nw = normalize(norm);
 		vec3 t = (fabsf(nw.x) > .1 ? vec3(0, 1, 0) : vec3(1, 0, 0));
@@ -366,11 +366,11 @@ namespace qeg
 	}
 
 	template <typename vertex_type, typename index_type>
-	sys_gen_mesh<vertex_type, index_type> generate_torus(vec2 r, int div)
+	sys_mesh<vertex_type, index_type> generate_torus(vec2 r, int div)
 	{
 		int ring_count = div;
 		int stack_count = div;
-		sys_gen_mesh<vertex_type, index_type> m;
+		sys_mesh<vertex_type, index_type> m;
 
 		vector<vertex_position_normal_tangent_texture> frvtx;
 		for (int i = 0; i < div + 1; ++i)
