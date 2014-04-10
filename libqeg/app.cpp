@@ -12,6 +12,12 @@ namespace qeg
 	app::app(const wstring& title, vec2 winsize, bool vfps, float tmpf)
 		: fps(0), mpf(0), var_fps(vfps), targ_mpf(tmpf), _title(title)
 	{
+#ifdef OPENGL
+		targ_mpf *= .5f;
+#endif
+#ifdef DIRECTX
+		var_fps = true;
+#endif
 		this_app = this;
 		size_changed = false;
 		//Create Window
@@ -109,6 +115,7 @@ namespace qeg
 					mpf = 1000.f / fps;
 					wostringstream wos;
 					wos << _title << " | fps: " << fps << "  mspf: " << mpf;
+					wos << " | dt: " << tm.delta_time();
 					SetWindowText(wnd, wos.str().c_str());
 
 					//OutputDebugString(wos.str().c_str());
@@ -122,7 +129,7 @@ namespace qeg
 						float missing = targ_mpf - tm.delta_time();
 						Sleep((DWORD)ceil(missing * 1000));
 					}
-				}					
+				}	
 				//Sleep(10);
 			}
 		}

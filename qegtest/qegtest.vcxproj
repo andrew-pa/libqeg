@@ -106,7 +106,7 @@
   <ItemGroup>
     <CustomBuild Include="simple.ps.shdr">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tps_5_0 /nologo /Fo$(OutDir)%(Filename).csh</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tps_5_0 /nologo /Fo "$(OutDir)%(Filename).csh" ;</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Translating shader</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">$(OutDir)%(Filename).csh</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">cosl.exe -glsl 400 %(FullPath) $(OutDir)%(Filename).csh</Command>
@@ -117,7 +117,7 @@
     </CustomBuild>
     <CustomBuild Include="simple.vs.shdr">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tvs_5_0 /nologo /Fo$(OutDir)%(Filename).csh</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tvs_5_0 /nologo /Fo$(OutDir)%(Filename).csh ;</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
       </Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">$(OutDir)%(Filename).csh</Outputs>
@@ -125,6 +125,13 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Translating Shader</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)%(Filename).csh</Outputs>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

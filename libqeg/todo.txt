@@ -4,9 +4,11 @@
 
 
 Load Resources in a uniform way
-	- shaders
+	- shaders? Shaders should stay relitvly the same except w/ resource packages
 	- models
 	- textures
+		- remove DDS reliace?
+		- texture::load instead of textureX::load?
 Advanced Texture types and Texture C++ class hierarchy
 	- Texture Arrays in shaders (as in Texture2D bleg[5])
 	- Texture Arrays in C++ (as in Texture2DArray...)
