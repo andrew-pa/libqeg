@@ -11,12 +11,23 @@ namespace qeg
 		template<int D>
 		struct gl_texture_slot_id_from_dim
 		{
-			static const uint value = -1;
+			static const GLenum value = -1;
 		};
 
+		template<>
 		struct gl_texture_slot_id_from_dim<1>
 		{
-			static const uint value = GL_TEXTURE_1D;
+			static const GLenum value = GL_TEXTURE_1D;
+		};
+		template<>
+		struct gl_texture_slot_id_from_dim<2>
+		{
+			static const GLenum value = GL_TEXTURE_2D;
+		};
+		template<>
+		struct gl_texture_slot_id_from_dim<3>
+		{
+			static const GLenum value = GL_TEXTURE_3D;
 		};
 	}
 #endif
@@ -35,6 +46,18 @@ namespace qeg
 		GLuint _id;
 		texture(dim_type s_, GLuint _i)
 			: _size(s_), _id(_i){}
+
+		static const GLchar* generate_tex_name(int slot, shader_stage ss)
+		{
+			GLchar* nm = new GLchar[32];
+			GLchar* shss = new GLchar[8];
+			if (ss == shader_stage::vertex_shader)
+				shss = "vs";
+			else if (ss == shader_stage::pixel_shader)
+				shss = "ps";
+			sprintf(nm, "%s_tex_%i", shss, slot);
+			return nm;
+		}
 #endif
 	public:
 		texture() {}
@@ -55,7 +78,13 @@ namespace qeg
 			}
 		}
 #elif OPENGL
-			= 0;
+		{
+			glActiveTexture(GL_TEXTURE0 + slot);
+			glBindTexture(detail::gl_texture_slot_id_from_dim<Dim>::value, _id);
+
+			auto i = glGetUniformLocation(s.program_id(), generate_tex_name(slot, ss));
+			glUniform1i(i, slot);
+		}
 #endif
 		virtual void unbind(device* dev, int slot, shader_stage ss)
 #ifdef DIRECTX
@@ -72,7 +101,10 @@ namespace qeg
 			}
 		}
 #elif OPENGL
-			= 0;
+		{
+			glBindTexture(detail::gl_texture_slot_id_from_dim<Dim>::value, 0);
+		}
+
 #endif
 
 		propr(dim_type, size, { return _size; });
@@ -85,7 +117,11 @@ namespace qeg
 		virtual ~texture()
 		{
 #ifdef OPENGL
-			glDeleteTextures(1, &_id);
+			if(_id != 0)
+			{
+				glDeleteTextures(1, &_id);
+				_id = 0;
+			}
 #endif
 		}
 	};
@@ -95,6 +131,9 @@ namespace qeg
 #ifdef DIRECTX
 		ComPtr<ID3D11Texture1D> texd;
 		texture1d(ComPtr<ID3D11ShaderResourceView> srv_);
+#elif OPENGL
+		texture1d(dim_type w, GLuint i)
+			: texture(w,i){}
 #endif
 	public:
 		texture1d(){}
@@ -106,11 +145,6 @@ namespace qeg
 			, size_t sys_pitch = 4
 #endif
 			);
-
-#ifdef OPENGL
-		void bind(device* dev, int slot, shader_stage ss, shader& s) override;
-		void unbind(device* dev, int slot, shader_stage ss) override;
-#endif
 
 #ifdef DIRECTX
 		propr(ComPtr<ID3D11Texture1D>, texture2D, { return texd; });
@@ -127,6 +161,9 @@ namespace qeg
 #ifdef DIRECTX
 		ComPtr<ID3D11Texture2D> texd;
 		texture2d(ComPtr<ID3D11ShaderResourceView> srv_);
+#elif OPENGL
+		texture2d(dim_type w, GLuint i)
+			: texture(w, i){}
 #endif
 	public:
 		texture2d(){}
@@ -139,11 +176,6 @@ namespace qeg
 			, size_t sys_pitch = 4
 #endif
 			);
-
-#ifdef OPENGL
-		void bind(device* dev, int slot, shader_stage ss, shader& s) override;
-		void unbind(device* dev, int slot, shader_stage ss) override;
-#endif
 
 		static texture2d* load_dds(device* dev, datablob<byte>* data);
 		//static texture2d* load_bmp(device& dev, datablob<byte>* data)

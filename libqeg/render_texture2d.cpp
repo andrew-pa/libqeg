@@ -3,18 +3,18 @@
 namespace qeg
 {
 #ifdef DIRECTX
-	render_texture2d::render_texture2d(device& dev, uvec2 size_, buffer_format f)
+	render_texture2d::render_texture2d(device* dev, uvec2 size_, buffer_format f)
 		: texture2d(dev, CD3D11_TEXTURE2D_DESC((DXGI_FORMAT)f, size_.x, size_.y, 1, 1, 
 			D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE))
 	{
 		CD3D11_TEXTURE2D_DESC dd(DXGI_FORMAT_R24G8_TYPELESS, size_.x, size_.y);
 		dd.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		ComPtr<ID3D11Texture2D> dst;
-		chr(dev.ddevice()->CreateTexture2D(&dd, nullptr, &dst));
+		chr(dev->ddevice()->CreateTexture2D(&dd, nullptr, &dst));
 		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(dst.Get(), D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT);
-		chr(dev.ddevice()->CreateDepthStencilView(dst.Get(), &dsvd, dsv.GetAddressOf()));
+		chr(dev->ddevice()->CreateDepthStencilView(dst.Get(), &dsvd, dsv.GetAddressOf()));
 		CD3D11_RENDER_TARGET_VIEW_DESC rsvd(texd.Get(), D3D11_RTV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)f);
-		chr(dev.ddevice()->CreateRenderTargetView(texd.Get(), &rsvd, &rtv));
+		chr(dev->ddevice()->CreateRenderTargetView(texd.Get(), &rsvd, &rtv));
 	}
 
 
@@ -22,7 +22,7 @@ namespace qeg
 	{
 	}
 #elif defined(OPENGL)
-	render_texture2d::render_texture2d(device& dev, uvec2 size, buffer_format f)
+	render_texture2d::render_texture2d(device* dev, uvec2 size, buffer_format f)
 	{	
 		glGenFramebuffers(1, &framebuf);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuf);

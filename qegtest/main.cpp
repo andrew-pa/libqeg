@@ -8,7 +8,7 @@
 #include <camera.h>
 #include <aux_cameras.h>
 #include <basic_input.h>
-#include <texture2d.h>
+#include <texture.h>
 #include <states.h>
 using namespace qeg;
 

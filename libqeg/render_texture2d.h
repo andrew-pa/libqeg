@@ -1,7 +1,7 @@
 #pragma once
 #include "cmmn.h"
 #include "device.h"
-#include "texture2d.h"
+#include "texture.h"
 
 namespace qeg
 {
@@ -17,7 +17,7 @@ namespace qeg
 		GLuint depthbuf;
 #endif
 	public:
-		render_texture2d(device& dev, uvec2 size, buffer_format f = buffer_format::RGBA32_FLOAT);
+		render_texture2d(device* dev, uvec2 size, buffer_format f = buffer_format::RGBA32_FLOAT);
 		~render_texture2d();
 
 #ifdef DIRECTX

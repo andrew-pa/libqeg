@@ -119,7 +119,7 @@
     <ClInclude Include="render_texture2d.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="states.h" />
-    <ClInclude Include="texture2d.h" />
+    <ClInclude Include="texture.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="vsdostream.h" />
   </ItemGroup>
@@ -134,7 +134,7 @@
     <ClCompile Include="render_texture2d.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="states.cpp" />
-    <ClCompile Include="texture2d.cpp" />
+    <ClCompile Include="texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />

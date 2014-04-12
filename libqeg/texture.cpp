@@ -1,4 +1,4 @@
-#include "texture2d.h"
+#include "texture.h"
 
 #ifdef DIRECTX
 #include "dds_loader.h"
@@ -88,39 +88,6 @@ namespace qeg
 		if (gen_mips)
 			glGenerateMipmap(GL_TEXTURE_2D);
 	}		
-	
-	const GLchar* generate_tex_name(int slot, shader_stage ss)
-	{
-		GLchar* nm = new GLchar[32];
-		GLchar* shss = new GLchar[8];
-		if(ss == shader_stage::vertex_shader)
-			shss = "vs";
-		else if(ss == shader_stage::pixel_shader)
-			shss = "ps";
-		sprintf(nm, "%s_tex_%i", shss, slot);
-		return nm;
-	}
-
-	void texture2d::bind(device* dev, int slot, shader_stage ss, shader& s)
-	{
-		glActiveTexture(GL_TEXTURE0 + slot);
-		glBindTexture(GL_TEXTURE_2D, _id);
-
-		auto i = glGetUniformLocation(s.program_id(), generate_tex_name(slot, ss));
-		glUniform1i(i, slot);
-	}
-
-	void texture2d::unbind(device* dev, int slot, shader_stage ss)
-	{
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-
-	texture2d::~texture2d()
-	{
-		if (_id != 0)
-			glDeleteTextures(1, &_id);
-	}
 #endif
 
 #ifdef DIRECTX

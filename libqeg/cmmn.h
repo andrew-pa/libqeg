@@ -269,25 +269,25 @@ namespace qeg
 	struct vec_of<1, T, P>
 	{
 	public:
-		typedef detail::tvec1<T, P> x;
+		typedef glm::detail::tvec1<T, P> x;
 	};
 	template <class T, precision P>
 	struct vec_of<2, T, P>
 	{
 	public:
-		typedef detail::tvec2<T, P> x;
+		typedef glm::detail::tvec2<T, P> x;
 	};
 	template <class T, precision P>
 	struct vec_of<3, T, P>
 	{
 	public:
-		typedef detail::tvec3<T, P> x;
+		typedef glm::detail::tvec3<T, P> x;
 	};
 	template <class T, precision P>
 	struct vec_of<4, T, P>
 	{
 	public:
-		typedef detail::tvec4<T, P> x;
+		typedef glm::detail::tvec4<T, P> x;
 	};
 
 };
