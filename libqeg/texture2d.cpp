@@ -9,8 +9,39 @@
 namespace qeg
 {
 #ifdef DIRECTX
+	texture1d::texture1d(device* dev, uint size_, buffer_format f, void* data, bool gen_mips, size_t sys_pitch)
+	{
+		CD3D11_TEXTURE1D_DESC dsc((DXGI_FORMAT)f, size_, 1U, 0U, D3D11_BIND_SHADER_RESOURCE);
+		CD3D11_SHADER_RESOURCE_VIEW_DESC sd(D3D11_SRV_DIMENSION_TEXTURE1D, (DXGI_FORMAT)f);
+		D3D11_SUBRESOURCE_DATA d = { 0 };
+		d.pSysMem = data;
+		d.SysMemPitch = sys_pitch;
+		chr(dev->ddevice()->CreateTexture1D(&dsc, (data == nullptr ? nullptr : &d), &texd));
+		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &sd, &srv));
+	}
+	texture1d::texture1d(device* dev, CD3D11_TEXTURE1D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc)
+		: texture(desc.Width)
+	{
+		chr(dev->ddevice()->CreateTexture1D(&desc, nullptr, &texd));
+		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
+	}
+	texture1d::texture1d(device* dev, CD3D11_TEXTURE1D_DESC desc)
+		: texture(desc.Width)
+	{
+		chr(dev->ddevice()->CreateTexture1D(&desc, nullptr, &texd));
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc(texd.Get(), D3D11_SRV_DIMENSION_TEXTURE1D, desc.Format);
+		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
+	}
+	texture1d::texture1d(ComPtr<ID3D11ShaderResourceView> srv_)
+		: texture(srv_)
+	{
+		ComPtr<ID3D11Resource> rs;
+		srv->GetResource(&rs);
+		rs.As(&texd);
+	}
+
 	texture2d::texture2d(device* dev, uvec2 size_, buffer_format f, void* data, bool gen_mips, size_t sys_pitch)
-		: _size(size_)
+		: texture(size_)
 	{
 		CD3D11_TEXTURE2D_DESC txd((DXGI_FORMAT)f, size_.x, size_.y, 1U, 0U,
 			D3D11_BIND_SHADER_RESOURCE);
@@ -22,63 +53,33 @@ namespace qeg
 		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srd, &srv));
 	}
 
-	texture2d::texture2d(device& dev, CD3D11_TEXTURE2D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc)
-		: _size(desc.Width, desc.Height)
+	texture2d::texture2d(device* dev, CD3D11_TEXTURE2D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc)
+		: texture(uvec2(desc.Width, desc.Height))
 	{
-		chr(dev.ddevice()->CreateTexture2D(&desc, nullptr, &texd));
-		chr(dev.ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
+		chr(dev->ddevice()->CreateTexture2D(&desc, nullptr, &texd));
+		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
 	}
-	texture2d::texture2d(device& dev, CD3D11_TEXTURE2D_DESC desc)
-		: _size(desc.Width, desc.Height)
+	texture2d::texture2d(device* dev, CD3D11_TEXTURE2D_DESC desc)
+		: texture(uvec2(desc.Width, desc.Height))
 	{
-		chr(dev.ddevice()->CreateTexture2D(&desc, nullptr, &texd));
+		chr(dev->ddevice()->CreateTexture2D(&desc, nullptr, &texd));
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc(texd.Get(), D3D11_SRV_DIMENSION_TEXTURE2D, desc.Format);
-		chr(dev.ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
+		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
 	}
 
 
 	texture2d::texture2d(ComPtr<ID3D11ShaderResourceView> srv_)
-		: srv(srv_)
+		: texture(srv_)
 	{
 		ComPtr<ID3D11Resource> rs;
 		srv->GetResource(&rs);
 		rs.As(&texd);
 	}
-
-	void texture2d::bind(device* dev, int slot, shader_stage ss, shader& s)
-	{
-		switch (ss)
-		{
-		case qeg::shader_stage::pixel_shader:
-			dev->context()->PSSetShaderResources(slot, 1, srv.GetAddressOf());
-			return;
-		case qeg::shader_stage::vertex_shader:
-			dev->context()->VSSetShaderResources(slot, 1, srv.GetAddressOf());
-			return;
-		}
-	}
-
-	void texture2d::unbind(device* dev, int slot, shader_stage ss)
-	{
-		ID3D11ShaderResourceView* srvnll[] = { nullptr };		
-		switch (ss)
-		{
-		case qeg::shader_stage::pixel_shader:
-			dev->context()->PSSetShaderResources(slot, 1, srvnll);
-			return;
-		case qeg::shader_stage::vertex_shader:
-			dev->context()->VSSetShaderResources(slot, 1, srvnll);
-			return;
-		}
-	}
-
-
-	texture2d::~texture2d(){}
 #endif
 
 #ifdef OPENGL
 	texture2d::texture2d(device* dev, uvec2 size_, buffer_format f, void* data, bool gen_mips)
-		: _size(size_)
+		: texture(size_)
 	{
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);

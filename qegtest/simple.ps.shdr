@@ -14,6 +14,7 @@ output
 }
 
 texture2D tex(0)
+texture1D tx2(1)
 
 float rand(vec2 n) { 
 	return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
@@ -40,11 +41,10 @@ float fbm(vec2 n) {
 
 void main()
 {
-	//float[3, 2] datas;
 	vec3 base_color = vec3(0.3, fbm(input.texc*3)*.6, .7);
-		output.color = vec4(base_color,1) * 
+	output.color = vec4(base_color,1) * 
 			clamp(max(dot(input.normW, vec3(0,1,0)), 0) +
 			 max(dot(input.normW, vec3(.5,.5,0)), 0) +
 			 max(dot(input.normW, vec3(-.3,.7,0)), 0) +
-			 max(dot(input.normW, vec3(0,-1,0)), 0)*.4, 0, 1); 
+			 max(dot(input.normW, vec3(0,-1,0)), 0)*.4, 0, 1) + (.4f*sample_texture(tex, input.texc)); 
 }

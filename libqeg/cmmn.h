@@ -257,4 +257,37 @@ namespace qeg
 	{
 		pixel_shader, vertex_shader, //... other shaders
 	};
+
+	template <int Dim, class T, precision P>
+	struct vec_of
+	{
+	public:
+		typedef int x;
+	};
+
+	template <class T, precision P>
+	struct vec_of<1, T, P>
+	{
+	public:
+		typedef detail::tvec1<T, P> x;
+	};
+	template <class T, precision P>
+	struct vec_of<2, T, P>
+	{
+	public:
+		typedef detail::tvec2<T, P> x;
+	};
+	template <class T, precision P>
+	struct vec_of<3, T, P>
+	{
+	public:
+		typedef detail::tvec3<T, P> x;
+	};
+	template <class T, precision P>
+	struct vec_of<4, T, P>
+	{
+	public:
+		typedef detail::tvec4<T, P> x;
+	};
+
 };
