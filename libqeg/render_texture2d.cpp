@@ -3,7 +3,7 @@
 namespace qeg
 {
 #ifdef DIRECTX
-	render_texture2d::render_texture2d(device* dev, uvec2 size_, buffer_format f)
+	render_texture2d::render_texture2d(device* dev, uvec2 size_, pixel_format f)
 		: texture2d(dev, CD3D11_TEXTURE2D_DESC((DXGI_FORMAT)f, size_.x, size_.y, 1, 1, 
 			D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE))
 	{
@@ -22,13 +22,13 @@ namespace qeg
 	{
 	}
 #elif defined(OPENGL)
-	render_texture2d::render_texture2d(device* dev, uvec2 size, buffer_format f)
+	render_texture2d::render_texture2d(device* dev, uvec2 size, pixel_format f)
 	{	
 		glGenFramebuffers(1, &framebuf);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuf);
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);
-		glTexImage2D(GL_TEXTURE_2D, 0, get_gl_format_internal(f), _size.x, _size.y, 0, (GLenum)f, get_gl_format_type(f), 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, detail::get_gl_format_internal(f), _size.x, _size.y, 0, (GLenum)f, detail::get_gl_format_type(f), 0);
 		glGenRenderbuffers(1, &depthbuf);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthbuf);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, _size.x, _size.y);

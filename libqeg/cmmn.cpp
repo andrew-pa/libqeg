@@ -86,146 +86,286 @@ namespace qeg
 #endif
 
 #ifdef OPENGL
-	GLenum get_gl_format_type(buffer_format f)
+#define ogl_exempt(x)
+#elif DIRECTX
+#define ogl_exempt(x) x
+#endif
+	size_t bits_per_pixel(pixel_format fmt)
+	{
+		switch (fmt)
+		{
+		case pixel_format::RGBA32_TYPELESS:
+		case pixel_format::RGBA32_FLOAT:
+		ogl_exempt(case pixel_format::RGBA32_UINT:)
+		case pixel_format::RGBA32_SINT:
+			return 128;
+
+		case pixel_format::RGB32_TYPELESS:
+		case pixel_format::RGB32_FLOAT:
+		ogl_exempt(case pixel_format::RGB32_UINT:)
+		case pixel_format::RGB32_SINT:
+			return 96;
+
+		case pixel_format::RGBA16_TYPELESS:
+		case pixel_format::RGBA16_FLOAT:
+		case pixel_format::RGBA16_UNORM:
+		ogl_exempt(case pixel_format::RGBA16_UINT:)
+		case pixel_format::RGBA16_SNORM:
+		case pixel_format::RGBA16_SINT:
+		case pixel_format::RG32_TYPELESS:
+		case pixel_format::RG32_FLOAT:
+		ogl_exempt(case pixel_format::RG32_UINT:)
+		case pixel_format::RG32_SINT:
+			return 64;
+
+		case pixel_format::RGBA8_TYPELESS:
+		case pixel_format::RGBA8_UNORM:
+		ogl_exempt(case pixel_format::RGBA8_UINT:)
+		case pixel_format::RGBA8_SNORM:
+		case pixel_format::RGBA8_SINT:
+		case pixel_format::RG16_TYPELESS:
+		case pixel_format::RG16_FLOAT:
+		case pixel_format::RG16_UNORM:
+		ogl_exempt(case pixel_format::RG16_UINT:)
+		case pixel_format::RG16_SNORM:
+		case pixel_format::RG16_SINT:
+		case pixel_format::R32_TYPELESS:
+		ogl_exempt(case pixel_format::_D32_FLOAT:)
+		case pixel_format::R32_FLOAT:
+		ogl_exempt(case pixel_format::R32_UINT:)
+		case pixel_format::R32_SINT:
+			return 32;
+
+		case pixel_format::R16_TYPELESS:
+		case pixel_format::R16_FLOAT:
+		ogl_exempt(case pixel_format::_D16_UNORM:)
+		case pixel_format::R16_UNORM:
+		ogl_exempt(case pixel_format::R16_UINT:)
+		case pixel_format::R16_SNORM:
+		ogl_exempt(case pixel_format::R16_SINT:)
+			return 16;
+
+		case pixel_format::R8_TYPELESS:
+		case pixel_format::R8_UNORM:
+		ogl_exempt(case pixel_format::R8_UINT:)
+		case pixel_format::R8_SNORM:
+		case pixel_format::R8_SINT:
+			return 8;
+
+		default:
+			return 0;
+		}
+	}
+
+#ifdef OPENGL
+	namespace detail
+	{
+	GLenum get_gl_format_type(pixel_format f)
 	{
 		switch (f)
 		{
-		//case buffer_format::RGBA16_TYPELESS:
-		//	return GL_UNSIGNED_SHORT;
-		//case buffer_format::RGBA32_TYPELESS:
-		//case buffer_format::RGB32_TYPELESS:
-		//case buffer_format::RGBA8_TYPELESS:
-		//case buffer_format::RG32_TYPELESS:
-		//case buffer_format::RG16_TYPELESS:
-		//case buffer_format::R32_TYPELESS:
-		//case buffer_format::R16_TYPELESS:
-		//case buffer_format::R8_TYPELESS:
-			//return GL_UNSIGNED_INT;
-		case buffer_format::RGBA16_FLOAT:
+		case pixel_format::RGBA16_FLOAT:
 			return GL_HALF_FLOAT;
-		case buffer_format::RGBA32_FLOAT:
-		case buffer_format::RGB32_FLOAT:
-		case buffer_format::RG32_FLOAT:
-		case buffer_format::RG16_FLOAT:
-		case buffer_format::R32_FLOAT:
-		case buffer_format::R16_FLOAT:
+		case pixel_format::RGBA32_FLOAT:
+		case pixel_format::RGB32_FLOAT:
+		case pixel_format::RG32_FLOAT:
+		case pixel_format::RG16_FLOAT:
+		case pixel_format::R32_FLOAT:
+		case pixel_format::R16_FLOAT:
 			return GL_FLOAT;
 
-		case buffer_format::RGBA16_UINT:
+		case pixel_format::RGBA16_UINT:
 			return GL_UNSIGNED_SHORT;
-		case buffer_format::RGBA32_UINT:
-		case buffer_format::RGB32_UINT:
-		case buffer_format::RGBA8_UINT:
-		case buffer_format::RG32_UINT:
-		case buffer_format::RG16_UINT:
-		case buffer_format::R32_UINT:
-		//case buffer_format::R16_UINT:
-		case buffer_format::R8_UINT:
+		case pixel_format::RGBA32_UINT:
+		case pixel_format::RGB32_UINT:
+		case pixel_format::RGBA8_UINT:
+		case pixel_format::RG32_UINT:
+		case pixel_format::RG16_UINT:
+		case pixel_format::R32_UINT:
+		//case pixel_format::R16_UINT:
+		case pixel_format::R8_UINT:
 			return GL_UNSIGNED_INT;
 
-		case buffer_format::RGBA16_SINT:
+		case pixel_format::RGBA16_SINT:
 			return GL_UNSIGNED_SHORT;
-		case buffer_format::RGBA32_SINT:
-		case buffer_format::RGB32_SINT:
-		case buffer_format::RGBA8_SINT:
-		case buffer_format::RG32_SINT:
-		case buffer_format::RG16_SINT:
-		case buffer_format::R32_SINT:
-		//case buffer_format::R16_SINT:
-		case buffer_format::R8_SINT:
+		case pixel_format::RGBA32_SINT:
+		case pixel_format::RGB32_SINT:
+		case pixel_format::RGBA8_SINT:
+		case pixel_format::RG32_SINT:
+		case pixel_format::RG16_SINT:
+		case pixel_format::R32_SINT:
+		//case pixel_format::R16_SINT:
+		case pixel_format::R8_SINT:
 			return GL_UNSIGNED_INT;
 
-		case buffer_format::RGBA16_UNORM:
+		case pixel_format::RGBA16_UNORM:
 			return GL_UNSIGNED_SHORT;
-		case buffer_format::RGBA8_UNORM:
+		case pixel_format::RGBA8_UNORM:
 			return GL_UNSIGNED_BYTE;
-		case buffer_format::RG16_UNORM:
-		case buffer_format::R16_UNORM:
-		case buffer_format::R8_UNORM:
+		case pixel_format::RG16_UNORM:
+		case pixel_format::R16_UNORM:
+		case pixel_format::R8_UNORM:
 			return GL_UNSIGNED_INT;
 
-		case buffer_format::RGBA16_SNORM:
+		case pixel_format::RGBA16_SNORM:
 			return GL_SHORT;
-		case buffer_format::RGBA8_SNORM:
+		case pixel_format::RGBA8_SNORM:
 			return GL_BYTE;
-		case buffer_format::RG16_SNORM:
-		case buffer_format::R16_SNORM:
-		case buffer_format::R8_SNORM:
+		case pixel_format::RG16_SNORM:
+		case pixel_format::R16_SNORM:
+		case pixel_format::R8_SNORM:
 			return GL_SHORT;
 		default:
 			throw exception("invalid format");
 			break;
 		}
 	}
-	GLenum get_gl_format_internal(buffer_format f)
+	GLenum get_gl_format_internal(pixel_format f)
 	{
 		switch (f)
 		{
-		//case buffer_format::RGBA32_TYPELESS:
-		case buffer_format::RGBA32_UINT:
-		case buffer_format::RGBA32_SINT:
-		//case buffer_format::RGBA16_TYPELESS:
-		case buffer_format::RGBA16_UINT:
-		case buffer_format::RGBA16_SINT:
-		//case buffer_format::RGBA8_TYPELESS:
-		case buffer_format::RGBA8_UINT:
-		case buffer_format::RGBA8_SINT:
+		//case pixel_format::RGBA32_TYPELESS:
+		case pixel_format::RGBA32_UINT:
+		case pixel_format::RGBA32_SINT:
+		//case pixel_format::RGBA16_TYPELESS:
+		case pixel_format::RGBA16_UINT:
+		case pixel_format::RGBA16_SINT:
+		//case pixel_format::RGBA8_TYPELESS:
+		case pixel_format::RGBA8_UINT:
+		case pixel_format::RGBA8_SINT:
 			return GL_RGBA_INTEGER;
-		case buffer_format::RGBA32_FLOAT:
-		case buffer_format::RGBA16_FLOAT:
-		case buffer_format::RGBA8_UNORM:
-		case buffer_format::RGBA8_SNORM:
+		case pixel_format::RGBA32_FLOAT:
+		case pixel_format::RGBA16_FLOAT:
+		case pixel_format::RGBA8_UNORM:
+		case pixel_format::RGBA8_SNORM:
 			return GL_RGBA;
 
-		case buffer_format::RGB32_UINT:
-		case buffer_format::RGB32_SINT:
-		//case buffer_format::RGB32_TYPELESS:
+		case pixel_format::RGB32_UINT:
+		case pixel_format::RGB32_SINT:
+		//case pixel_format::RGB32_TYPELESS:
 			return GL_RGB_INTEGER;
-		case buffer_format::RGB32_FLOAT:
+		case pixel_format::RGB32_FLOAT:
 			return GL_RGB;
 
-		//case buffer_format::RG32_TYPELESS:
-		case buffer_format::RG32_UINT:
-		case buffer_format::RG32_SINT:
+		//case pixel_format::RG32_TYPELESS:
+		case pixel_format::RG32_UINT:
+		case pixel_format::RG32_SINT:
 			return GL_RG_INTEGER;
-		case buffer_format::RG32_FLOAT:
+		case pixel_format::RG32_FLOAT:
 			return GL_RG;
 
-		//case buffer_format::RG16_TYPELESS:
-		case buffer_format::RG16_UINT:
-		case buffer_format::RG16_SINT:
+		//case pixel_format::RG16_TYPELESS:
+		case pixel_format::RG16_UINT:
+		case pixel_format::RG16_SINT:
 			return GL_RG_INTEGER;
-		case buffer_format::RG16_FLOAT:
-		case buffer_format::RG16_UNORM:
-		case buffer_format::RG16_SNORM:
+		case pixel_format::RG16_FLOAT:
+		case pixel_format::RG16_UNORM:
+		case pixel_format::RG16_SNORM:
 			return GL_RG;
 
-		case buffer_format::R32_SINT:
-		case buffer_format::R32_UINT:
-		//case buffer_format::R32_TYPELESS:
+		case pixel_format::R32_SINT:
+		case pixel_format::R32_UINT:
+		//case pixel_format::R32_TYPELESS:
 			return GL_RED_INTEGER;
-		case buffer_format::R32_FLOAT:
+		case pixel_format::R32_FLOAT:
 			return GL_RED;
 
-		//case buffer_format::R16_SINT:
-		//case buffer_format::R16_UINT:
-		//case buffer_format::R16_TYPELESS:
+		//case pixel_format::R16_SINT:
+		//case pixel_format::R16_UINT:
+		//case pixel_format::R16_TYPELESS:
 		//	return GL_RED_INTEGER;
-		case buffer_format::R16_FLOAT:
-		case buffer_format::R16_UNORM:
-		case buffer_format::R16_SNORM:
+		case pixel_format::R16_FLOAT:
+		case pixel_format::R16_UNORM:
+		case pixel_format::R16_SNORM:
 			return GL_RED;
 
-		case buffer_format::R8_SINT:
-		case buffer_format::R8_UINT:
-		//case buffer_format::R8_TYPELESS:
+		case pixel_format::R8_SINT:
+		case pixel_format::R8_UINT:
+		//case pixel_format::R8_TYPELESS:
 			return GL_RED_INTEGER;
-		case buffer_format::R8_SNORM:
-		case buffer_format::R8_UNORM:
+		case pixel_format::R8_SNORM:
+		case pixel_format::R8_UNORM:
 			return GL_RED;
 
 		default:
 			throw exception("invalid format");
+		}
+	}
+
+	uint get_size(pixel_format f)
+	{
+		switch (f)
+		{
+		case pixel_format::RGBA16_FLOAT:
+			return 16 * 4; //GL_HALF_FLOAT;
+		case pixel_format::RGBA32_FLOAT:
+		case pixel_format::RGB32_FLOAT:
+		case pixel_format::RG32_FLOAT:
+		case pixel_format::RG16_FLOAT:
+		case pixel_format::R32_FLOAT:
+		case pixel_format::R16_FLOAT:
+			return GL_FLOAT;
+
+		case pixel_format::RGBA16_UINT:
+			return sizeof(unsigned short)*4;
+		case pixel_format::RGBA32_UINT:
+			return sizeof(unsigned int) * 3;
+		case pixel_format::RGB32_UINT:
+			return sizeof(unsigned int)*3;
+		case pixel_format::RGBA8_UINT:
+			return sizeof(unsigned char)*4;
+		case pixel_format::RG32_UINT:
+			return sizeof(unsigned int)*2;
+		case pixel_format::RG16_UINT:
+			return sizeof(unsigned short)*2;
+		case pixel_format::R32_UINT:
+			return sizeof(unsigned int);
+			//case pixel_format::R16_UINT:
+		case pixel_format::R8_UINT:
+			return sizeof(unsigned char);
+
+		case pixel_format::RGBA16_SINT:
+			return sizeof(unsigned short)*4;
+		case pixel_format::RGBA32_SINT:
+			return sizeof(unsigned int)* 4;
+		case pixel_format::RGB32_SINT:
+			return sizeof(unsigned int)* 3;
+		case pixel_format::RGBA8_SINT:
+			return sizeof(unsigned char)* 4;
+		case pixel_format::RG32_SINT:
+			return sizeof(unsigned int)* 2;
+		case pixel_format::RG16_SINT:
+			return sizeof(unsigned short)*2;
+		case pixel_format::R32_SINT:
+			return sizeof(unsigned int);
+			//case pixel_format::R16_SINT:
+		case pixel_format::R8_SINT:
+			return sizeof(unsigned short);
+
+		case pixel_format::RGBA16_UNORM:
+			return sizeof(unsigned short)* 4;
+		case pixel_format::RGBA8_UNORM:
+			return sizeof(unsigned char)* 4;
+		case pixel_format::RG16_UNORM:
+			return sizeof(unsigned short)* 2;
+		case pixel_format::R16_UNORM:
+			return sizeof(unsigned short);
+		case pixel_format::R8_UNORM:
+			return sizeof(unsigned char);
+
+		case pixel_format::RGBA16_SNORM:
+			return sizeof(unsigned short)* 4;
+		case pixel_format::RGBA8_SNORM:
+			return sizeof(unsigned char)* 4;
+		case pixel_format::RG16_SNORM:
+			return sizeof(unsigned short)* 2;
+		case pixel_format::R16_SNORM:
+			return sizeof(unsigned short);
+		case pixel_format::R8_SNORM:
+			return sizeof(unsigned char);
+		default:
+			throw exception("invalid format");
+			break;
 		}
 	}
 
@@ -237,6 +377,7 @@ namespace qeg
 			cdlog << "GL error: " << e << endl;
 			throw error_code_exception(e, "GL error");
 		}
+	}
 	}
 #endif
 

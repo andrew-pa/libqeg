@@ -12,6 +12,7 @@
 #include <states.h>
 using namespace qeg;
 
+#include <glm/gtc/noise.hpp>
 
 mesh* create_box(device* _dev, const string& name, float d, bool interleaved = false)
 {
@@ -190,6 +191,207 @@ mesh* create_sphere(device* device, float radius, uint sliceCount, uint stackCou
 	return new mesh_psnmtx(device, p, n, t, indices, mesh_name);
 }
 
+class bo_file
+{
+public:
+	enum class file_type : uint
+	{
+		generic = 0,
+		texture = 8,
+	};
+	struct chunk
+	{
+		uint type;
+		datablob<byte>* data;
+		chunk(uint t, datablob<byte>* d)
+			: type(t), data(d){}
+	};
+protected:
+	struct header
+	{
+		file_type type;
+		uint number_of_chunks;
+	};
+	struct chunk_desc
+	{
+		uint type;
+		size_t offset;
+		size_t length;
+	};
+	file_type _htype;
+	vector<chunk> _chunks;
+public:
+
+	bo_file(file_type t)
+		: _htype(t){}
+
+	bo_file(datablob<byte>* d)
+	{
+		byte* bd = d->data;
+		header* h = (header*)bd;
+		bd += 2 * sizeof(uint);
+		chunk_desc* cds = (chunk_desc*)bd;
+		bd += sizeof(chunk_desc)*h->number_of_chunks;
+		_htype = h->type;
+		for (int i = 0; i < h->number_of_chunks; ++i)
+		{
+			_chunks.push_back(chunk(cds->type, new datablob<byte>(bd + cds->offset, cds->length)));
+			cds++; //move to next chunk
+		}
+	}
+
+	datablob<byte>* write()
+	{
+		size_t total_length = sizeof(header)+sizeof(chunk_desc)*_chunks.size();
+		for (const auto& c : _chunks)
+			total_length += c.data->length;
+
+		byte* bd = new byte[total_length];
+		byte* fbd = bd;
+		header* h = (header*)bd;
+		bd += sizeof(header);
+		h->type = _htype;
+		h->number_of_chunks = _chunks.size();
+
+		byte* data_bd = bd + sizeof(chunk_desc)*_chunks.size();
+		size_t current_offset = 0;
+
+		for(const auto& c : _chunks)
+		{
+			chunk_desc* cd = (chunk_desc*)bd;
+			cd->type = c.type;
+			cd->offset = current_offset;
+			cd->length = c.data->length;
+
+			memcpy(data_bd, c.data->data, c.data->length);
+
+			current_offset += c.data->length;
+			data_bd += c.data->length;
+			bd += sizeof(chunk_desc);
+		}
+
+		return new datablob<byte>(fbd, total_length);
+	}
+
+	proprw(file_type, type, { return _htype; });
+	proprw(vector<chunk>, chunks, { return _chunks; });
+};
+
+struct texture_header
+{
+	texture_dimension dim;
+	uvec3 size;
+	uint array_count; //or 0 for not a texture array
+	pixel_format format;
+};
+
+namespace detail
+{
+void* _load_texture(device* dev, datablob<byte>* file_data, bool gen_mips = false)
+{
+	bo_file f(file_data);
+	if (f.type() != bo_file::file_type::texture)
+		throw exception("file not a texture");
+
+	texture_header* h = nullptr;
+	vector<uint> data_chunk_indices;
+	for (int i = 0; i < f.chunks().size(); ++i)
+	{
+		auto c = f.chunks()[i];
+		if(c.type == 0)
+		{
+			//found header chunk
+			if (c.data->length < sizeof(texture_header))
+				throw exception("texture header chunk too small");
+			h = (texture_header*)c.data->data;
+		}
+		else if(c.type == 1) 
+		{
+			//found data chunk
+			data_chunk_indices.push_back(i);
+		}
+	}
+	
+	if (data_chunk_indices.size() == 0) throw exception("no data chunks");
+
+	if (h == nullptr) throw exception("no texture header found");
+
+	if(h->dim == texture_dimension::texture_1d)
+	{
+		if(h->array_count > 0)
+		{
+			throw exception("texture arrays not supported yet");
+		}
+		else
+		{
+			auto c = f.chunks()[data_chunk_indices[0]];
+			if (c.data->length < (h->size[0] * bytes_per_pixel(h->format)))
+				throw exception("not enough data in chunk");
+			return new texture1d(dev, h->size[0], h->format, c.data->data, gen_mips, bytes_per_pixel(h->format));
+		}
+	}
+	else if (h->dim == texture_dimension::texture_2d)
+	{
+		if (h->array_count > 0)
+		{
+			throw exception("texture arrays not supported yet");
+		}
+		else
+		{
+			auto c = f.chunks()[data_chunk_indices[0]];
+			if (c.data->length < (h->size[0] * h->size[1] * bytes_per_pixel(h->format)))
+				throw exception("not enough data in chunk");
+			return new texture2d(dev, uvec2(h->size[0], h->size[1]), h->format, 
+				c.data->data, gen_mips, 
+				bytes_per_pixel(h->format)*h->size.y);
+		}
+	}
+	else if (h->dim == texture_dimension::texture_3d)
+	{
+		if (h->array_count > 0)
+		{
+			throw exception("texture arrays not supported yet");
+		}
+		else
+		{
+			auto c = f.chunks()[data_chunk_indices[0]];
+			if (c.data->length < (h->size[0] * h->size[1] * h->size[2] * bytes_per_pixel(h->format)))
+				throw exception("not enough data in chunk");
+			return new texture3d(dev, h->size, h->format,
+				c.data->data, gen_mips, h->size[2]*bytes_per_pixel(h->format), 
+				bytes_per_pixel(h->format)*h->size.y);
+		}
+	}
+	else if (h->dim == texture_dimension::texture_cube)
+	{
+		if (h->array_count > 0)
+		{
+			throw exception("texture arrays not supported yet");
+		}
+		else
+		{
+			if (f.chunks().size() < 7) throw exception("not enough chunks for entire cubemap");
+			vector<byte*> facedata;
+			for (int i = 0; i < 6; ++i)
+			{
+				auto c = f.chunks()[data_chunk_indices[i]];
+				if (c.data->length < (h->size[0] * h->size[1] * bytes_per_pixel(h->format)))
+					throw exception("not enough data in chunk");
+				facedata.push_back(c.data->data);
+			}
+			return new textureCube(dev, uvec2(h->size[0], h->size[1]), h->format,
+				facedata, gen_mips, bytes_per_pixel(h->format)*h->size.y);
+		}
+	}
+	
+	return nullptr;
+}
+}
+
+inline texture1d* load_texture1d(device* dev, datablob<byte>* file_data, bool gen_mips = false) { return static_cast<texture1d*>(::detail::_load_texture(dev, file_data, gen_mips)); }
+inline texture2d* load_texture2d(device* dev, datablob<byte>* file_data, bool gen_mips = false) { return static_cast<texture2d*>(::detail::_load_texture(dev, file_data, gen_mips)); }
+inline texture3d* load_texture3d(device* dev, datablob<byte>* file_data, bool gen_mips = false) { return static_cast<texture3d*>(::detail::_load_texture(dev, file_data, gen_mips)); }
+inline textureCube* load_textureCube(device* dev, datablob<byte>* file_data, bool gen_mips = false) { return static_cast<textureCube*>(::detail::_load_texture(dev, file_data, gen_mips)); }
 
 class qegtest_app : public app
 {
@@ -225,13 +427,45 @@ public:
 	{
 
 		m = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
-			generate_torus<vertex_position_normal_texture, uint16>(vec2(2, .7f), 64), "torus0");
-			//generate_plane<vertex_position_normal_texture, uint16>(vec2(6), vec2(64), vec3(0, 1, 0)), "plane0");
+			//generate_torus<vertex_position_normal_texture, uint16>(vec2(2, .7f), 64), "torus0");
+			generate_plane<vertex_position_normal_texture, uint16>(vec2(6), vec2(64), vec3(0, -1, 0)), "plane0");
 			//generate_sphere<vertex_position_normal_texture,uint16>(2.f, 64, 64), "sphere0"); 
 			//create_sphere(_dev, 1.3f, 64, 64, "s0", true); 
 			//create_box(_dev, "box0", 1, true);
 
 		tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
+
+		//const int size = 512;
+
+		//bo_file f(bo_file::file_type::texture);
+		//texture_header h;
+		//h.dim = texture_dimension::texture_2d;
+		//h.size = uvec3(size, size, 0);
+		//h.array_count = 0;
+		//h.format = pixel_format::RGBA32_FLOAT;
+
+		//vec4* img = new vec4[size * size];
+		//for (int y = 0; y < size; ++y)
+		//	for (int x = 0; x < size; x++)
+		//	{
+		//		vec2 p = vec2((float)x / (float)size, (float)y / (float)size);
+		//		float n = abs(perlin(p*16.f));
+		//		img[x + y * size] = vec4(vec3(n), 1.f);
+		//	}
+		//bo_file::chunk hc(0, new datablob<byte>((byte*)&h, sizeof(texture_header)));
+		//bo_file::chunk dc(1, new datablob<byte>((byte*)img, sizeof(vec4)*size*size));
+		//f.chunks().push_back(hc);
+		//f.chunks().push_back(dc);
+		//auto txf = f.write();
+		//
+		//ofstream out("perlin.tex", ios_base::binary);
+		//out.write((const char*)txf->data, txf->length);
+		//out.flush();
+		//out.close();
+
+		texture2d* tx2 = load_texture2d(_dev, read_data(L"C:\\Users\\andre_000\\Source\\libqeg\\qegtest\\perlin.tex"), false);
+
+		tx = tx2;
 
 		//auto m = generate_plane<vertex_position_normal_texture, uint16>(vec2(10, 10), uvec2(16, 16), vec3(1, 0, 0));
 

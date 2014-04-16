@@ -43,8 +43,8 @@ void main()
 {
 	vec3 base_color = vec3(0.3, fbm(input.texc*3)*.6, .7);
 	output.color = vec4(base_color,1) * 
-			clamp(max(dot(input.normW, vec3(0,1,0)), 0) +
+			0.0*(clamp(max(dot(input.normW, vec3(0,1,0)), 0) +
 			 max(dot(input.normW, vec3(.5,.5,0)), 0) +
 			 max(dot(input.normW, vec3(-.3,.7,0)), 0) +
-			 max(dot(input.normW, vec3(0,-1,0)), 0)*.4, 0, 1) + (.4f*sample_texture(tex, input.texc)); 
+			 max(dot(input.normW, vec3(0,-1,0)), 0)*.4, 0, 1)) + (1.*sample_texture(tex, input.texc)); 
 }

@@ -4,27 +4,7 @@
 
 namespace qeg
 {
-	enum class texture_filter
-	{
-		point, linear, anisotropic
-	};
 
-	enum class texture_address_mode
-	{
-#ifdef DIRECTX
-		wrap = 1, //lines up with D3D11_TEXTURE_ADDRESS_MODE
-		mirror,
-		clamp,
-		border,
-		mirror_once,
-#elif OPENGL
-		wrap = GL_REPEAT,
-		mirror = GL_MIRRORED_REPEAT,
-		clamp = GL_CLAMP_TO_EDGE,
-		border = GL_CLAMP_TO_BORDER,
-		mirror_once = GL_MIRROR_CLAMP_TO_EDGE,
-#endif
-	};
 
 	struct sampler_state
 	{
@@ -53,7 +33,7 @@ namespace qeg
 			uint max_ansio = 16, vec4 bordercolor = vec4(.5f, .5f, .5f, 1),
 			float mipLODbias = 0, float minLOD = -FLT_MAX, float maxLOD = FLT_MAX);
 
-		void bind(device* _dev, int slot, shader_stage ss);
+		void bind(device* _dev, int slot, shader_stage ss, texture_dimension d = texture_dimension::texture_2d);
 		void update(device* _dev);
 		void unbind(device* _dev, int slot, shader_stage ss);
 	};

@@ -140,11 +140,8 @@ namespace qeg
 		texture1d(uint len)
 			: texture(len){}
 
-		texture1d(device* dev, uint len, buffer_format f, void* data = nullptr, bool gen_mips = false
-#ifdef DIRECTX
-			, size_t sys_pitch = 4
-#endif
-			);
+		texture1d(device* dev, uint len, pixel_format f, void* data = nullptr, 
+			bool gen_mips = false, size_t sys_pitch = 4);
 
 #ifdef DIRECTX
 		propr(ComPtr<ID3D11Texture1D>, texture2D, { return texd; });
@@ -171,11 +168,8 @@ namespace qeg
 		texture2d(uvec2 _s)
 			: texture(_s) { }
 
-		texture2d(device* dev, uvec2 size, buffer_format f, void* data = nullptr, bool gen_mips = false
-#ifdef DIRECTX
-			, size_t sys_pitch = 4
-#endif
-			);
+		texture2d(device* dev, uvec2 size, pixel_format f, void* data = nullptr,
+			bool gen_mips = false, size_t sys_pitch = 4);
 
 		static texture2d* load_dds(device* dev, datablob<byte>* data);
 		//static texture2d* load_bmp(device& dev, datablob<byte>* data)
@@ -186,6 +180,53 @@ namespace qeg
 		texture2d(device* dev, CD3D11_TEXTURE2D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc);
 #endif
 
+	};
+
+	class texture3d : public texture<3>
+	{
+	protected:
+#ifdef DIRECTX
+		ComPtr<ID3D11Texture3D> texd;
+		texture3d(ComPtr<ID3D11ShaderResourceView> srv_);
+#elif OPENGL
+		texture3d(dim_type w, GLuint i)
+			: texture(w, i){}
+#endif
+	public:
+		texture3d(){}
+
+		texture3d(uvec3 _s)
+			: texture(_s) { }
+
+		texture3d(device* dev, uvec3 size, pixel_format f, void* data = nullptr, 
+			bool gen_mips = false, size_t sys_slice_pitch = -1, size_t sys_pitch = 4);
+
+#ifdef DIRECTX
+		propr(ComPtr<ID3D11Texture3D>, texture3D, { return texd; });
+		texture3d(device* dev, CD3D11_TEXTURE3D_DESC desc);
+		texture3d(device* dev, CD3D11_TEXTURE3D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc);
+#endif
+
+	};
+
+
+	class textureCube : public texture2d
+	{
+	protected:
+#ifdef DIRECTX
+		textureCube(ComPtr<ID3D11ShaderResourceView> srv_);
+#endif
+	public:
+		textureCube(){}
+
+		textureCube(device* dev, uvec2 size, pixel_format f, vector<byte*> data_per_face, 
+			bool gen_mips = false,  size_t sys_pitch = 4);
+#ifdef DIRECTX
+		textureCube(device* dev, CD3D11_TEXTURE2D_DESC desc);
+		textureCube(device* dev, CD3D11_TEXTURE2D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc);
+#endif
+
+		static textureCube* load_dds(device* dev, datablob<byte>* data);
 	};
 };
 

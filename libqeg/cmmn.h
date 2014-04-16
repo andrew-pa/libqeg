@@ -23,6 +23,9 @@ using namespace std;
 //using GLM for GL and DX because I am lazy
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtc/random.hpp>
+#include <glm/gtx/io.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 using namespace glm;
 
@@ -66,7 +69,7 @@ namespace qeg
 	//typedef unsigned int uint32;
 	//typedef unsigned short uint16;
 	//typedef unsigned char uint8;
-	typedef unsigned char byte;
+	//typedef unsigned char byte;
 
 	inline float randf() { return ((float)rand() / (float)RAND_MAX); }
 	inline float randfn() { return ((randf() * 2) - 1); }
@@ -75,7 +78,8 @@ namespace qeg
 
 #define check_flag(v, f) (((v)&(f))==(f))
 
-	const float pi = 3.141592653589793238462643383279502884197169399375105820974944592307816406286f;
+#define pi glm::pi<float>()
+	//const float pi = 3.141592653589793238462643383279502884197169399375105820974944592307816406286f;
 
 	static auto cdlog = 
 	#ifdef WIN32
@@ -83,6 +87,19 @@ namespace qeg
 	#elif
 		std::cerr;
 	#endif
+
+	enum class texture_filter
+	{
+		point, linear, anisotropic
+	};
+
+	enum class texture_dimension : uint
+	{
+		texture_1d = 0,
+		texture_2d = 1,
+		texture_3d = 2,
+		texture_cube = 3,
+	};
 
 #ifdef DIRECTX
 	//HRexception
@@ -102,9 +119,9 @@ namespace qeg
 		}
 	}
 
-	//buffer_format
+	//pixel_format
 	//format of a pixel, used to describe textures, render targets, buffers
-	enum class buffer_format
+	enum class pixel_format : uint
 	{
 		UNKNOWN = DXGI_FORMAT_UNKNOWN,
 		RGBA32_TYPELESS = DXGI_FORMAT_R32G32B32A32_TYPELESS,
@@ -154,12 +171,21 @@ namespace qeg
 		R8_SNORM,
 		R8_SINT,
 	};	//this exploits the orderly nature of DXGI_FORMAT enum. if it changes, then this will need to reflect it.
+
+	enum class texture_address_mode
+	{
+		wrap = 1, //lines up with D3D11_TEXTURE_ADDRESS_MODE
+		mirror,
+		clamp,
+		border,
+		mirror_once,
+	};
 #endif
 
 #ifdef OPENGL	
-	//buffer_format
+	//pixel_format
 	//format of a pixel, used to describe textures, render targets, buffers
-	enum class buffer_format
+	enum class pixel_format : uint
 	{
 		UNKNOWN = GL_NONE,
 		RGBA32_TYPELESS = GL_RGBA32UI,
@@ -209,17 +235,54 @@ namespace qeg
 		BGR8_UNORM = GL_BGR,
 	};
 
-	//get_gl_format_type
-	// returns values like GL_FLOAT
-	GLenum get_gl_format_type(buffer_format f);
+	enum class texture_address_mode
+	{
+		wrap = GL_REPEAT,
+		mirror = GL_MIRRORED_REPEAT,
+		clamp = GL_CLAMP_TO_EDGE,
+		border = GL_CLAMP_TO_BORDER,
+		mirror_once = GL_MIRROR_CLAMP_TO_EDGE,
+	};
 
-	//get_gl_format_internal
-	// returns values like GL_RGBA
-	GLenum get_gl_format_internal(buffer_format f);
+	namespace detail
+	{
+		//get_gl_txdm_from_pi
+		// translates texture_dimension::texture_Xd/cube => GL_TEXTURE_XD or _CUBE_MAP
+		inline GLenum get_gl_txdm_from_pi(texture_dimension td)
+		{
+			switch (td)
+			{
+			case texture_dimension::texture_1d:
+				return GL_TEXTURE_1D;
+			case texture_dimension::texture_2d:
+				return GL_TEXTURE_2D;
+			case texture_dimension::texture_3d:
+				return GL_TEXTURE_3D;
+			case texture_dimension::texture_cube:
+				return GL_TEXTURE_CUBE_MAP;
+			default:
+				throw exception("unknown texture dimension");
+			}
+		}
+	
+		//get_gl_format_type
+		// returns values like GL_FLOAT
+		GLenum get_gl_format_type(pixel_format f);
+	
+		//get_gl_format_internal
+		// returns values like GL_RGBA
+		GLenum get_gl_format_internal(pixel_format f);
 
-	void __check_gl();
-#define check_gl __check_gl();
+		uint get_size(pixel_format f);
+
+		void __check_gl();
+	}
+#define check_gl 
+	//detail::__check_gl();
 #endif
+
+	size_t bits_per_pixel(pixel_format fmt);
+	inline size_t bytes_per_pixel(pixel_format fmt) { return bits_per_pixel(fmt) / 8; }
 
 	//error_code_exception
 	// exception the resulted from a error code that is failing
@@ -241,7 +304,8 @@ namespace qeg
 
 		~datablob()
 		{
-			delete[] data;
+			if(data != nullptr)
+				delete[] data;
 		}
 
 		T* data;

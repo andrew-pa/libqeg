@@ -68,7 +68,7 @@ namespace qeg
 #endif
 	}
 
-	void sampler_state::bind(device* _dev, int slot, shader_stage ss)
+	void sampler_state::bind(device* _dev, int slot, shader_stage ss, texture_dimension d)
 	{
 #ifdef DIRECTX
 		switch (ss)
@@ -82,34 +82,37 @@ namespace qeg
 		}
 #elif OPENGL
 		glActiveTexture(GL_TEXTURE0 + slot);
+
+		GLenum glxd = detail::get_gl_txdm_from_pi(d);
+
 		if(min_filter == texture_filter::anisotropic)
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)max_anisotropy);
+			glTexParameteri(glxd, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(glxd, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(glxd, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)max_anisotropy);
 		}
 		else
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, 
+			glTexParameteri(glxd, GL_TEXTURE_MAG_FILTER, 
 				(min_filter == texture_filter::point ? GL_NEAREST : GL_LINEAR));
 			if(mip_filter == texture_filter::point)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+				glTexParameteri(glxd, GL_TEXTURE_MIN_FILTER,
 					(min_filter == texture_filter::point ? GL_NEAREST_MIPMAP_NEAREST : GL_LINEAR_MIPMAP_NEAREST));
 			}
 			else if(mip_filter == texture_filter::linear)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+				glTexParameteri(glxd, GL_TEXTURE_MIN_FILTER,
 					(min_filter == texture_filter::point ? GL_NEAREST_MIPMAP_LINEAR : GL_LINEAR_MIPMAP_LINEAR));
 			}
 		}
-		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &border_color[0]);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, mip_lod_bias);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_LOD, min_lod);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_LOD, max_lod);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (GLint)address_modes[0]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (GLint)address_modes[1]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, (GLint)address_modes[2]);
+		glTexParameterfv(glxd, GL_TEXTURE_BORDER_COLOR, &border_color[0]);
+		glTexParameterf(glxd, GL_TEXTURE_LOD_BIAS, mip_lod_bias);
+		glTexParameterf(glxd, GL_TEXTURE_MIN_LOD, min_lod);
+		glTexParameterf(glxd, GL_TEXTURE_MAX_LOD, max_lod);
+		glTexParameteri(glxd, GL_TEXTURE_WRAP_S, (GLint)address_modes[0]);
+		glTexParameteri(glxd, GL_TEXTURE_WRAP_T, (GLint)address_modes[1]);
+		glTexParameteri(glxd, GL_TEXTURE_WRAP_R, (GLint)address_modes[2]);
 #endif
 	}
 
