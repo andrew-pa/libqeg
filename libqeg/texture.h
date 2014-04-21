@@ -140,8 +140,8 @@ namespace qeg
 		texture1d(uint len)
 			: texture(len){}
 
-		texture1d(device* dev, uint len, pixel_format f, void* data = nullptr, 
-			bool gen_mips = false, size_t sys_pitch = 4);
+		texture1d(device* dev, uint len, pixel_format f, void* data = nullptr);
+		texture1d(device* dev, uint len, pixel_format f, vector<void*> mip_data);
 
 #ifdef DIRECTX
 		propr(ComPtr<ID3D11Texture1D>, texture2D, { return texd; });
@@ -168,8 +168,8 @@ namespace qeg
 		texture2d(uvec2 _s)
 			: texture(_s) { }
 
-		texture2d(device* dev, uvec2 size, pixel_format f, void* data = nullptr,
-			bool gen_mips = false, size_t sys_pitch = 4);
+		texture2d(device* dev, uvec2 size, pixel_format f, void* data = nullptr);
+		texture2d(device* dev, uvec2 size, pixel_format f, vector<void*> mip_data);
 
 		static texture2d* load_dds(device* dev, datablob<byte>* data);
 		//static texture2d* load_bmp(device& dev, datablob<byte>* data)

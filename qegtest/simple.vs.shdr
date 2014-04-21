@@ -47,12 +47,12 @@ float fbm(vec2 n) {
 
 void main()
 {
-	float offset = noise((input.tex - t.xx*.1)*15)*.4f + .2;//(sin(input.pos.x*(15+sin(t.x+.3)))+sin(input.pos.y*(15+sin(t.x-.3)))+sin(input.pos.z*(15+sin(t.x))))*.2;
+	//float offset = noise((input.tex - t.xx*.1)*15)*.2f + .2;//(sin(input.pos.x*(15+sin(t.x+.3)))+sin(input.pos.y*(15+sin(t.x-.3)))+sin(input.pos.z*(15+sin(t.x))))*.2;
 	vec4 v = vec4(input.pos,1);// + offset*input.norm, 1); 
 	//vec4(input.pos + (noise((input.tex - t.xx*.1)*15)*.4f + .2)*input.norm, 1);//vec4(input.pos + input.norm*vec3(sin(t.x*.2 + input.pos.z*3.0), cos(t.x*.6 + input.pos.y * 3.0), sin(t.x*.3 + input.pos.x*3.0)) , 1);
 	vec4 p = mul(v,wvp);
 	output.pos = p;
 	output.posW = input.pos;
 	output.normW = mul(vec4(input.norm, 0),inw).xyz;
-	output.texc = input.tex + vec2(t.x*.1, t.x*(-.1));
+	output.texc = input.tex;// + vec2(t.x*.1, t.x*(-.1));
 }

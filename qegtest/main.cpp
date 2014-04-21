@@ -277,17 +277,164 @@ public:
 	proprw(vector<chunk>, chunks, { return _chunks; });
 };
 
-struct texture_header
-{
-	texture_dimension dim;
-	uvec3 size;
-	uint array_count; //or 0 for not a texture array
-	pixel_format format;
-};
-
 namespace detail
 {
-void* _load_texture(device* dev, datablob<byte>* file_data, bool gen_mips = false)
+	enum class pi_pixel_format
+	{
+		UNKNOWN = 0,
+		RGBA32_TYPELESS,
+		RGBA32_FLOAT,
+		RGBA32_UINT,
+		RGBA32_SINT,
+		RGB32_TYPELESS,
+		RGB32_FLOAT,
+		RGB32_UINT,
+		RGB32_SINT,
+		RGBA16_TYPELESS,
+		RGBA16_FLOAT,
+		RGBA16_UINT,
+		RGBA16_SINT,
+		RGBA16_UNORM,
+		RGBA16_SNORM,
+		RG32_TYPELESS,
+		RG32_FLOAT,
+		RG32_UINT,
+		RG32_SINT,
+		RGBA8_TYPELESS,
+		RGBA8_UNORM,
+		RGBA8_UINT,
+		RGBA8_SNORM,
+		RGBA8_SINT,
+		RG16_TYPELESS,
+		RG16_FLOAT,
+		RG16_UINT,
+		RG16_UNORM,
+		RG16_SINT,
+		RG16_SNORM,
+		R32_TYPELESS,
+		_D32_FLOAT,
+		R32_FLOAT,
+		R32_UINT,
+		R32_SINT,
+		R16_TYPELESS,
+		R16_FLOAT,
+		_D16_UNORM,
+		R16_UNORM,
+		R16_UINT,
+		R16_SNORM,
+		R16_SINT,
+		R8_TYPELESS,
+		R8_UNORM,
+		R8_UINT,
+		R8_SNORM,
+		R8_SINT,
+	};
+
+#define ___conv_ipp(x) case pi_pixel_format:: x: return pixel_format:: x;
+#define ___conv_pip(x) case pixel_format:: x: return pi_pixel_format:: x;
+
+
+	pixel_format convert(pi_pixel_format f)
+	{
+		switch (f)
+		{
+			___conv_ipp(UNKNOWN)
+			___conv_ipp(RGBA32_TYPELESS)
+			___conv_ipp(RGBA32_FLOAT)
+			___conv_ipp(RGBA32_UINT)
+			___conv_ipp(RGBA32_SINT)
+			___conv_ipp(RGB32_TYPELESS)
+			___conv_ipp(RGB32_FLOAT)
+			___conv_ipp(RGB32_UINT)
+			___conv_ipp(RGB32_SINT)
+			___conv_ipp(RGBA16_TYPELESS)
+			___conv_ipp(RGBA16_FLOAT)
+			___conv_ipp(RGBA16_SINT)
+			___conv_ipp(RGBA16_UNORM)
+			___conv_ipp(RGBA16_SNORM)
+			___conv_ipp(RG32_TYPELESS)
+			___conv_ipp(RG32_FLOAT)
+			___conv_ipp(RG32_UINT)
+			___conv_ipp(RG32_SINT)
+			___conv_ipp(RGBA8_TYPELESS)
+			___conv_ipp(RGBA8_UNORM)
+			___conv_ipp(RGBA8_UINT)
+			___conv_ipp(RGBA8_SNORM)
+			___conv_ipp(R32_TYPELESS)
+			___conv_ipp(R32_FLOAT)
+			___conv_ipp(R32_UINT)
+			___conv_ipp(R32_SINT)
+			___conv_ipp(R16_TYPELESS)
+			___conv_ipp(R16_FLOAT)
+			___conv_ipp(R16_SINT)
+			___conv_ipp(R8_TYPELESS)
+			___conv_ipp(R8_UNORM)
+			___conv_ipp(R8_UINT)
+			___conv_ipp(R8_SNORM)
+			___conv_ipp(R8_SINT)
+
+		default:
+			throw exception("invalid pi_pixel_format");
+		}
+	}
+
+	pi_pixel_format convert(pixel_format f)
+	{
+		switch (f)
+		{
+			___conv_pip(UNKNOWN)
+			opengl_exempt(___conv_pip(RGBA32_TYPELESS))
+			___conv_pip(RGBA32_FLOAT)
+			___conv_pip(RGBA32_UINT)
+			___conv_pip(RGBA32_SINT)
+			opengl_exempt(___conv_pip(RGB32_TYPELESS))
+			___conv_pip(RGB32_FLOAT)
+			___conv_pip(RGB32_UINT)
+			___conv_pip(RGB32_SINT)
+			opengl_exempt(___conv_pip(RGBA16_TYPELESS))
+			___conv_pip(RGBA16_FLOAT)
+			___conv_pip(RGBA16_SINT)
+			___conv_pip(RGBA16_UNORM)
+			___conv_pip(RGBA16_SNORM)
+			opengl_exempt(___conv_pip(RG32_TYPELESS))
+			___conv_pip(RG32_FLOAT)
+			___conv_pip(RG32_UINT)
+			___conv_pip(RG32_SINT)
+			opengl_exempt(___conv_pip(RGBA8_TYPELESS))
+			___conv_pip(RGBA8_UNORM)
+			___conv_pip(RGBA8_UINT)
+			___conv_pip(RGBA8_SNORM)
+			opengl_exempt(___conv_pip(R32_TYPELESS))
+			___conv_pip(R32_FLOAT)
+			___conv_pip(R32_UINT)
+			___conv_pip(R32_SINT)
+			opengl_exempt(___conv_pip(R16_TYPELESS))
+			___conv_pip(R16_FLOAT)
+			___conv_pip(R16_UINT)
+			___conv_pip(R16_UNORM)
+			___conv_pip(R16_SINT)
+			___conv_pip(R16_SNORM)
+			opengl_exempt(___conv_pip(R8_TYPELESS))
+			___conv_pip(R8_UNORM)
+			___conv_pip(R8_UINT)
+			___conv_pip(R8_SNORM)
+			___conv_pip(R8_SINT)
+			
+		default:
+			throw exception("invalid pixel_format");
+		}
+	}
+
+	struct texture_header
+	{
+		texture_dimension dim;
+		uvec3 size;
+		uint array_count; //or 0 for not a texture array
+		pi_pixel_format format;
+		uint mip_count; //or 0 for no mips (will use GPU to generate)
+	};
+
+void* _load_texture(device* dev, datablob<byte>* file_data)
 {
 	bo_file f(file_data);
 	if (f.type() != bo_file::file_type::texture)
@@ -311,6 +458,10 @@ void* _load_texture(device* dev, datablob<byte>* file_data, bool gen_mips = fals
 			data_chunk_indices.push_back(i);
 		}
 	}
+
+	pixel_format h_format = convert(h->format);
+
+	bool gen_mips =  h->mip_count == 0;
 	
 	if (data_chunk_indices.size() == 0) throw exception("no data chunks");
 
@@ -325,9 +476,9 @@ void* _load_texture(device* dev, datablob<byte>* file_data, bool gen_mips = fals
 		else
 		{
 			auto c = f.chunks()[data_chunk_indices[0]];
-			if (c.data->length < (h->size[0] * bytes_per_pixel(h->format)))
+			if (c.data->length < (h->size[0] * bytes_per_pixel(h_format)))
 				throw exception("not enough data in chunk");
-			return new texture1d(dev, h->size[0], h->format, c.data->data, gen_mips, bytes_per_pixel(h->format));
+			return new texture1d(dev, h->size[0], h_format, c.data->data);
 		}
 	}
 	else if (h->dim == texture_dimension::texture_2d)
@@ -339,11 +490,42 @@ void* _load_texture(device* dev, datablob<byte>* file_data, bool gen_mips = fals
 		else
 		{
 			auto c = f.chunks()[data_chunk_indices[0]];
-			if (c.data->length < (h->size[0] * h->size[1] * bytes_per_pixel(h->format)))
+			auto bpp = bytes_per_pixel(h_format);
+			uint len = (h->size[0] * h->size[1] * bpp);
+			if(!gen_mips) //image contains mips
+			{
+				//offset, length
+				//vector<pair<size_t, size_t>> mip_ofl;
+				//mip_ofl.push_back(make_pair(  0, len)); //mip lvl 0
+				//size_t off = len;
+				//for (int i = 0; i < h->mip_count-1; i++)
+				//{
+				//	float m = pow(2.f, i);
+				//	mip_ofl.push_back(make_pair(off, (size_t)floor((h->size.x / m) * (h->size.y / m)) * bpp));
+				//	off += (size_t)floor((h->size.x / m) * (h->size.y / m)) * bpp;
+				//}
+				uint off = 0;
+				vector<size_t> offsets;
+				for (int i = 0; i < h->mip_count; ++i)
+				{
+					uvec2 msize = uvec2(h->size) / (uint)pow(2U, i);
+					offsets.push_back(off);
+					off += msize.x * msize.y;
+				}
+				off *= sizeof(vec4);
+				if (off > c.data->length) throw exception("not enougth data for all mipmaps in chunk");
+				vector<void*> data;
+				for(const auto& ol : offsets)
+				{
+					data.push_back(c.data->data+ol);
+				}
+				return new texture2d(dev, uvec2(h->size[0], h->size[1]), h_format,
+					data);
+			}
+			if (c.data->length < len)
 				throw exception("not enough data in chunk");
-			return new texture2d(dev, uvec2(h->size[0], h->size[1]), h->format, 
-				c.data->data, gen_mips, 
-				bytes_per_pixel(h->format)*h->size.y);
+			return new texture2d(dev, uvec2(h->size[0], h->size[1]), h_format, 
+				c.data->data);
 		}
 	}
 	else if (h->dim == texture_dimension::texture_3d)
@@ -355,11 +537,11 @@ void* _load_texture(device* dev, datablob<byte>* file_data, bool gen_mips = fals
 		else
 		{
 			auto c = f.chunks()[data_chunk_indices[0]];
-			if (c.data->length < (h->size[0] * h->size[1] * h->size[2] * bytes_per_pixel(h->format)))
+			if (c.data->length < (h->size[0] * h->size[1] * h->size[2] * bytes_per_pixel(h_format)))
 				throw exception("not enough data in chunk");
-			return new texture3d(dev, h->size, h->format,
-				c.data->data, gen_mips, h->size[2]*bytes_per_pixel(h->format), 
-				bytes_per_pixel(h->format)*h->size.y);
+			return new texture3d(dev, h->size, h_format,
+				c.data->data, gen_mips, h->size[2]*bytes_per_pixel(h_format), 
+				bytes_per_pixel(h_format)*h->size.y);
 		}
 	}
 	else if (h->dim == texture_dimension::texture_cube)
@@ -375,12 +557,12 @@ void* _load_texture(device* dev, datablob<byte>* file_data, bool gen_mips = fals
 			for (int i = 0; i < 6; ++i)
 			{
 				auto c = f.chunks()[data_chunk_indices[i]];
-				if (c.data->length < (h->size[0] * h->size[1] * bytes_per_pixel(h->format)))
+				if (c.data->length < (h->size[0] * h->size[1] * bytes_per_pixel(h_format)))
 					throw exception("not enough data in chunk");
 				facedata.push_back(c.data->data);
 			}
-			return new textureCube(dev, uvec2(h->size[0], h->size[1]), h->format,
-				facedata, gen_mips, bytes_per_pixel(h->format)*h->size.y);
+			return new textureCube(dev, uvec2(h->size[0], h->size[1]), h_format,
+				facedata, gen_mips, bytes_per_pixel(h_format)*h->size.y);
 		}
 	}
 	
@@ -388,10 +570,10 @@ void* _load_texture(device* dev, datablob<byte>* file_data, bool gen_mips = fals
 }
 }
 
-inline texture1d* load_texture1d(device* dev, datablob<byte>* file_data, bool gen_mips = false) { return static_cast<texture1d*>(::detail::_load_texture(dev, file_data, gen_mips)); }
-inline texture2d* load_texture2d(device* dev, datablob<byte>* file_data, bool gen_mips = false) { return static_cast<texture2d*>(::detail::_load_texture(dev, file_data, gen_mips)); }
-inline texture3d* load_texture3d(device* dev, datablob<byte>* file_data, bool gen_mips = false) { return static_cast<texture3d*>(::detail::_load_texture(dev, file_data, gen_mips)); }
-inline textureCube* load_textureCube(device* dev, datablob<byte>* file_data, bool gen_mips = false) { return static_cast<textureCube*>(::detail::_load_texture(dev, file_data, gen_mips)); }
+inline texture1d* load_texture1d(device* dev, datablob<byte>* file_data) { return static_cast<texture1d*>(::detail::_load_texture(dev, file_data)); }
+inline texture2d* load_texture2d(device* dev, datablob<byte>* file_data) { return static_cast<texture2d*>(::detail::_load_texture(dev, file_data)); }
+inline texture3d* load_texture3d(device* dev, datablob<byte>* file_data) { return static_cast<texture3d*>(::detail::_load_texture(dev, file_data)); }
+inline textureCube* load_textureCube(device* dev, datablob<byte>* file_data) { return static_cast<textureCube*>(::detail::_load_texture(dev, file_data)); }
 
 class qegtest_app : public app
 {
@@ -427,33 +609,72 @@ public:
 	{
 
 		m = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
-			//generate_torus<vertex_position_normal_texture, uint16>(vec2(2, .7f), 64), "torus0");
-			generate_plane<vertex_position_normal_texture, uint16>(vec2(6), vec2(64), vec3(0, -1, 0)), "plane0");
+			generate_torus<vertex_position_normal_texture, uint16>(vec2(2, .7f), 64), "torus0");
+			//generate_plane<vertex_position_normal_texture, uint16>(vec2(16), vec2(64), vec3(0, -1, 0)), "plane0");
 			//generate_sphere<vertex_position_normal_texture,uint16>(2.f, 64, 64), "sphere0"); 
 			//create_sphere(_dev, 1.3f, 64, 64, "s0", true); 
 			//create_box(_dev, "box0", 1, true);
 
-		tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
+		//tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 
-		//const int size = 512;
+		const int size = 512;
 
 		//bo_file f(bo_file::file_type::texture);
-		//texture_header h;
+		//::detail::texture_header h;
 		//h.dim = texture_dimension::texture_2d;
 		//h.size = uvec3(size, size, 0);
 		//h.array_count = 0;
-		//h.format = pixel_format::RGBA32_FLOAT;
-
-		//vec4* img = new vec4[size * size];
+		//h.mip_count = 7;
+		//h.format = ::detail::pi_pixel_format::RGBA32_FLOAT;
+		///vec4* img = new vec4[size * size];
 		//for (int y = 0; y < size; ++y)
 		//	for (int x = 0; x < size; x++)
 		//	{
 		//		vec2 p = vec2((float)x / (float)size, (float)y / (float)size);
-		//		float n = abs(perlin(p*16.f));
+		//		float n = abs(perlin(p*32.f));
 		//		img[x + y * size] = vec4(vec3(n), 1.f);
-		//	}
-		//bo_file::chunk hc(0, new datablob<byte>((byte*)&h, sizeof(texture_header)));
-		//bo_file::chunk dc(1, new datablob<byte>((byte*)img, sizeof(vec4)*size*size));
+		//	}*/
+		//uint fsize = 0;
+		//vector<size_t> offsets;
+		//for (int i = 0; i < h.mip_count; ++i)
+		//{
+		//	uvec2 msize = uvec2(size) / (uint)pow(2U, i);
+		//	offsets.push_back(fsize);
+		//	fsize += msize.x * msize.y;
+		//}
+		// 
+		//vec4* img = new vec4[fsize];
+		vector<vec4> pal(20);
+		generate(pal.begin(), pal.end(), [&] { return vec4(linearRand(vec3(.2f), vec3(.8f)), 1.f);; });
+		//for (int i = 0; i < h.mip_count; ++i)
+		//{
+		//	vec4* im = img + offsets[i];
+		//	uvec2 msize = uvec2(size) / (uint)pow(2U, i);
+		//	for (int y = 0; y < msize.y; ++y)
+		//		for (int x = 0; x < msize.x; x++)
+		//		{
+		//			vec2 p = vec2((float)x / (float)msize.x, (float)y / (float)msize.y);
+		//			float n = abs(perlin(p*32.f));
+		//			im[x + y * msize.y] = vec4(n);
+		//		}
+		//}
+		////for (int i = 0; i < 6; ++i)
+		////{
+		////	uvec2 msize = uvec2(size) / (uint)pow(2U, i);
+		////	fsize += msize.x * msize.y * sizeof(vec4);
+		////	img[i] = new vec4[msize.x*msize.y];
+		////	for (int y = 0; y < msize.y; ++y)
+		////		for (int x = 0; x < msize.x; x++)
+		////		{
+		////			vec2 p = vec2((float)x / (float)msize.x, (float)y / (float)msize.y);
+		////			float n = cos(p.x)*sin(p.y);//abs(perlin(p*32.f));
+		////			(img[i])[x + y * msize.y] = vec4(vec3(n), 1.f);
+		////		}
+		////}
+		////
+		////
+		//bo_file::chunk hc(0, new datablob<byte>((byte*)&h, sizeof(::detail::texture_header)));
+		//bo_file::chunk dc(1, new datablob<byte>((byte*)img, fsize*sizeof(vec4)));
 		//f.chunks().push_back(hc);
 		//f.chunks().push_back(dc);
 		//auto txf = f.write();
@@ -462,10 +683,24 @@ public:
 		//out.write((const char*)txf->data, txf->length);
 		//out.flush();
 		//out.close();
+		//texture2d* tx2 = load_texture2d(_dev,
+		//	read_data(L"C:\\Users\\andre_000\\Source\\libqeg\\qegtest\\perlin.tex"));
 
-		texture2d* tx2 = load_texture2d(_dev, read_data(L"C:\\Users\\andre_000\\Source\\libqeg\\qegtest\\perlin.tex"), false);
-
-		tx = tx2;
+		vector<void*> md;
+		for (int i = 0; i < 10; ++i)
+		{
+			uint msize = size / pow(2.f, i);
+			vec4* m = new vec4[msize*msize];
+			for (int y = 0; y < msize; ++y)
+				for (int x = 0; x < msize; x++)
+				{
+					vec2 p = vec2((float)x / (float)msize, (float)y / (float)msize);
+					float n = abs(perlin(p*32.f));
+					m[x + y * msize] = vec4(n) * pal[i];
+				}
+			md.push_back((void*)m);
+		}
+		tx = new texture2d(_dev, uvec2(size), pixel_format::RGBA32_FLOAT, md);
 
 		//auto m = generate_plane<vertex_position_normal_texture, uint16>(vec2(10, 10), uvec2(16, 16), vec3(1, 0, 0));
 

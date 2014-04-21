@@ -101,6 +101,14 @@ namespace qeg
 		texture_cube = 3,
 	};
 
+#ifdef OPENGL
+#define opengl_exempt(x)
+#define directx_exempt(x) x
+#elif DIRECTX
+#define opengl_exempt(x) x
+#define directx_exempt(x) 
+#endif
+
 #ifdef DIRECTX
 	//HRexception
 	// exception that resulted from a failed HRESULT, which is passed along
@@ -180,6 +188,19 @@ namespace qeg
 		border,
 		mirror_once,
 	};
+
+	namespace detail
+	{
+		struct CD3D11_SUBRESOURCE_DATA : public D3D11_SUBRESOURCE_DATA
+		{
+			CD3D11_SUBRESOURCE_DATA(void* sys_mem, size_t sys_pitch, size_t sys_pitch_slice)
+			{
+				pSysMem = sys_mem;
+				SysMemPitch = sys_pitch;
+				SysMemSlicePitch = sys_pitch_slice;
+			}
+		};
+	}
 #endif
 
 #ifdef OPENGL	
@@ -224,9 +245,9 @@ namespace qeg
 		R16_TYPELESS = GL_R16UI,
 		R16_FLOAT = GL_R16F,
 		R16_UNORM = GL_R16,
-		R16_UINT = GL_R32UI,
+		R16_UINT = GL_R16UI,
 		R16_SNORM = GL_R16_SNORM,
-		R16_SINT = GL_R32I,
+		R16_SINT = GL_R16I,
 		R8_TYPELESS = GL_R8UI,
 		R8_UNORM = GL_R8,
 		R8_UINT = GL_R8UI,

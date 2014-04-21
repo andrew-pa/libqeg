@@ -85,69 +85,64 @@ namespace qeg
 	}
 #endif
 
-#ifdef OPENGL
-#define ogl_exempt(x)
-#elif DIRECTX
-#define ogl_exempt(x) x
-#endif
 	size_t bits_per_pixel(pixel_format fmt)
 	{
 		switch (fmt)
 		{
 		case pixel_format::RGBA32_TYPELESS:
 		case pixel_format::RGBA32_FLOAT:
-		ogl_exempt(case pixel_format::RGBA32_UINT:)
+		opengl_exempt(case pixel_format::RGBA32_UINT:)
 		case pixel_format::RGBA32_SINT:
 			return 128;
 
 		case pixel_format::RGB32_TYPELESS:
 		case pixel_format::RGB32_FLOAT:
-		ogl_exempt(case pixel_format::RGB32_UINT:)
+		opengl_exempt(case pixel_format::RGB32_UINT:)
 		case pixel_format::RGB32_SINT:
 			return 96;
 
 		case pixel_format::RGBA16_TYPELESS:
 		case pixel_format::RGBA16_FLOAT:
 		case pixel_format::RGBA16_UNORM:
-		ogl_exempt(case pixel_format::RGBA16_UINT:)
+		opengl_exempt(case pixel_format::RGBA16_UINT:)
 		case pixel_format::RGBA16_SNORM:
 		case pixel_format::RGBA16_SINT:
 		case pixel_format::RG32_TYPELESS:
 		case pixel_format::RG32_FLOAT:
-		ogl_exempt(case pixel_format::RG32_UINT:)
+		opengl_exempt(case pixel_format::RG32_UINT:)
 		case pixel_format::RG32_SINT:
 			return 64;
 
 		case pixel_format::RGBA8_TYPELESS:
 		case pixel_format::RGBA8_UNORM:
-		ogl_exempt(case pixel_format::RGBA8_UINT:)
+		opengl_exempt(case pixel_format::RGBA8_UINT:)
 		case pixel_format::RGBA8_SNORM:
 		case pixel_format::RGBA8_SINT:
 		case pixel_format::RG16_TYPELESS:
 		case pixel_format::RG16_FLOAT:
 		case pixel_format::RG16_UNORM:
-		ogl_exempt(case pixel_format::RG16_UINT:)
+		opengl_exempt(case pixel_format::RG16_UINT:)
 		case pixel_format::RG16_SNORM:
 		case pixel_format::RG16_SINT:
 		case pixel_format::R32_TYPELESS:
-		ogl_exempt(case pixel_format::_D32_FLOAT:)
+		opengl_exempt(case pixel_format::_D32_FLOAT:)
 		case pixel_format::R32_FLOAT:
-		ogl_exempt(case pixel_format::R32_UINT:)
+		opengl_exempt(case pixel_format::R32_UINT:)
 		case pixel_format::R32_SINT:
 			return 32;
 
 		case pixel_format::R16_TYPELESS:
 		case pixel_format::R16_FLOAT:
-		ogl_exempt(case pixel_format::_D16_UNORM:)
+		opengl_exempt(case pixel_format::_D16_UNORM:)
 		case pixel_format::R16_UNORM:
-		ogl_exempt(case pixel_format::R16_UINT:)
+		opengl_exempt(case pixel_format::R16_UINT:)
 		case pixel_format::R16_SNORM:
-		ogl_exempt(case pixel_format::R16_SINT:)
+		opengl_exempt(case pixel_format::R16_SINT:)
 			return 16;
 
 		case pixel_format::R8_TYPELESS:
 		case pixel_format::R8_UNORM:
-		ogl_exempt(case pixel_format::R8_UINT:)
+		opengl_exempt(case pixel_format::R8_UINT:)
 		case pixel_format::R8_SNORM:
 		case pixel_format::R8_SINT:
 			return 8;

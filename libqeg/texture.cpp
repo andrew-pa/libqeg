@@ -9,10 +9,10 @@
 namespace qeg
 {
 #ifdef DIRECTX
-	texture1d::texture1d(device* dev, uint size_, pixel_format f, void* data, bool gen_mips, size_t sys_pitch)
+	texture1d::texture1d(device* dev, uint size_, pixel_format f, void* data)
 	{
 		CD3D11_TEXTURE1D_DESC dsc((DXGI_FORMAT)f, size_, 1U, 0U, D3D11_BIND_SHADER_RESOURCE);
-		if (gen_mips)
+		if (data != nullptr)
 		{
 			dsc.MipLevels = 7;
 			dsc.BindFlags |= D3D11_BIND_RENDER_TARGET;
@@ -21,8 +21,22 @@ namespace qeg
 		CD3D11_SHADER_RESOURCE_VIEW_DESC sd(D3D11_SRV_DIMENSION_TEXTURE1D, (DXGI_FORMAT)f);
 		D3D11_SUBRESOURCE_DATA d = { 0 };
 		d.pSysMem = data;
-		d.SysMemPitch = sys_pitch;
 		chr(dev->ddevice()->CreateTexture1D(&dsc, (data == nullptr ? nullptr : &d), &texd));
+		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &sd, &srv));
+	}
+	texture1d::texture1d(device* dev, uint size_, pixel_format f, vector<void*> mip_data)
+	{
+		if (mip_data.size() <= 1) throw exception("need to have more than 1 mip level for loaded mipmaps");
+		CD3D11_TEXTURE1D_DESC dsc((DXGI_FORMAT)f, size_, mip_data.size(), 0U, D3D11_BIND_SHADER_RESOURCE);
+		CD3D11_SHADER_RESOURCE_VIEW_DESC sd(D3D11_SRV_DIMENSION_TEXTURE1D, (DXGI_FORMAT)f);
+		vector<D3D11_SUBRESOURCE_DATA> srda;
+		for(const auto& m : mip_data)
+		{
+			D3D11_SUBRESOURCE_DATA srd = { 0 };
+			srd.pSysMem = m;
+			srda.push_back(srd);
+		}
+		chr(dev->ddevice()->CreateTexture1D(&dsc, srda.data(), &texd));
 		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &sd, &srv));
 	}
 	texture1d::texture1d(device* dev, CD3D11_TEXTURE1D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc)
@@ -46,13 +60,13 @@ namespace qeg
 		rs.As(&texd);
 	}
 
-	texture2d::texture2d(device* dev, uvec2 size_, pixel_format f, void* data, bool gen_mips, size_t sys_pitch)
+	texture2d::texture2d(device* dev, uvec2 size_, pixel_format f, void* data)
 		: texture(size_)
 	{
 		CD3D11_TEXTURE2D_DESC txd((DXGI_FORMAT)f, size_.x, size_.y, 1U, 0U,
 			D3D11_BIND_SHADER_RESOURCE);
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srd(D3D11_SRV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)f);
-		if (gen_mips)
+		if (data != nullptr)
 		{
 			txd.MipLevels = 7;
 			txd.BindFlags |= D3D11_BIND_RENDER_TARGET;
@@ -60,9 +74,28 @@ namespace qeg
 		}
 		D3D11_SUBRESOURCE_DATA initdata = { 0 };
 		initdata.pSysMem = data;
-		initdata.SysMemPitch = sys_pitch;
+		initdata.SysMemPitch = size_.y * bytes_per_pixel(f);
 		D3D11_SUBRESOURCE_DATA initdatas[7] = { initdata, initdata, initdata, initdata, initdata, initdata, initdata };
 		chr(dev->ddevice()->CreateTexture2D(&txd, (data == nullptr ? nullptr : initdatas), &texd));
+		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srd, &srv));
+	}
+	texture2d::texture2d(device* dev, uvec2 size_, pixel_format f, vector<void*> mip_data)
+		: texture(size_)
+	{
+		if (mip_data.size() <= 1) throw exception("not enougth mip levels");
+		CD3D11_TEXTURE2D_DESC txd((DXGI_FORMAT)f, size_.x, size_.y, 1U, mip_data.size()-1,
+			D3D11_BIND_SHADER_RESOURCE);
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srd(D3D11_SRV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)f, 0U);
+		vector<D3D11_SUBRESOURCE_DATA> srda;
+		for (int i = 0; i < mip_data.size(); ++i)
+		{
+			auto m = mip_data[i];
+			D3D11_SUBRESOURCE_DATA srd = { 0 };
+			srd.pSysMem = m;
+			srd.SysMemPitch = (size_.y / pow(2.f, i)) * bytes_per_pixel(f);
+			srda.push_back(srd);
+		}
+		chr(dev->ddevice()->CreateTexture2D(&txd, srda.data(), &texd));
 		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srd, &srv));
 	}
 
@@ -192,23 +225,75 @@ namespace qeg
 #endif
 
 #ifdef OPENGL
-	texture2d::texture2d(device* dev, uvec2 size_, pixel_format f, void* data, bool gen_mips)
+	texture1d::texture1d(device* dev, uint size_, pixel_format f, void* data)
+		: texture(size_)
+	{
+		glGenTextures(1, &_id);
+		glBindTexture(GL_TEXTURE_1D, _id);
+		glTexImage1D(GL_TEXTURE_1D, 0, detail::get_gl_format_internal(f),
+			size_, 0, (GLenum)f, detail::get_gl_format_type(f), data);
+		if (data != nullptr)
+			glGenerateMipmap(GL_TEXTURE_1D);
+	}
+	
+	texture1d::texture1d(device* dev, uint size_, pixel_format f, vector<void*> mip_data)
+		: texture(size_)
+	{
+		glGenTextures(1, &_id);
+		glBindTexture(GL_TEXTURE_1D, _id);
+		glTexStorage1D(GL_TEXTURE_1D, mip_data.size(), (GLenum)f, size_);
+		for (int i = 0; i < mip_data.size(); ++i)
+		{
+			uint mipmap_scale = (uint)floor(1.f / pow(2.f, (float)i));
+			glTexSubImage1D(GL_TEXTURE_1D, i, 0, size_*mipmap_scale, detail::get_gl_format_internal(f),
+				detail::get_gl_format_type(f), mip_data[i]);
+		}
+	}
+
+	texture2d::texture2d(device* dev, uvec2 size_, pixel_format f, void* data)
 		: texture(size_)
 	{
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);
-		glTexImage2D(GL_TEXTURE_2D, 0, detail::get_gl_format_internal(f), 
-			size_.x, size_.y, 0, (GLenum)f, detail::get_gl_format_type(f), data);
-		if (gen_mips)
+		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)(f), 
+			size_.x, size_.y, 0, detail::get_gl_format_internal(f), detail::get_gl_format_type(f), data);
+		if (data != nullptr)
 			glGenerateMipmap(GL_TEXTURE_2D);
 	}		
 
-	textureCube::textureCube(device* dev, uvec2 size_, pixel_format f, vector<byte*> data_per_face, bool gen_mips)
+	texture2d::texture2d(device* dev, uvec2 size_, pixel_format f, vector<void*> mip_data)
+		: texture(size_)
+	{
+		glGenTextures(1, &_id);
+		glBindTexture(GL_TEXTURE_2D, _id);
+		glTexStorage2D(GL_TEXTURE_2D, mip_data.size(), (GLenum)f, size_.x, size_.y);
+		for (int i = 0; i < mip_data.size(); ++i)
+		{
+			uint mipmap_scale = floor(pow(2.f, (float)i));
+			glTexSubImage2D(GL_TEXTURE_2D, i, 0, 0,
+				size_.x/mipmap_scale, size_.y/mipmap_scale, 
+				detail::get_gl_format_internal(f), detail::get_gl_format_type(f), mip_data[i]);
+		}
+	}
+
+	texture3d::texture3d(device* dev, uvec3 size_, pixel_format f, void* data, bool gen_mips, size_t, size_t)
+		: texture(size_)
+	{
+		glGenTextures(1, &_id);
+		glBindTexture(GL_TEXTURE_3D, _id);
+		glTexImage3D(GL_TEXTURE_3D, 0, detail::get_gl_format_internal(f),
+			size_.x, size_.y, size_.z, 0, (GLenum)f, detail::get_gl_format_type(f), data);
+		if (gen_mips)
+			glGenerateMipmap(GL_TEXTURE_3D);
+	}
+
+	textureCube::textureCube(device* dev, uvec2 size_, pixel_format f, vector<byte*> data_per_face, bool gen_mips, size_t)
 		: texture2d(size_)
 	{
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
 
+		//TODO: implement loading tex vture cubes into opengl
 		
 		if (gen_mips) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
