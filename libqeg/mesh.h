@@ -106,9 +106,6 @@ namespace qeg
 			: pos(p), norm(n), tex(t)
 		{
 		}
-/*
-		DEF_VERTEX_MC(vertex_position_normal_tangent_texture)
-			: pos(position), norm(normal), tex(texcoords), tang(tangent){}*/
 	};
 
 	//prim_draw_type

@@ -2,6 +2,7 @@
 #include "cmmn.h"
 #include "device.h"
 #include "shader.h"
+#include "resource.h"
 
 namespace qeg
 {
@@ -63,6 +64,7 @@ namespace qeg
 		texture() {}
 		texture(dim_type _s)
 			: _size(_s)	{}
+
 
 		virtual void bind(device* dev, int slot, shader_stage ss, shader& s)
 #ifdef DIRECTX
@@ -143,6 +145,11 @@ namespace qeg
 		texture1d(device* dev, uint len, pixel_format f, void* data = nullptr);
 		texture1d(device* dev, uint len, pixel_format f, vector<void*> mip_data);
 
+		inline static texture1d* load(device* _dev, datablob<byte>* file)
+		{
+			return static_cast<texture1d*>(detail::_load_texture(_dev, file));
+		}
+
 #ifdef DIRECTX
 		propr(ComPtr<ID3D11Texture1D>, texture2D, { return texd; });
 
@@ -172,6 +179,12 @@ namespace qeg
 		texture2d(device* dev, uvec2 size, pixel_format f, vector<void*> mip_data);
 
 		static texture2d* load_dds(device* dev, datablob<byte>* data);
+
+		inline static texture2d* load(device* _dev, datablob<byte>* file)
+		{
+			return static_cast<texture2d*>(detail::_load_texture(_dev, file));
+		}
+
 		//static texture2d* load_bmp(device& dev, datablob<byte>* data)
 
 #ifdef DIRECTX
@@ -201,6 +214,13 @@ namespace qeg
 		texture3d(device* dev, uvec3 size, pixel_format f, void* data = nullptr, 
 			bool gen_mips = false, size_t sys_slice_pitch = -1, size_t sys_pitch = 4);
 
+		inline static texture2d* load(device* _dev, datablob<byte>* file)
+		{
+			return static_cast<texture2d*>(detail::_load_texture(_dev, file));
+		}
+
+		//TODO: Implement or consider loading 3D mipmaps
+
 #ifdef DIRECTX
 		propr(ComPtr<ID3D11Texture3D>, texture3D, { return texd; });
 		texture3d(device* dev, CD3D11_TEXTURE3D_DESC desc);
@@ -221,6 +241,13 @@ namespace qeg
 
 		textureCube(device* dev, uvec2 size, pixel_format f, vector<byte*> data_per_face, 
 			bool gen_mips = false,  size_t sys_pitch = 4);
+
+		inline static textureCube* load(device* _dev, datablob<byte>* file)
+		{
+			return static_cast<textureCube*>(detail::_load_texture(_dev, file));
+		}
+
+		//TODO: Implement or consider loading TexCube mipmaps
 #ifdef DIRECTX
 		textureCube(device* dev, CD3D11_TEXTURE2D_DESC desc);
 		textureCube(device* dev, CD3D11_TEXTURE2D_DESC desc, CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc);

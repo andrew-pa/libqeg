@@ -111,12 +111,14 @@
     <ClInclude Include="app.h" />
     <ClInclude Include="aux_cameras.h" />
     <ClInclude Include="basic_input.h" />
+    <ClInclude Include="bo_file.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cmmn.h" />
     <ClInclude Include="constant_buffer.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="render_texture2d.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="states.h" />
     <ClInclude Include="texture.h" />
@@ -132,6 +134,7 @@
     <ClCompile Include="device.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="render_texture2d.cpp" />
+    <ClCompile Include="resource.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="states.cpp" />
     <ClCompile Include="texture.cpp" />

@@ -27,7 +27,6 @@ namespace qeg
 	texture1d::texture1d(device* dev, uint size_, pixel_format f, vector<void*> mip_data)
 	{
 		if (mip_data.size() <= 1) throw exception("need to have more than 1 mip level for loaded mipmaps");
-		//TODO: fix like tx2d
 		CD3D11_TEXTURE1D_DESC dsc((DXGI_FORMAT)f, size_, 1U, mip_data.size(), D3D11_BIND_SHADER_RESOURCE);
 		CD3D11_SHADER_RESOURCE_VIEW_DESC sd(D3D11_SRV_DIMENSION_TEXTURE1D, (DXGI_FORMAT)f);
 		vector<D3D11_SUBRESOURCE_DATA> srda;
@@ -88,12 +87,12 @@ namespace qeg
 			D3D11_BIND_SHADER_RESOURCE);
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srd(D3D11_SRV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)f, 0U);
 		vector<D3D11_SUBRESOURCE_DATA> srda;
-		for (int i = 0; i < mip_data.size(); ++i)
+		for (uint i = 0; i < mip_data.size(); ++i)
 		{
 			auto m = mip_data[i];
 			D3D11_SUBRESOURCE_DATA srd = { 0 };
 			srd.pSysMem = m;
-			srd.SysMemPitch = (size_.y / pow(2.f, i)) * bytes_per_pixel(f);
+			srd.SysMemPitch = (UINT)((size_.y / pow(2.f, i)) * bytes_per_pixel(f));
 			srda.push_back(srd);
 		}
 		chr(dev->ddevice()->CreateTexture2D(&txd, srda.data(), &texd));
@@ -243,7 +242,7 @@ namespace qeg
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_1D, _id);
 		glTexStorage1D(GL_TEXTURE_1D, mip_data.size(), (GLenum)f, size_);
-		for (int i = 0; i < mip_data.size(); ++i)
+		for (uint i = 0; i < mip_data.size(); ++i)
 		{
 			uint mipmap_scale = (uint)floor(1.f / pow(2.f, (float)i));
 			glTexSubImage1D(GL_TEXTURE_1D, i, 0, size_*mipmap_scale, detail::get_gl_format_internal(f),
@@ -268,9 +267,9 @@ namespace qeg
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);
 		glTexStorage2D(GL_TEXTURE_2D, mip_data.size(), (GLenum)f, size_.x, size_.y);
-		for (int i = 0; i < mip_data.size(); ++i)
+		for (uint i = 0; i < mip_data.size(); ++i)
 		{
-			uint mipmap_scale = floor(pow(2.f, (float)i));
+			uint mipmap_scale = (uint)floor(pow(2.f, (float)i));
 			glTexSubImage2D(GL_TEXTURE_2D, i, 0, 0,
 				size_.x/mipmap_scale, size_.y/mipmap_scale, 
 				detail::get_gl_format_internal(f), detail::get_gl_format_type(f), mip_data[i]);
@@ -294,7 +293,14 @@ namespace qeg
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
 
-		//TODO: implement loading tex vture cubes into opengl
+		for (uint face = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			face < GL_TEXTURE_CUBE_MAP_NEGATIVE_Z; ++face)
+		{
+			uint idx = face - GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			glTexImage2D(face, 0, detail::get_gl_format_internal(f),
+				size_.x, size_.y, 0, (GLenum)f,
+				detail::get_gl_format_type(f), data_per_face[idx]);
+		}
 		
 		if (gen_mips) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}

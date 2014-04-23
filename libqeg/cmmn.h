@@ -63,6 +63,10 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "SOIL.lib")
 #endif
 
+//deal with stupid windows header and other fools
+#undef min
+#undef max
+
 namespace qeg
 {
 	//typedef unsigned int uint;
