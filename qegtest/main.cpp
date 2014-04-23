@@ -508,7 +508,7 @@ void* _load_texture(device* dev, datablob<byte>* file_data)
 				vector<size_t> offsets;
 				for (int i = 0; i < h->mip_count; ++i)
 				{
-					uvec2 msize = uvec2(h->size) / (uint)pow(2U, i);
+					uvec2 msize = (uvec2)floor(vec2(h->size) / pow(2.f, (float)i));
 					offsets.push_back(off);
 					off += msize.x * msize.y;
 				}
@@ -517,7 +517,7 @@ void* _load_texture(device* dev, datablob<byte>* file_data)
 				vector<void*> data;
 				for(const auto& ol : offsets)
 				{
-					data.push_back(c.data->data+ol);
+					data.push_back(c.data->data+(ol*bpp));
 				}
 				return new texture2d(dev, uvec2(h->size[0], h->size[1]), h_format,
 					data);
@@ -617,62 +617,48 @@ public:
 
 		//tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 
-		const int size = 512;
+		//const int size = 512;
 
 		//bo_file f(bo_file::file_type::texture);
 		//::detail::texture_header h;
 		//h.dim = texture_dimension::texture_2d;
 		//h.size = uvec3(size, size, 0);
 		//h.array_count = 0;
-		//h.mip_count = 7;
+		//h.mip_count = 10;
 		//h.format = ::detail::pi_pixel_format::RGBA32_FLOAT;
-		///vec4* img = new vec4[size * size];
-		//for (int y = 0; y < size; ++y)
-		//	for (int x = 0; x < size; x++)
-		//	{
-		//		vec2 p = vec2((float)x / (float)size, (float)y / (float)size);
-		//		float n = abs(perlin(p*32.f));
-		//		img[x + y * size] = vec4(vec3(n), 1.f);
-		//	}*/
+		////vec4* img = new vec4[size * size];
+		////for (int y = 0; y < size; ++y)
+		////	for (int x = 0; x < size; x++)
+		////	{
+		////		vec2 p = vec2((float)x / (float)size, (float)y / (float)size);
+		////		float n = abs(perlin(p*32.f));
+		////		img[x + y * size] = vec4(vec3(n), 1.f);
+		////	}
 		//uint fsize = 0;
 		//vector<size_t> offsets;
 		//for (int i = 0; i < h.mip_count; ++i)
 		//{
-		//	uvec2 msize = uvec2(size) / (uint)pow(2U, i);
+		//	uvec2 msize = (uvec2)floor(vec2(size) / pow(2.f, (float)i));
 		//	offsets.push_back(fsize);
-		//	fsize += msize.x * msize.y;
+		//	fsize += msize.x * msize.y;		
 		//}
 		// 
 		//vec4* img = new vec4[fsize];
-		vector<vec4> pal(20);
-		generate(pal.begin(), pal.end(), [&] { return vec4(linearRand(vec3(.2f), vec3(.8f)), 1.f);; });
+		//vector<vec3> pal(20);
+		//generate(pal.begin(), pal.end(), [&] { return vec3(linearRand(vec3(.2f), vec3(.8f))); });
 		//for (int i = 0; i < h.mip_count; ++i)
 		//{
 		//	vec4* im = img + offsets[i];
-		//	uvec2 msize = uvec2(size) / (uint)pow(2U, i);
+		//	uvec2 msize = (uvec2)floor(vec2(size) / pow(2.f, (float)i));
 		//	for (int y = 0; y < msize.y; ++y)
-		//		for (int x = 0; x < msize.x; x++)
+		//		for (int x = 0; x < msize.x; ++x)
 		//		{
 		//			vec2 p = vec2((float)x / (float)msize.x, (float)y / (float)msize.y);
 		//			float n = abs(perlin(p*32.f));
-		//			im[x + y * msize.y] = vec4(n);
+		//			im[x + (y * msize.y)] = vec4(n, n*.5f, 0,1.f);
 		//		}
 		//}
-		////for (int i = 0; i < 6; ++i)
-		////{
-		////	uvec2 msize = uvec2(size) / (uint)pow(2U, i);
-		////	fsize += msize.x * msize.y * sizeof(vec4);
-		////	img[i] = new vec4[msize.x*msize.y];
-		////	for (int y = 0; y < msize.y; ++y)
-		////		for (int x = 0; x < msize.x; x++)
-		////		{
-		////			vec2 p = vec2((float)x / (float)msize.x, (float)y / (float)msize.y);
-		////			float n = cos(p.x)*sin(p.y);//abs(perlin(p*32.f));
-		////			(img[i])[x + y * msize.y] = vec4(vec3(n), 1.f);
-		////		}
-		////}
-		////
-		////
+		//
 		//bo_file::chunk hc(0, new datablob<byte>((byte*)&h, sizeof(::detail::texture_header)));
 		//bo_file::chunk dc(1, new datablob<byte>((byte*)img, fsize*sizeof(vec4)));
 		//f.chunks().push_back(hc);
@@ -683,24 +669,9 @@ public:
 		//out.write((const char*)txf->data, txf->length);
 		//out.flush();
 		//out.close();
-		//texture2d* tx2 = load_texture2d(_dev,
-		//	read_data(L"C:\\Users\\andre_000\\Source\\libqeg\\qegtest\\perlin.tex"));
 
-		vector<void*> md;
-		for (int i = 0; i < 10; ++i)
-		{
-			uint msize = size / pow(2.f, i);
-			vec4* m = new vec4[msize*msize];
-			for (int y = 0; y < msize; ++y)
-				for (int x = 0; x < msize; x++)
-				{
-					vec2 p = vec2((float)x / (float)msize, (float)y / (float)msize);
-					float n = abs(perlin(p*32.f));
-					m[x + y * msize] = vec4(n) * pal[i];
-				}
-			md.push_back((void*)m);
-		}
-		tx = new texture2d(_dev, uvec2(size), pixel_format::RGBA32_FLOAT, md);
+		tx = load_texture2d(_dev,
+			read_data(L"C:\\Users\\andre_000\\Source\\libqeg\\qegtest\\perlin.tex"));
 
 		//auto m = generate_plane<vertex_position_normal_texture, uint16>(vec2(10, 10), uvec2(16, 16), vec3(1, 0, 0));
 

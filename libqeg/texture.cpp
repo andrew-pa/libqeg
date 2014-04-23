@@ -27,7 +27,8 @@ namespace qeg
 	texture1d::texture1d(device* dev, uint size_, pixel_format f, vector<void*> mip_data)
 	{
 		if (mip_data.size() <= 1) throw exception("need to have more than 1 mip level for loaded mipmaps");
-		CD3D11_TEXTURE1D_DESC dsc((DXGI_FORMAT)f, size_, mip_data.size(), 0U, D3D11_BIND_SHADER_RESOURCE);
+		//TODO: fix like tx2d
+		CD3D11_TEXTURE1D_DESC dsc((DXGI_FORMAT)f, size_, 1U, mip_data.size(), D3D11_BIND_SHADER_RESOURCE);
 		CD3D11_SHADER_RESOURCE_VIEW_DESC sd(D3D11_SRV_DIMENSION_TEXTURE1D, (DXGI_FORMAT)f);
 		vector<D3D11_SUBRESOURCE_DATA> srda;
 		for(const auto& m : mip_data)
