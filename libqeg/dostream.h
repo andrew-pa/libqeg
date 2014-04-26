@@ -9,8 +9,9 @@
 
 namespace qeg 
 { 
-	namespace windows_dep 
+	namespace detail
 	{
+#ifdef WIN32
 		template <class CharT, class TraitsT = std::char_traits<CharT> >
 		class basic_debugbuf :     public std::basic_stringbuf<CharT, TraitsT>
 		{
@@ -51,6 +52,37 @@ namespace qeg
 		};
 		typedef basic_dostream<char>    dostream;
 		typedef basic_dostream<wchar_t> wdostream;
+#endif
+
+		template <class CharT, class TraitsT = std::char_traits<CharT> >
+		class basic_nullbuf : public std::basic_stringbuf<CharT, TraitsT>
+		{
+		public:
+			virtual ~basic_nullbuf()
+			{
+				sync();
+			}
+		protected:
+			int sync()
+			{
+				str(std::basic_string<CharT>());
+				// Clear the string buffer       
+				return 0;
+			}
+		};
+		template<class CharT, class TraitsT = std::char_traits<CharT> >
+		class basic_null_stream : public std::basic_ostream<CharT, TraitsT>
+		{
+		public:
+			basic_null_stream()
+				: std::basic_ostream<CharT, TraitsT>(new basic_nullbuf<CharT, TraitsT>()) {}
+			~basic_null_stream()
+			{
+				delete rdbuf();
+			}
+		};
+		typedef basic_null_stream<char>    null_stream;
+		typedef basic_null_stream<wchar_t> wnull_stream;
 	}
 }
 				

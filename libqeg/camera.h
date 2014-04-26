@@ -1,5 +1,6 @@
 #pragma once
 #include "cmmn.h"
+#include "basic_input.h"
 
 namespace qeg
 {

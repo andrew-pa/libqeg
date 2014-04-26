@@ -1,6 +1,10 @@
 #pragma once
 #include "cmmn.h"
 
+#ifdef WIN32
+#include <Xinput.h>
+#endif
+
 namespace qeg
 {
 	namespace input
@@ -162,6 +166,72 @@ namespace qeg
 			inline static const state get_state() { return state();  }
 
 			static void __update(key kc, bool s);
+		};
+
+		struct gamepad_not_connected_exception : public exception
+		{
+			inline const char* what() const override
+			{
+				return "Gamepad not connected";
+			}
+		};
+
+		class gamepad
+		{
+#ifdef WIN32
+			DWORD _usr_idx;
+			XINPUT_STATE _cxis;
+			bool _connected;
+#endif
+			inline static float dead_zone(short val, short dead_z, short mx = numeric_limits<short>::max())
+			{
+				float vn = clamp((float)val / (float)mx, -1.f, 1.f);
+				if (abs(vn) < ((float)dead_z / (float)mx))
+					vn = 0.f;
+				return vn;
+			}
+		public:
+			enum class button
+			{
+				A, B, X, Y,
+				start, back, home,
+				left_bumper, right_bumper,
+				left_stick, right_stick,
+				dpad_left, dpad_right, 
+				dpad_up, dpad_down,
+			};
+
+			struct state
+			{
+#ifdef WIN32
+				XINPUT_STATE _xis;
+#endif
+			public:
+#ifdef WIN32
+				state(const XINPUT_STATE& x)
+					: _xis(x){}
+#endif
+				vec2 left_stick() const;
+				vec2 right_stick() const;
+				float left_trigger() const;
+				float right_trigger() const;
+				bool is_button_down(button b) const;
+				vec2 dpad_stick() const;
+			};
+			
+			gamepad(uint idx);
+
+			void update();
+
+			inline state get_state() const { return _cxis; }
+			
+			void vibrate(vec2 vibe) const;
+
+			static bool is_connected(uint idx);
+
+
+			propr(bool, connected, { return _connected; });
+			propr(uint, user_index, { return _usr_idx; });
 		};
 	}
 }

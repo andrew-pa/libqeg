@@ -123,7 +123,7 @@
     <ClInclude Include="states.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="timer.h" />
-    <ClInclude Include="vsdostream.h" />
+    <ClInclude Include="dostream.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />

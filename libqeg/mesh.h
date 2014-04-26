@@ -335,7 +335,7 @@ namespace qeg
 			float y = hdims.y - i*dxy.y;
 			for (float j = 0; j < div.x; ++j)
 			{
-				float x = -hdims.x - j*dxy.x;
+				float x = hdims.x - j*dxy.x;
 				
 				vec3 p = nu*x + nv*y;
 

@@ -26,6 +26,8 @@ class qegtest_app : public app
 {
 	mesh* m;
 	mesh* ball;
+	mesh* ground;
+
 	shader s;
 	struct wvpcbd
 	{
@@ -40,7 +42,10 @@ class qegtest_app : public app
 	fps_camera c;
 
 	texture2d* tx;
+	texture1d* tx2;
 	sampler_state smpl;
+
+	input::gamepad ctrl0;
 public:
 	qegtest_app()
 		: app(
@@ -52,8 +57,8 @@ public:
 			vec2(640, 480), false, 1.f/60.f),
 		s(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")),
 		wvp_cb(_dev, s, 0, wvpcbd(), shader_stage::vertex_shader),
-		c(vec3(0.5f, 8.f, -28), vec3(0,0,0.1), radians(40.f), _dev->size(), 10.f, 1.5f) //(45, 45, 5.f, vec3(0), radians(45.f), _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
-		, smpl(_dev)
+		c(vec3(0.5f, 8.f, -28), vec3(0,0,0.1), radians(40.f), _dev->size(), 10.f, 1.5f, ctrl0) //(45, 45, 5.f, vec3(0), radians(45.f), _dev->size())//(vec3(3, 2, -10), vec3(0, 0, 1), 45.f, _dev->size()),
+		, smpl(_dev), ctrl0(0)
 	{
 
 		m = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
@@ -63,6 +68,9 @@ public:
 			
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
 			generate_sphere<vertex_position_normal_texture, uint16>(2.f, 64, 64), "sphere0");
+
+		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
+			generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(64), vec3(0.f,-1.f,0)), "ground");
 
 		//tx = texture2d::load_dds(_dev, read_data_from_package(L"test.dds"));
 
@@ -127,6 +135,11 @@ public:
 
 	void update(float t, float dt) override
 	{
+		if(input::gamepad::is_connected(0))
+		{
+			ctrl0.update();
+		}
+
 		c.update(dt);
 		c.update_view();
 	}
@@ -143,15 +156,20 @@ public:
 		smpl.bind(_dev, 0, shader_stage::pixel_shader);
 		wvp_cb.bind(_dev);
 
-		auto world = mat4(1);
+		auto world = translate(mat4(1), vec3(0, -1.f, 0));
+		wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t, 0, 0, 0)));
+		wvp_cb.update(_dev);
+		ground->draw(_dev);
+
+		world = mat4(1);
 		wvp_cb.data(wvpcbd(c.projection()*c.view()*world, glm::inverse(transpose(world)), vec4(t, 0, 0, 0)));
 		wvp_cb.update(_dev);
 		ball->draw(_dev);
 
 		for (float i = 0; i < 6; ++i)
 		{
-		world = translate(rotate(mat4(1), .2f*sinf(t * (i/6)+1), vec3(sinf(t), cosf(t), sinf(t))),
-			vec3(10*cosf(i+t*.4f), sinf((t+i*.3f)*3), 10*sinf(i+t*.4f)));
+		world = translate(mat4(1),
+			vec3(10*cosf(i+t*.4f), sinf(i+t*.2f)*.2f, 10*sinf(i+t*.4f)));
 		wvp_cb.data(wvpcbd(c.projection()*c.view()*world, 
 			glm::inverse(transpose(world)), vec4(t, i, 0, 0)));
 		wvp_cb.update(_dev);

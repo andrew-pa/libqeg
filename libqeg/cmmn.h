@@ -31,7 +31,9 @@ using namespace glm;
 
 #ifdef WIN32
 #include <Windows.h>
-#include "vsdostream.h"
+#ifdef LINK
+#pragma comment(lib, "xinput.lib")
+#endif
 #endif
 
 #ifdef DIRECTX
@@ -48,7 +50,6 @@ using Microsoft::WRL::ComPtr;
 #pragma comment(lib, "ole32.lib")
 #pragma comment(lib, "windowscodecs.lib")
 #pragma comment(lib, "dwrite.lib")
-#pragma comment(lib, "xinput.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 #endif
@@ -58,10 +59,14 @@ using Microsoft::WRL::ComPtr;
 #ifdef OPENGL
 #include <GL/glew.h>
 #include <GL/wglew.h>
+#ifdef LINK
 #pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "SOIL.lib")
 #endif
+#endif
+
+#include "dostream.h"
 
 //deal with stupid windows header and other fools
 #undef min
@@ -69,11 +74,6 @@ using Microsoft::WRL::ComPtr;
 
 namespace qeg
 {
-	//typedef unsigned int uint;
-	//typedef unsigned int uint32;
-	//typedef unsigned short uint16;
-	//typedef unsigned char uint8;
-	//typedef unsigned char byte;
 
 	inline float randf() { return ((float)rand() / (float)RAND_MAX); }
 	inline float randfn() { return ((randf() * 2) - 1); }
@@ -83,14 +83,17 @@ namespace qeg
 #define check_flag(v, f) (((v)&(f))==(f))
 
 #define pi glm::pi<float>()
-	//const float pi = 3.141592653589793238462643383279502884197169399375105820974944592307816406286f;
 
-	static auto cdlog = 
-	#ifdef WIN32
-		windows_dep::dostream();
-	#elif
+	static auto cdlog =
+#ifdef _DEBUG
+#ifdef WIN32
+		detail::dostream();
+#elif
 		std::cerr;
-	#endif
+#endif
+#elif
+		detail::null_stream();
+#endif
 
 	enum class texture_filter
 	{
@@ -315,7 +318,7 @@ namespace qeg
 	{
 	public:
 		uint errorcode;
-		error_code_exception(uint ec, const char* m = "") : errorcode(ec), exception(m) { }
+		error_code_exception(uint ec, const string& m = "") : errorcode(ec), exception(m.c_str()) { }
 	};
 
 	//datablob<T>
