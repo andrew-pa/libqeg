@@ -49,7 +49,7 @@ namespace qeg
 				_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs)); check_gl
 				if (_ix == GL_INVALID_INDEX)
 					throw exception("glGetUniformBlockIndex returned a invalid index");			
-			glBindBufferRange(GL_UNIFORM_BUFFER, slot, _buf, 0, sizeof(T)); check_gl
+			//glBindBufferRange(GL_UNIFORM_BUFFER, slot, _buf, 0, sizeof(T)); check_gl
 				glUniformBlockBinding(sh.program_id(), _ix, slot); check_gl
 				
 		}
@@ -63,7 +63,8 @@ namespace qeg
 		}
 #endif
 		
-		inline const T& data() { return _data; }
+		inline const T& get_data() { return _data; }
+		inline T& data() { changed = true; return _data; }
 		inline void data(T& d) { changed = true; _data = d; }
 
 		void bind(device* _dev,  int ovslot = -1)
