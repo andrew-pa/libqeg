@@ -25,42 +25,59 @@ public:
 		mat4 view_proj;
 		mat4 inv_world;
 	};
+	struct mat
+	{
+		vec3 diffuse;
+		float extra;
+		mat(vec3 dif = vec3(0))
+			: diffuse(dif){}
+	};
 protected:
-	constant_buffer<vs_matxs> vsmt_cb;
+	constant_buffer<vs_matxs>* vsmt_cb;
+	constant_buffer<mat>* mat_cb;
 public:
 	simple_shader(device* _dev)
 		: shader(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")),
-		vsmt_cb(_dev, *this, 0, vs_matxs(), shader_stage::vertex_shader)
+		vsmt_cb(new constant_buffer<vs_matxs>(_dev, *this, 0, vs_matxs(), shader_stage::vertex_shader))
+		,mat_cb(new constant_buffer<mat>(_dev, *this, 0, mat(), shader_stage::pixel_shader))
 	{
 	}
 
 	inline void world(const mat4& m)
 	{
-		vsmt_cb.data().world = m;
-		vsmt_cb.data().inv_world = inverse(m);
+		vsmt_cb->data().world = m;
+		vsmt_cb->data().inv_world = inverse(m);
 	}
 
 	inline void view_proj(const mat4& vp)
 	{
-		vsmt_cb.data().view_proj = vp;
+		vsmt_cb->data().view_proj = vp;
+	}
+
+	inline void material(const mat& m)
+	{
+		mat_cb->data() = m;
 	}
 
 	void bind(device* _dev) override
 	{
 		shader::bind(_dev);
-		vsmt_cb.bind(_dev);
+		vsmt_cb->bind(_dev);
+		mat_cb->bind(_dev);
 	}
 
 	void update(device* _dev) override
 	{
 		shader::update(_dev);
-		vsmt_cb.update(_dev);
+		vsmt_cb->update(_dev);
+		mat_cb->update(_dev);
 	}
 
 	void unbind(device* _dev) override
 	{
 		shader::unbind(_dev);
-		vsmt_cb.unbind(_dev);
+		vsmt_cb->unbind(_dev);
+		mat_cb->unbind(_dev);
 	}
 };
 
@@ -68,6 +85,8 @@ class qegtest_app : public app
 {
 	simple_shader shd;
 	mesh* ball;
+	mesh* ground;
+	mesh* torus;
 	fps_camera cam;
 public:
 	qegtest_app()
@@ -78,11 +97,12 @@ public:
 			L"libqeg test (OpenGL)",
 #endif
 			vec2(640, 480), false, 1.f/60.f),
-			shd(_dev), cam(vec3(0, 0, -5), vec3(0.1f), radians(45.f), _dev->size(), 4.f, 2.f) 
+			shd(_dev), cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 4.f, 2.f) 
 	{
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_sphere<vertex_position_normal_texture,uint16>(1.f, 16, 16), "ball");
+		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
+		torus = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_torus<vertex_position_normal_texture, uint16>(vec2(1.f, .5f), 64), "torus");
 
-		shd.world(mat4(1));
 
 		//const int size = 512;
 		//bo_file f(bo_file::file_type::texture);
@@ -149,12 +169,27 @@ public:
 		cam.update_proj(_dev->size());
 	}
 
-	void render(float t, float dt) override
+	void render(float t, float dt) override 
 	{
 		shd.bind(_dev);
 		shd.view_proj(cam.projection()*cam.view());
+		
+		shd.world(mat4(1));
+		shd.material(simple_shader::mat(vec3(.4f, .2f, 0)));
+		shd.update(_dev);
+		ground->draw(_dev);
+
+		shd.world(translate(mat4(1), vec3(0, 1, 0)));
+		shd.material(simple_shader::mat(vec3(.9f, .45f, 0)));
 		shd.update(_dev);
 		ball->draw(_dev);
+
+		shd.world(rotate(translate(mat4(1), vec3(-3, 1.5f, 3)), t, vec3(.2f, .6f, .4f)));
+		shd.material(simple_shader::mat(vec3(.1f, .8f, .1f)));
+		shd.update(_dev);
+		torus->draw(_dev);
+
+
 		shd.unbind(_dev);
 	}
 };

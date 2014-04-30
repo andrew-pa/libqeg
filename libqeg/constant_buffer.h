@@ -34,7 +34,8 @@ namespace qeg
 #endif
 	public:
 		constant_buffer(device* _dev, const shader& sh, uint slot,  T d = T(), shader_stage shs = shader_stage::pixel_shader)
-			: _data(d), _slot(slot), changed(true)
+			: _data(d), _slot(slot), 
+				changed(true)
 #ifdef DIRECTX
 			, _ss(shs)
 		{
@@ -45,12 +46,13 @@ namespace qeg
 		{
 			glGenBuffers(1, &_buf); check_gl
 			glBindBuffer(GL_UNIFORM_BUFFER, _buf); check_gl
-			glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_DYNAMIC_DRAW); check_gl
+			glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_STREAM_DRAW); check_gl
 			_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs)); check_gl
 			if (_ix == GL_INVALID_INDEX)
-				throw exception("glGetUniformBlockIndex returned a invalid index");			
-			glBindBufferRange(GL_UNIFORM_BUFFER, slot, _buf, 0, sizeof(T)); check_gl
-			glUniformBlockBinding(sh.program_id(), _ix, slot); check_gl
+				throw exception("glGetUniformBlockIndex returned a invalid index");
+			uint dd = rand() % 75;
+			glBindBufferRange(GL_UNIFORM_BUFFER, dd, _buf, 0, sizeof(T)); check_gl
+			glUniformBlockBinding(sh.program_id(), _ix, dd); check_gl
 				
 		}
 #endif
@@ -59,6 +61,7 @@ namespace qeg
 		{}
 #elif OPENGL
 		{
+			if (_buf == 0) return;
 			glDeleteBuffers(1, &_buf);
 		}
 #endif
@@ -129,8 +132,9 @@ namespace qeg
 			_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs));
 			if (_ix == GL_INVALID_INDEX)
 				throw exception("glGetUniformBlockIndex returned a invalid index");
-			glBindBufferRange(GL_UNIFORM_BUFFER, slot, _buf, 0, sizeof(T));
-			glUniformBlockBinding(sh.program_id(), _ix, slot); 
+			uint dd = rand() % 75;
+			glBindBufferRange(GL_UNIFORM_BUFFER, dd, _buf, 0, sizeof(T));
+			glUniformBlockBinding(sh.program_id(), _ix, dd); 
 #endif
 		}
 
