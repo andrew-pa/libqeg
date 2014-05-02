@@ -80,4 +80,47 @@ namespace qeg
 		float m_delta;
 	};
 #endif
+
+	//trigger_timer
+	//triggers a function after some amount of time
+	class trigger_timer
+	{
+		float _t;
+		float _max_t;
+		function<void()> _action;
+		bool _reo;
+		bool _done;
+	public:
+		trigger_timer(float max, const function<void()>& act, bool rec = false)
+			: _t(0.f), _max_t(max), _action(act), _reo(rec), _done(false)
+		{
+		}
+
+		void update(float dt)
+		{
+			if (_done) return;
+			_t += dt;
+			if(_t >= _max_t)
+			{
+				_action();
+				_t = 0.f;
+				if(!_reo)
+				{
+					_done = true;
+				}
+			}
+		}
+
+		void reset()
+		{
+			_t = 0.f;
+			_done = false;
+		}
+
+		proprw(float, max_time, { return _max_t; });
+		propr(float, time, { return _t; });
+		proprw(function<void()>, action, { return _action; });
+		proprw(bool, reoccuring, { return _reo; });
+		propr(bool, done, { return _done; });
+	};
 }

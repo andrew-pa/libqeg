@@ -18,7 +18,7 @@ namespace qeg
 			auto gs = gp->get_state();
 			move.x = gs.left_stick().y*ms;
 			move.y = gs.dpad_stick().y*ms;
-			move.z = gs.left_stick().x*ms;
+			move.z = (gs.left_stick().x + gs.dpad_stick().x)*ms;
 
 			rot = gs.right_stick()*vec2(1.f, -1.f)*rs;
 		}

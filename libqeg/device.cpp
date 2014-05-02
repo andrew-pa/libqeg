@@ -359,7 +359,7 @@ else
 		glewInit();
 		int attributes[] = {
 			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
 			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB
 #ifdef _DEBUG
 			| WGL_CONTEXT_DEBUG_BIT_ARB
@@ -380,12 +380,15 @@ else
 			throw exception("OpenGL 3.x+ context not supported!");
 		}
 
+#ifdef _DEBUG
 		const GLubyte* glVersionString = glGetString(GL_VERSION);
 		int glVersion[2] = { -1, -1 };
 		glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]);
 		glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]);
+		cdlog << "GL Version: " << glVersion[0] << "." << glVersion[1] << endl;
+		cdlog << "GL Vendor: " << glGetString(GL_VENDOR) << endl;
+		cdlog << "GL Version String: " << glVersionString << endl;
 
-#ifdef _DEBUG
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB)&debug_gl_callback, this);
 #endif

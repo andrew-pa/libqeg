@@ -16,10 +16,48 @@ output
 //material
 cbuffer(0)
 {
-	vec3 diffuse;
+	vec4 diffuse;
+	vec4 specular;
+}
+
+struct point_light
+{
+	vec4 pos;
+	vec4 col;
+};
+
+//lighting 
+cbuffer(1)
+{
+	point_light[3] lights;
+	uint light_count;
+}
+
+cbuffer(2)
+{
+	vec4 cam_pos;
 }
 
 void main()
 {
-	output.color = vec4(diffuse,1.);
+	vec3 v = normalize(cam_pos.xyz - input.posW);
+	vec3 n = normalize(input.normW);
+	vec3 col = vec3(0.,0.,0.);
+	for(int i = 0; i < light_count; i++)
+	{
+		vec3 l = normalize(lights[i].pos.xyz - input.posW);
+		if(specular.w <= 0.)
+		{
+			col += diffuse.xyz * max(0.f, dot(n, l));
+		}
+		else
+		{
+			vec3 hv = normalize(l+v);
+			float hdn = max(0., dot(hv, n));
+			vec3 spc = (specular.xyz*lights[i].col.xyz) * pow(hdn, specular.w);
+			vec3 dif = (diffuse.xyz*lights[i].col.xyz) * max(0., dot(n, l));
+			col += dif + spc;
+		}
+	}
+	output.color = vec4(col, 1.);
 }

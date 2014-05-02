@@ -44,7 +44,7 @@ namespace qeg
 		wireframe = D3D11_FILL_WIREFRAME,
 		solid = D3D11_FILL_SOLID,
 #elif OPENGL
-		//wireframe = GL_LINE,
+		wireframe = GL_LINE,
 		solid = GL_FILL,
 #endif
 	};

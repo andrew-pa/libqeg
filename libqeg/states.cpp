@@ -172,6 +172,7 @@ namespace qeg
 			
 		}
 		glFrontFace(front_tri_cw ? GL_CW : GL_CCW);
+		glPolygonMode(GL_FRONT_AND_BACK, (GLenum)fillmode);
 		if (depth_bias != 0 || slope_scaled_depth_bias != 0)
 			glPolygonOffset(slope_scaled_depth_bias, (GLfloat)depth_bias);
 		else
@@ -196,6 +197,7 @@ namespace qeg
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glFrontFace(GL_CCW);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glPolygonOffset(0, 0);
 #endif
 	}

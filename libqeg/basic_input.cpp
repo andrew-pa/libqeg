@@ -28,7 +28,7 @@ namespace qeg
 			mouse_cst.right = right;
 		}
 
-		bool key_state[255], last_key_state[255];
+		bool key_state[160], last_key_state[160];
 
 		bool keyboard::state::key_down(key k) const
 		{
@@ -37,7 +37,7 @@ namespace qeg
 
 		bool keyboard::state::key_pressed(key k) const
 		{
-			return last_key_state[(int)k] && !key_state[(int)k];
+			return !last_key_state[(int)k] && key_state[(int)k];
 		}
 
 		void keyboard::__update(key kc, bool s)
@@ -52,14 +52,14 @@ namespace qeg
 			: _usr_idx(idx), _connected(false){}
 #endif
 
-		void gamepad::update()
+		void gamepad::update(bool tnc)
 #ifdef WIN32
 		{
 			auto err = XInputGetState(_usr_idx, &_cxis);
 			if(err == ERROR_DEVICE_NOT_CONNECTED)
 			{
 				_connected = false;
-				throw gamepad_not_connected_exception();
+				if(tnc) throw gamepad_not_connected_exception();
 			}
 			else if(err != ERROR_SUCCESS)
 			{

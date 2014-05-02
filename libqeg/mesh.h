@@ -339,7 +339,7 @@ namespace qeg
 				
 				vec3 p = nu*x + nv*y;
 
-				m.vertices.push_back(vertex_type(p, nw, nu, vec2(j,i)*duv));
+				m.vertices.push_back(vertex_type(p, -nw, nu, vec2(j,i)*duv));
 			}
 		}
 

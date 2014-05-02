@@ -29,7 +29,7 @@ namespace qeg
 		};
 
 #ifdef WIN32
-		enum class key
+		enum class key : short
 		{
 			//copied from WinUser.h's VK_* macros
               back     =      0x08,
@@ -221,7 +221,7 @@ namespace qeg
 			
 			gamepad(uint idx);
 
-			void update();
+			void update(bool throw_on_no_connection = true);
 
 			inline state get_state() const { return _cxis; }
 			
