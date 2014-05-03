@@ -80,7 +80,7 @@ namespace qeg
 
 #define array_size(ar) sizeof(ar) / sizeof(ar[0])
 
-#define check_flag(v, f) (((v)&(f))==(f))
+#define check_flag(f, v) (((uint)(v)&(uint)(f))==(uint)(f))
 
 #define pi glm::pi<float>()
 

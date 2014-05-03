@@ -201,6 +201,121 @@ namespace qeg
 		glPolygonOffset(0, 0);
 #endif
 	}
+
+	blend_state::blend_state(device* _dev, initializer_list<render_target_blend_state_desc> render_targets_bld)
+#ifdef DIRECTX
+	{
+		D3D11_BLEND_DESC bd = { 0 };
+		bd.IndependentBlendEnable = false;
+		vector<render_target_blend_state_desc> rtbld(render_targets_bld.begin(), render_targets_bld.end());
+		if(rtbld.size() < 8)
+		{
+			for (int j = rtbld.size(); j < 8; ++j)
+			{
+				rtbld.push_back(render_target_blend_state_desc());
+			}
+		}
+		int i = 0;
+		for(const auto& d : rtbld)
+		{
+			auto& rd = bd.RenderTarget[i];
+			rd.BlendEnable = d.enabled;
+			rd.SrcBlend = (D3D11_BLEND)d.src_factor;
+			rd.DestBlend = (D3D11_BLEND)d.dest_factor;
+			rd.BlendOp = (D3D11_BLEND_OP)d.op;
+			rd.SrcBlendAlpha = (D3D11_BLEND)d.src_alpha_factor;
+			rd.DestBlendAlpha = (D3D11_BLEND)d.dest_alpha_factor;
+			rd.BlendOpAlpha = (D3D11_BLEND_OP)d.alpha_op;
+			rd.RenderTargetWriteMask = (uint8)d.writemask;
+			i++;
+		}
+		chr(_dev->ddevice()->CreateBlendState(&bd, &bss));
+	}
+#elif OPENGL
+	{
+		vector<render_target_blend_state_desc> rtbld(render_targets_bld.begin(), render_targets_bld.end());
+		if(rtbld.size() < 8)
+		{
+			for (int j = rtbld.size(); j < 8; ++j)
+			{
+				rtbld.push_back(render_target_blend_state_desc()); 
+			}
+		}
+		for (int i = 0; i < 8; ++i)
+			render_targets[i] = rtbld[i];
+	}
+#endif
+
+	void blend_state::bind(device* _dev, vec4 blend_color, uint smask)
+#ifdef DIRECTX
+	{
+		_dev->context()->OMSetBlendState(bss.Get(), (float*)&blend_color, smask);
+	}
+#elif OPENGL
+	{
+		for (int i = 0; i < 8; ++i)
+		{
+			auto rt = render_targets[i];
+			if(rt.enabled)
+			{
+				glEnablei(GL_BLEND, i);
+				glBlendEquationSeparate((GLenum)rt.op, (GLenum)rt.alpha_op);
+				glBlendFuncSeparate((GLenum)rt.src_factor, (GLenum)rt.dest_factor,
+					(GLenum)rt.src_alpha_factor, (GLenum)rt.dest_alpha_factor);
+				glBlendColor(blend_color.r, blend_color.g, blend_color.b, blend_color.a);
+			//	glColorMaski(i, check_flag(rt.writemask, write_mask::enable_red), 
+			//		check_flag(rt.writemask, write_mask::enable_green),
+			//		check_flag(rt.writemask, write_mask::enable_blue),
+			//		check_flag(rt.writemask, write_mask::enable_alpha));
+			}
+			else
+			{
+				glDisablei(GL_BLEND, i);
+			}
+		}
+	}
+#endif
+	
+	void blend_state::update(device* _dev)
+#ifdef DIRECTX
+	{
+		D3D11_BLEND_DESC bd = { 0 };
+		bd.IndependentBlendEnable = false;
+		for (int i = 0; i < 8; ++i)
+		{
+			auto d = render_targets[i];
+			auto& rd = bd.RenderTarget[i];
+			rd.BlendEnable = d.enabled;
+			rd.SrcBlend = (D3D11_BLEND)d.src_factor;
+			rd.DestBlend = (D3D11_BLEND)d.dest_factor;
+			rd.BlendOp = (D3D11_BLEND_OP)d.op;
+			rd.SrcBlendAlpha = (D3D11_BLEND)d.src_alpha_factor;
+			rd.DestBlendAlpha = (D3D11_BLEND)d.dest_alpha_factor;
+			rd.BlendOpAlpha = (D3D11_BLEND_OP)d.alpha_op;
+			rd.RenderTargetWriteMask = (uint8)d.writemask;
+			i++;
+		}
+		chr(_dev->ddevice()->CreateBlendState(&bd, &bss));
+	}
+#elif OPENGL
+	{}
+#endif
+
+	void blend_state::unbind(device* _dev)
+#ifdef DIRECTX
+	{
+		_dev->context()->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+	}
+#elif OPENGL
+	{
+		for (int i = 0; i < 8; ++i)
+		{
+			glDisablei(GL_BLEND, i);
+			glBlendColor(1, 1, 1, 1);
+			glColorMaski(i, true, true, true, true);
+		}
+	}
+#endif
 }
 
 

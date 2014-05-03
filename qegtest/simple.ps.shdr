@@ -59,5 +59,8 @@ void main()
 			col += dif + spc;
 		}
 	}
-	output.color = vec4(col, 1.);
+
+	float a = clamp(abs(sin(input.texc.x*8.f)+cos(input.texc.y*8.f)), .6, 1.);
+
+	output.color = vec4(col, a);
 }
