@@ -52,12 +52,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
-    <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg;$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg\inc;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\andre_000\Source\libqeg\DebugDX;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>C:\Users\andre_000\Source\cosl\Debug;$(ExecutablePath)</ExecutablePath>
+    <TargetName>$(ProjectName)-dx</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
-    <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg;$(SolutionDir)include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg\inc;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\andre_000\Source\libqeg\DebugGL;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)-gl</TargetName>
     <ExecutablePath>C:\Users\andre_000\Source\cosl\Debug;$(ExecutablePath)</ExecutablePath>

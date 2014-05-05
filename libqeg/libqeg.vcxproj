@@ -73,6 +73,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>cmmn.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
+      <AdditionalIncludeDirectories>inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -87,6 +88,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>cmmn.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
+      <AdditionalIncludeDirectories>inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -108,42 +110,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="app.h" />
-    <ClInclude Include="aux_cameras.h" />
-    <ClInclude Include="basic_input.h" />
-    <ClInclude Include="bo_file.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="cmmn.h" />
-    <ClInclude Include="constant_buffer.h" />
-    <ClInclude Include="device.h" />
-    <ClInclude Include="mesh.h" />
-    <ClInclude Include="render_texture2d.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="states.h" />
-    <ClInclude Include="texture.h" />
-    <ClInclude Include="timer.h" />
-    <ClInclude Include="dostream.h" />
+    <ClInclude Include="inc\*.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="app.cpp" />
-    <ClCompile Include="aux_cameras.cpp" />
-    <ClCompile Include="basic_input.cpp" />
-    <ClCompile Include="camera.cpp" />
-    <ClCompile Include="cmmn.cpp" />
-    <ClCompile Include="device.cpp" />
-    <ClCompile Include="mesh.cpp" />
-    <ClCompile Include="render_texture2d.cpp" />
-    <ClCompile Include="resource.cpp" />
-    <ClCompile Include="shader.cpp" />
-    <ClCompile Include="states.cpp" />
-    <ClCompile Include="texture.cpp" />
+    <ClCompile Include="src\*.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="dds_loader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -15,99 +15,959 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cmmn.h">
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="device.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render_texture2d.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="app.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="timer.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mesh.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="constant_buffer.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="basic_input.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="aux_cameras.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="states.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bo_file.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="dostream.h">
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
+    <ClInclude Include="inc\render_texture2d.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cmmn.cpp">
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="device.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="render_texture2d.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="app.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shader.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mesh.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="basic_input.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="aux_cameras.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="states.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="texture.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="resource.cpp">
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="dds_loader.h">
-      <Filter>Header Files</Filter>
-    </None>
   </ItemGroup>
 </Project>
