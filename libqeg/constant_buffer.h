@@ -19,6 +19,9 @@ namespace qeg
 #ifdef OPENGL
 		GLuint _buf;
 		GLuint _ix;
+		GLuint _gi;
+		string block_name;
+		device* _alloc_dev;
 
 		const GLchar* generate_block_name(int slot, shader_stage shs)
 		{
@@ -43,16 +46,17 @@ namespace qeg
 			chr(_dev->ddevice()->CreateBuffer(&bd, nullptr, &_buf));
 		}
 #elif OPENGL
+				, block_name(generate_block_name(slot, shs)), _alloc_dev(_dev)
 		{
 			glGenBuffers(1, &_buf); check_gl
 			glBindBuffer(GL_UNIFORM_BUFFER, _buf); check_gl
 			glBufferData(GL_UNIFORM_BUFFER, sizeof(T), &_data, GL_STREAM_DRAW); check_gl
-			_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs)); check_gl
+			_ix = glGetUniformBlockIndex(sh.program_id(), block_name.c_str()); check_gl
 			if (_ix == GL_INVALID_INDEX)
 				throw exception("glGetUniformBlockIndex returned a invalid index");
-			uint dd = rand() % 75;
-			glBindBufferRange(GL_UNIFORM_BUFFER, dd, _buf, 0, sizeof(T)); check_gl
-			glUniformBlockBinding(sh.program_id(), _ix, dd); check_gl
+			_gi = _dev->alloc_ubbi();
+			glBindBufferRange(GL_UNIFORM_BUFFER, _gi, _buf, 0, sizeof(T)); check_gl
+			glUniformBlockBinding(sh.program_id(), _ix, _gi); check_gl
 				
 		}
 #endif
@@ -62,6 +66,7 @@ namespace qeg
 #elif OPENGL
 		{
 			if (_buf == 0) return;
+			_alloc_dev->free_ubbi(_gi);
 			glDeleteBuffers(1, &_buf);
 		}
 #endif
@@ -70,7 +75,7 @@ namespace qeg
 		inline T& data() { changed = true; return _data; }
 		inline void data(T& d) { changed = true; _data = d; }
 
-		void bind(device* _dev,  int ovslot = -1)
+		void bind(device* _dev)
 #ifdef DIRECTX 
 		{
 			if (_ss == shader_stage::vertex_shader)
@@ -84,6 +89,26 @@ namespace qeg
 		}
 #elif OPENGL
 		{
+		}
+#endif
+		void bind(device* _dev, shader& ov_shd)
+#ifdef DIRECTX 
+		{
+			if (_ss == shader_stage::vertex_shader)
+			{
+				_dev->context()->VSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
+			}
+			else if (_ss == shader_stage::pixel_shader)
+			{
+				_dev->context()->PSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
+			}
+		}
+#elif OPENGL
+		{
+			v_ix = glGetUniformBlockIndex(sh.program_id(), block_name); check_gl
+			if (v_ix == GL_INVALID_INDEX)
+				throw exception("glGetUniformBlockIndex returned a invalid index");
+			glUniformBlockBinding(sh.program_id(), v_ix, _gi); check_gl
 		}
 #endif
 
@@ -103,6 +128,7 @@ namespace qeg
 		}
 #elif OPENGL
 		{			
+			//should something happen here for the bind(_dev, ov_shd) case?
 		}
 #endif
 
@@ -132,9 +158,9 @@ namespace qeg
 			_ix = glGetUniformBlockIndex(sh.program_id(), generate_block_name(slot, shs));
 			if (_ix == GL_INVALID_INDEX)
 				throw exception("glGetUniformBlockIndex returned a invalid index");
-			uint dd = rand() % 75;
-			glBindBufferRange(GL_UNIFORM_BUFFER, dd, _buf, 0, sizeof(T));
-			glUniformBlockBinding(sh.program_id(), _ix, dd); 
+			//_gi = rand() % 75;
+			glBindBufferRange(GL_UNIFORM_BUFFER, _gi, _buf, 0, sizeof(T));
+			glUniformBlockBinding(sh.program_id(), _ix, _gi); 
 #endif
 		}
 

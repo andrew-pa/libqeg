@@ -264,7 +264,6 @@ public:
 	void render(float t, float dt) override 
 	{
 		if (render_wireframe) wireframe_rs.bind(_dev);
-		bs_weird.bind(_dev);
 		shd.bind(_dev);
 		shd.view_proj(cam.projection()*cam.view());
 		shd.camera_position(cam.position());
@@ -273,6 +272,8 @@ public:
 		shd.material(simple_shader::mat(vec3(.4f, .4f, .4f), 0.f));
 		shd.update(_dev);
 		ground->draw(_dev);
+
+		bs_weird.bind(_dev);
 
 		shd.world(translate(mat4(1), vec3(0, 1, 0)));
 		shd.material(simple_shader::mat(vec3(.8f, .45f, 0.f), 64.f));

@@ -338,7 +338,7 @@ else
 	}
 
 	device::device(vec2 _s, HWND win_)
-		: dc(GetDC(win_)), _rtsize(_s)
+		: dc(GetDC(win_)), _rtsize(_s), next_uniform_buffer_bind_index(0)
 	{
 		PIXELFORMATDESCRIPTOR pfd;
 		ZeroMemory(&pfd, sizeof(pfd));
@@ -437,6 +437,23 @@ else
 	void device::resize(vec2 ns)
 	{
 		_rtsize = ns;
+	}
+
+	uint device::alloc_ubbi()
+	{
+		if(!previously_alloced_ubbi.empty())
+		{
+			auto x = previously_alloced_ubbi.front();
+			previously_alloced_ubbi.pop();
+			return x;
+		}
+		return next_uniform_buffer_bind_index++;
+	}
+
+	void device::free_ubbi(uint& ubbi)
+	{
+		previously_alloced_ubbi.push(ubbi);
+		ubbi = -1;
 	}
 
 	device::~device()

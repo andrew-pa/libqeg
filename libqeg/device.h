@@ -14,6 +14,13 @@ namespace qeg
 		HDC dc;
 		HGLRC rc;
 		vec2 _rtsize;
+
+		uint next_uniform_buffer_bind_index;
+		queue<uint> previously_alloced_ubbi;
+		uint alloc_ubbi();
+		void free_ubbi(uint& ubbi);
+		template<typename T>
+		friend class constant_buffer; //so can alloc/free ubbis
 #endif
 #ifdef DIRECTX	
 	protected:		
