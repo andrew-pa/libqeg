@@ -81,7 +81,13 @@ namespace qeg
 
 #define array_size(ar) sizeof(ar) / sizeof(ar[0])
 
-#define check_flag(f, v) (((uint)(v)&(uint)(f))==(uint)(f))
+//#define check_flag(f, v) (((uint)(v)&(uint)(f))==(uint)(f))
+
+	template <typename flag_type>
+	inline bool check_flag(flag_type check_for, flag_type in)
+	{
+		return (in&check_for) == check_for;
+	}
 
 #define pi glm::pi<float>()
 

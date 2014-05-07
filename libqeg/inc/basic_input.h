@@ -181,6 +181,7 @@ namespace qeg
 #ifdef WIN32
 			DWORD _usr_idx;
 			XINPUT_STATE _cxis;
+			XINPUT_STATE _lxis;
 			bool _connected;
 #endif
 			inline static float dead_zone(short val, short dead_z, short mx = numeric_limits<short>::max())
@@ -205,25 +206,32 @@ namespace qeg
 			{
 #ifdef WIN32
 				XINPUT_STATE _xis;
+				XINPUT_STATE _lxis;
 #endif
 			public:
 #ifdef WIN32
-				state(const XINPUT_STATE& x)
-					: _xis(x){}
+				state(const XINPUT_STATE& x, const XINPUT_STATE& l)
+					: _xis(x), _lxis(l){}
 #endif
 				vec2 left_stick() const;
+				vec2 delta_left_stick() const;
 				vec2 right_stick() const;
+				vec2 delta_right_stick() const;
 				float left_trigger() const;
+				float delta_left_trigger() const;
 				float right_trigger() const;
-				bool is_button_down(button b) const;
+				float delta_right_trigger() const;
+				bool button_down(button b) const;
+				bool button_pressed(button b) const;
 				vec2 dpad_stick() const;
+				vec2 delta_dpad_stick() const;
 			};
 			
 			gamepad(uint idx);
 
-			void update(bool throw_on_no_connection = true);
+			bool update();
 
-			inline state get_state() const { return _cxis; }
+			inline state get_state() const { return state(_cxis, _lxis); }
 			
 			void vibrate(vec2 vibe) const;
 

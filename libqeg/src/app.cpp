@@ -39,8 +39,9 @@ namespace qeg
 				|| msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP || msg == WM_RBUTTONDOWN 
 				|| msg == WM_RBUTTONUP)
 			{
-				input::mouse::__update(vec2(GET_X_LPARAM(lp), GET_Y_LPARAM(lp)), 
-					check_flag(wp, MK_LBUTTON), check_flag(wp, MK_MBUTTON), check_flag(wp, MK_RBUTTON));
+				input::mouse::__update(
+					(vec2(GET_X_LPARAM(lp), GET_Y_LPARAM(lp)) / this_app->_dev->size()) - vec2(.5f), 
+					check_flag(MK_LBUTTON, (int)wp), check_flag(MK_MBUTTON, (int)wp), check_flag(MK_RBUTTON, (int)wp));
 			}
 			else if(msg == WM_KEYDOWN)
 			{

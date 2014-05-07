@@ -8,7 +8,6 @@ namespace qeg
 	void fps_camera::update(float dt)
 	{
 		auto ks = keyboard::get_state();
-
 		vec3 move = vec3(0);
 		vec2 rot = vec2(0);
 
@@ -22,6 +21,7 @@ namespace qeg
 
 			rot = gs.right_stick()*vec2(1.f, -1.f)*rs;
 		}
+
 
 		if (ks.key_down(input::key::key_w))
 			move.x = ms;

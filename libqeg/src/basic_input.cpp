@@ -52,14 +52,15 @@ namespace qeg
 			: _usr_idx(idx), _connected(false){}
 #endif
 
-		void gamepad::update(bool tnc)
+		bool gamepad::update()
 #ifdef WIN32
 		{
+			_lxis = _cxis;
 			auto err = XInputGetState(_usr_idx, &_cxis);
 			if(err == ERROR_DEVICE_NOT_CONNECTED)
 			{
 				_connected = false;
-				if(tnc) throw gamepad_not_connected_exception();
+				return false;
 			}
 			else if(err != ERROR_SUCCESS)
 			{
@@ -68,6 +69,7 @@ namespace qeg
 				throw error_code_exception(err, oss.str());
 			}
 			_connected = true;
+			return true;
 		}
 #endif
 
@@ -119,6 +121,14 @@ namespace qeg
 				dead_zone(_xis.Gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE));
 		}
 #endif
+		vec2 gamepad::state::delta_left_stick() const
+#ifdef WIN32
+		{
+			return left_stick() - vec2(
+				dead_zone(_lxis.Gamepad.sThumbLX, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE),
+				dead_zone(_lxis.Gamepad.sThumbLY, XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE));
+		}
+#endif
 
 		vec2 gamepad::state::right_stick() const
 #ifdef WIN32
@@ -128,11 +138,26 @@ namespace qeg
 				dead_zone(_xis.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE));
 		}
 #endif
+		vec2 gamepad::state::delta_right_stick() const
+#ifdef WIN32
+		{
+			return right_stick() - vec2(
+				dead_zone(_lxis.Gamepad.sThumbRX, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE),
+				dead_zone(_lxis.Gamepad.sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE));
+		}
+#endif
 
 		float gamepad::state::left_trigger() const
 #ifdef WIN32
 		{
 			return dead_zone(_xis.Gamepad.bLeftTrigger,
+				XINPUT_GAMEPAD_TRIGGER_THRESHOLD, numeric_limits<byte>::max());
+		}
+#endif
+		float gamepad::state::delta_left_trigger() const
+#ifdef WIN32
+		{
+			return left_trigger() - dead_zone(_xis.Gamepad.bLeftTrigger,
 				XINPUT_GAMEPAD_TRIGGER_THRESHOLD, numeric_limits<byte>::max());
 		}
 #endif
@@ -144,8 +169,15 @@ namespace qeg
 				XINPUT_GAMEPAD_TRIGGER_THRESHOLD, numeric_limits<byte>::max());
 		}
 #endif
+		float gamepad::state::delta_right_trigger() const
+#ifdef WIN32
+		{
+			return right_trigger() - dead_zone(_xis.Gamepad.bRightTrigger,
+				XINPUT_GAMEPAD_TRIGGER_THRESHOLD, numeric_limits<byte>::max());
+		}
+#endif
 
-		bool gamepad::state::is_button_down(button b) const
+		bool gamepad::state::button_down(button b) const
 #ifdef WIN32
 		{
 			switch (b)
@@ -200,23 +232,96 @@ namespace qeg
 			}
 		}
 #endif
+		bool gamepad::state::button_pressed(button b) const
+#ifdef WIN32
+		{
+			bool cu = button_down(b);
+			switch (b)
+			{
+			case qeg::input::gamepad::button::A:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_A) == 0;
+
+			case qeg::input::gamepad::button::B:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_B) == 0;
+
+			case qeg::input::gamepad::button::X:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_X) == 0;
+
+			case qeg::input::gamepad::button::Y:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_Y) == 0;
+
+			case qeg::input::gamepad::button::start:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_START) == 0;
+
+			case qeg::input::gamepad::button::back:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) == 0;
+
+			case qeg::input::gamepad::button::home:
+				return cu && (_lxis.Gamepad.wButtons & 0x4000) == 0; //hack, xbox guide button
+
+			case qeg::input::gamepad::button::left_bumper:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) == 0;
+
+			case qeg::input::gamepad::button::right_bumper:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) == 0;
+
+			case qeg::input::gamepad::button::left_stick:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) == 0;
+
+			case qeg::input::gamepad::button::right_stick:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) == 0;
+
+			case qeg::input::gamepad::button::dpad_left:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) == 0;
+
+			case qeg::input::gamepad::button::dpad_right:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) == 0;
+
+			case qeg::input::gamepad::button::dpad_up:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) == 0;
+
+			case qeg::input::gamepad::button::dpad_down:
+				return cu && (_lxis.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) == 0;
+
+			default:
+				throw exception("invalid gamepad button");
+			}
+		}
+#endif
+		
 
 		vec2 gamepad::state::dpad_stick() const
 		{
 			vec2 res = vec2(0);
 			
-			if (is_button_down(button::dpad_up))
+			if (button_down(button::dpad_up))
 				res.y = 1;
-			else if (is_button_down(button::dpad_down))
+			else if (button_down(button::dpad_down))
 				res.y = -1;
-			if (is_button_down(button::dpad_left))
+			if (button_down(button::dpad_left))
 				res.x = -1;
-			else if (is_button_down(button::dpad_right))
+			else if (button_down(button::dpad_right))
 				res.x = 1;
 
 
 			return res;
 		}
 
+		vec2 gamepad::state::delta_dpad_stick() const
+		{
+			vec2 res = vec2(0);
+
+			if (button_down(button::dpad_up))
+				res.y = 1;
+			else if (button_down(button::dpad_down))
+				res.y = -1;
+			if (button_down(button::dpad_left))
+				res.x = -1;
+			else if (button_down(button::dpad_right))
+				res.x = 1;
+
+
+			return dpad_stick() - res;
+		}
 	}
 }

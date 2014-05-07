@@ -126,7 +126,8 @@ public:
 
 //Tested Now
 //meshes, constant_buffer, camera(s), gamepad, keyboard, rasterizer_state, app, device, render_texture2d, timer,
-//blend_state
+//Work but too lazy to add full test
+//blend_state, mouse
 //Not yet tested
 //textures, sampler_state, blend_state, texture loading, render_texture for real
 
@@ -138,13 +139,14 @@ class qegtest_app : public app
 	mesh* torus;
 	fps_camera cam;
 	input::gamepad ctrl0;
-	input::gamepad::state prev_gs;
 
 	rasterizer_state wireframe_rs;
 	bool render_wireframe;
 	float wireframe_timer;
 
 	blend_state bs_weird;
+
+	vec3 ball_pos;
 public:
 	qegtest_app()
 		: app(
@@ -156,12 +158,12 @@ public:
 		vec2(640, 480), false, 1.f / 60.f),
 		shd(_dev), cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 4.f, 2.f, ctrl0),
 		ctrl0(0), wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
-		prev_gs(ctrl0.get_state()), bs_weird(_dev, 
+		bs_weird(_dev, 
 			{
 				blend_state::render_target_blend_state_desc(true, blend_factor::src_alpha, 
 					blend_factor::inv_src_alpha, blend_op::add, blend_factor::one,
 					blend_factor::zero, blend_op::add, write_mask::enable_all),
-			})
+			}), ball_pos(0, 1, 0)
 	{
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_sphere<vertex_position_normal_texture,uint16>(1.f, 64, 64), "ball");
 		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
@@ -228,22 +230,21 @@ public:
 
 	void update(float t, float dt) override
 	{
-		ctrl0.update(false);
+		ctrl0.update();
 		auto gs = ctrl0.get_state();
 		auto ks = input::keyboard::get_state();
-		if (gs.is_button_down(input::gamepad::button::back) ||
+		if (gs.button_down(input::gamepad::button::back) ||
 			ks.key_down(input::key::escape))
 			PostQuitMessage(0);
 
 		wireframe_timer += dt;
-		if((gs.is_button_down(input::gamepad::button::X) && !prev_gs.is_button_down(input::gamepad::button::X)) ||
+		if((gs.button_pressed(input::gamepad::button::X)) ||
 			(wireframe_timer > .2f && ks.key_pressed(input::key::key_u)))
 		{
 			wireframe_timer = 0.f;
 			render_wireframe = !render_wireframe;
 		}
-		prev_gs = gs;
-
+		
 		//tests blend_state::update
 	/*	if((gs.is_button_down(input::gamepad::button::Y) && !prev_gs.is_button_down(input::gamepad::button::Y))
 			|| ks.key_pressed(input::key::key_y))
@@ -275,7 +276,8 @@ public:
 
 		bs_weird.bind(_dev);
 
-		shd.world(translate(mat4(1), vec3(0, 1, 0)));
+
+		shd.world(translate(mat4(1), ball_pos));
 		shd.material(simple_shader::mat(vec3(.8f, .45f, 0.f), 64.f));
 		shd.update(_dev);
 		ball->draw(_dev);

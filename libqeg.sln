@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libqeg", "libqeg\libqeg.vcxproj", "{33671ADD-1739-4565-A10F-CF9E88F529DD}"
 EndProject
@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qegtest", "qegtest\qegtest.
 	ProjectSection(ProjectDependencies) = postProject
 		{33671ADD-1739-4565-A10F-CF9E88F529DD} = {33671ADD-1739-4565-A10F-CF9E88F529DD}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "txcv", "txcv\txcv.vcxproj", "{BE0EC90D-7905-46D2-93F9-6CFD4D23A680}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,12 @@ Global
 		{847257C4-A03E-4003-BC09-336811CD02F9}.DebugGL|Win32.Build.0 = DebugGL|Win32
 		{847257C4-A03E-4003-BC09-336811CD02F9}.Release|Win32.ActiveCfg = Release|Win32
 		{847257C4-A03E-4003-BC09-336811CD02F9}.Release|Win32.Build.0 = Release|Win32
+		{BE0EC90D-7905-46D2-93F9-6CFD4D23A680}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BE0EC90D-7905-46D2-93F9-6CFD4D23A680}.Debug|Win32.Build.0 = Debug|Win32
+		{BE0EC90D-7905-46D2-93F9-6CFD4D23A680}.DebugGL|Win32.ActiveCfg = Debug|Win32
+		{BE0EC90D-7905-46D2-93F9-6CFD4D23A680}.DebugGL|Win32.Build.0 = Debug|Win32
+		{BE0EC90D-7905-46D2-93F9-6CFD4D23A680}.Release|Win32.ActiveCfg = Release|Win32
+		{BE0EC90D-7905-46D2-93F9-6CFD4D23A680}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

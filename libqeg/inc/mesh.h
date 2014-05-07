@@ -347,13 +347,13 @@ namespace qeg
 		{
 			for (uint j = 0; j < div.y - 1; ++j)
 			{
-				m.indices.push_back(i*div.y + j);
-				m.indices.push_back(i*div.y + j + 1);
-				m.indices.push_back((i+1)*div.y + j);
+				m.indices.push_back(i*(uint16)div.y + j);
+				m.indices.push_back(i*(uint16)div.y + j + 1);
+				m.indices.push_back((i + 1)*(uint16)div.y + j);
 
-				m.indices.push_back((i+1)*div.y + j);
-				m.indices.push_back(i*div.y + j + 1);
-				m.indices.push_back((i+1)*div.y + j+1);
+				m.indices.push_back((i + 1)*(uint16)div.y + j);
+				m.indices.push_back(i*(uint16)div.y + j + 1);
+				m.indices.push_back((i + 1)*(uint16)div.y + j + 1);
 			}
 		}
 

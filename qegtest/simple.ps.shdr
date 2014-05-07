@@ -60,7 +60,9 @@ void main()
 		}
 	}
 
-	float a = clamp(abs(sin(input.texc.x*8.f)+cos(input.texc.y*8.f)), .6, 1.);
+	float a = clamp(abs(sin(input.texc.x*8.)+cos(input.texc.y*8.)), .2, 1.);
+
+	//if(.22 > a) discard();
 
 	output.color = vec4(col, a);
 }
