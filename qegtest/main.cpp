@@ -147,6 +147,14 @@ class qegtest_app : public app
 	blend_state bs_weird;
 
 	vec3 ball_pos;
+
+	texture2d tex;
+	sampler_state ss;
+
+	void do_stuff(datablob<byte>& junk)
+	{
+		cdlog.write((const char*)junk.data, junk.length);
+	}
 public:
 	qegtest_app()
 		: app(
@@ -160,10 +168,12 @@ public:
 		ctrl0(0), wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
 		bs_weird(_dev, 
 			{
-				blend_state::render_target_blend_state_desc(true, blend_factor::src_alpha, 
-					blend_factor::inv_src_alpha, blend_op::add, blend_factor::one,
+				blend_state::render_target_blend_state_desc(true, blend_factor::one, 
+					blend_factor::zero, blend_op::add, blend_factor::one,
 					blend_factor::zero, blend_op::add, write_mask::enable_all),
-			}), ball_pos(0, 1, 0)
+			}), ball_pos(0, 1, 0),
+			tex(*texture2d::load(_dev, read_data_from_package(L"test.tex"))),
+			ss(_dev)
 	{
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_sphere<vertex_position_normal_texture,uint16>(1.f, 64, 64), "ball");
 		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
@@ -225,7 +235,6 @@ public:
 		//out.write((const char*)txf->data, txf->length);
 		//out.flush();
 		//out.close();
-
 	}
 
 	void update(float t, float dt) override
@@ -268,6 +277,8 @@ public:
 		shd.bind(_dev);
 		shd.view_proj(cam.projection()*cam.view());
 		shd.camera_position(cam.position());
+		tex.bind(_dev, 0, shader_stage::pixel_shader, shd);
+		ss.bind(_dev, 0, shader_stage::pixel_shader);
 		
 		shd.world(mat4(1));
 		shd.material(simple_shader::mat(vec3(.4f, .4f, .4f), 0.f));
@@ -287,7 +298,8 @@ public:
 		shd.update(_dev);
 		torus->draw(_dev);
 
-
+		ss.bind(_dev, 0, shader_stage::pixel_shader);
+		tex.unbind(_dev, 0, shader_stage::pixel_shader);
 		shd.unbind(_dev);
 		bs_weird.unbind(_dev);
 		if (render_wireframe) wireframe_rs.unbind(_dev);

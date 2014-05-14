@@ -145,7 +145,7 @@ namespace qeg
 		texture1d(device* dev, uint len, pixel_format f, void* data = nullptr);
 		texture1d(device* dev, uint len, pixel_format f, vector<void*> mip_data);
 
-		inline static texture1d* load(device* _dev, datablob<byte>* file)
+		inline static texture1d* load(device* _dev, const datablob<byte>& file)
 		{
 			return static_cast<texture1d*>(detail::_load_texture(_dev, file));
 		}
@@ -180,7 +180,7 @@ namespace qeg
 
 		static texture2d* load_dds(device* dev, datablob<byte>* data);
 
-		inline static texture2d* load(device* _dev, datablob<byte>* file)
+		inline static texture2d* load(device* _dev, const datablob<byte>& file)
 		{
 			return static_cast<texture2d*>(detail::_load_texture(_dev, file));
 		}
@@ -214,7 +214,7 @@ namespace qeg
 		texture3d(device* dev, uvec3 size, pixel_format f, void* data = nullptr, 
 			bool gen_mips = false, size_t sys_slice_pitch = -1, size_t sys_pitch = 4);
 
-		inline static texture2d* load(device* _dev, datablob<byte>* file)
+		inline static texture2d* load(device* _dev, const datablob<byte>& file)
 		{
 			return static_cast<texture2d*>(detail::_load_texture(_dev, file));
 		}
@@ -242,7 +242,7 @@ namespace qeg
 		textureCube(device* dev, uvec2 size, pixel_format f, vector<byte*> data_per_face, 
 			bool gen_mips = false,  size_t sys_pitch = 4);
 
-		inline static textureCube* load(device* _dev, datablob<byte>* file)
+		inline static textureCube* load(device* _dev, const datablob<byte>& file)
 		{
 			return static_cast<textureCube*>(detail::_load_texture(_dev, file));
 		}

@@ -4,7 +4,7 @@ namespace qeg
 {
 #ifdef WIN32
 	//Read in the data contained in filename, put it in to a datablob
-	datablob<byte>* read_data(
+	const datablob<byte>& read_data(
 		const wstring& filename	//_In_ const wchar_t* filename
 		)
 	{
@@ -56,11 +56,11 @@ namespace qeg
 		}
 
 		CloseHandle(file);
-		return fileData;
+		return *fileData;
 	}
 
 	//Wrapper for read_data, but adds the executable path on to the file name
-	datablob<byte>* read_data_from_package(_In_ const wstring& filename)
+	const datablob<byte>& read_data_from_package(_In_ const wstring& filename)
 	{
 		static std::wstring fpath = L"";
 		if (fpath.length() == 0)
@@ -125,7 +125,7 @@ namespace qeg
 		case pixel_format::RG16_SNORM:
 		case pixel_format::RG16_SINT:
 		case pixel_format::R32_TYPELESS:
-		opengl_exempt(case pixel_format::_D32_FLOAT:)
+		opengl_exempt(case pixel_format::D32_FLOAT:)
 		case pixel_format::R32_FLOAT:
 		opengl_exempt(case pixel_format::R32_UINT:)
 		case pixel_format::R32_SINT:
@@ -133,7 +133,7 @@ namespace qeg
 
 		case pixel_format::R16_TYPELESS:
 		case pixel_format::R16_FLOAT:
-		opengl_exempt(case pixel_format::_D16_UNORM:)
+		opengl_exempt(case pixel_format::D16_UNORM:)
 		case pixel_format::R16_UNORM:
 		opengl_exempt(case pixel_format::R16_UINT:)
 		case pixel_format::R16_SNORM:

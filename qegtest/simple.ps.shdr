@@ -38,6 +38,8 @@ cbuffer(2)
 	vec4 cam_pos;
 }
 
+texture2D tex(0);
+
 void main()
 {
 	vec3 v = normalize(cam_pos.xyz - input.posW);
@@ -64,5 +66,5 @@ void main()
 
 	//if(.22 > a) discard();
 
-	output.color = vec4(col, a);
+	output.color = vec4(col * sample_texture(tex, input.texc).xyz, a);
 }

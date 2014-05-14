@@ -11,25 +11,25 @@ namespace qeg
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    2, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	shader::shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data, 
+	shader::shader(device* _dev, const datablob<byte>& vs_data, const datablob<byte>& ps_data, 
 		const D3D11_INPUT_ELEMENT_DESC lo[], size_t cnt)
 	{
-		if (vs_data != nullptr)
-			chr(_dev->ddevice()->CreateVertexShader(vs_data->data, vs_data->length, nullptr, &vertex_sh));
-		if (ps_data != nullptr)
-			chr(_dev->ddevice()->CreatePixelShader(ps_data->data, ps_data->length, nullptr, &pixel_sh));
-		chr(_dev->ddevice()->CreateInputLayout(lo, cnt, vs_data->data, vs_data->length, &inplo));
+		if (!vs_data.empty())
+			chr(_dev->ddevice()->CreateVertexShader(vs_data.data, vs_data.length, nullptr, &vertex_sh));
+		if (!ps_data.empty())
+			chr(_dev->ddevice()->CreatePixelShader(ps_data.data, ps_data.length, nullptr, &pixel_sh));
+		chr(_dev->ddevice()->CreateInputLayout(lo, cnt, vs_data.data, vs_data.length, &inplo));
 	}	
 	
-	shader::shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data)
+	shader::shader(device* _dev, const datablob<byte>& vs_data, const datablob<byte>& ps_data)
 	{
-		if (vs_data != nullptr)
-			chr(_dev->ddevice()->CreateVertexShader(vs_data->data, vs_data->length, nullptr, &vertex_sh));
-		if (ps_data != nullptr)
-			chr(_dev->ddevice()->CreatePixelShader(ps_data->data, ps_data->length, nullptr, &pixel_sh));
+		if (!vs_data.empty())
+			chr(_dev->ddevice()->CreateVertexShader(vs_data.data, vs_data.length, nullptr, &vertex_sh));
+		if (!ps_data.empty())
+			chr(_dev->ddevice()->CreatePixelShader(ps_data.data, ps_data.length, nullptr, &pixel_sh));
 
 		ID3D11ShaderReflection* vsref;
-		chr(D3DReflect(vs_data->data, vs_data->length,
+		chr(D3DReflect(vs_data.data, vs_data.length,
 			IID_ID3D11ShaderReflection, (void**)&vsref));
 		D3D11_SHADER_DESC shd;
 		vsref->GetDesc(&shd);
@@ -76,7 +76,7 @@ namespace qeg
 			eled.push_back(ed);
 		}
 
-		chr(_dev->ddevice()->CreateInputLayout(eled.data(), eled.size(), vs_data->data, vs_data->length, &inplo));
+		chr(_dev->ddevice()->CreateInputLayout(eled.data(), eled.size(), vs_data.data, vs_data.length, &inplo));
 
 		vsref->Release();
 	}
@@ -119,32 +119,32 @@ namespace qeg
 			throw exception(oss.str().c_str());
 		}
 	}
-	shader::shader(device* _dev, datablob<byte>* vs_data, datablob<byte>* ps_data)
+	shader::shader(device* _dev, const datablob<byte>& vs_data, const datablob<byte>& ps_data)
 	{
-		if(vs_data != nullptr)
+		if(!vs_data.empty())
 		{
 			_idvp = glCreateShader(GL_VERTEX_SHADER);
-			const GLchar* vsd = (GLchar*)vs_data->data;
-			const GLint vsl = vs_data->length;
+			const GLchar* vsd = (GLchar*)vs_data.data;
+			const GLint vsl = vs_data.length;
 			glShaderSource(_idvp, 1, &vsd, &vsl);
 			glCompileShader(_idvp);
-			validate_shader(_idvp, (GLchar*)vs_data->data);
+			validate_shader(_idvp, vsd);
 		}
 
-		if(ps_data != nullptr)
+		if(!vs_data.empty())
 		{			
 			_idfp = glCreateShader(GL_FRAGMENT_SHADER);
-			const GLchar* psd = (GLchar*)ps_data->data;
-			const GLint psl = ps_data->length;
+			const GLchar* psd = (GLchar*)ps_data.data;
+			const GLint psl = ps_data.length;
 			glShaderSource(_idfp, 1, &psd, &psl);
 			glCompileShader(_idfp);
-			validate_shader(_idfp, (GLchar*)ps_data->data);
+			validate_shader(_idfp, psd);
 		}
 
 		_id = glCreateProgram();
-		if(vs_data != nullptr)
+		if(!vs_data.empty())
 			glAttachShader(_id, _idvp);
-		if(ps_data != nullptr)
+		if(!ps_data.empty())
 			glAttachShader(_id, _idfp);
 		
 		glLinkProgram(_id);
@@ -155,9 +155,6 @@ namespace qeg
 			glGetProgramInfoLog(_id, 512, &len, buf);
 			if (len > 0)
 			{
-				//OutputDebugString(L"GL Program error: ");
-				//OutputDebugStringA(buf);
-				//OutputDebugString(L"\n");
 				cdlog << "GL Program error: " << buf << endl;
 				throw exception(buf);
 			}

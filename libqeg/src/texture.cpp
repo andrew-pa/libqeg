@@ -125,7 +125,7 @@ namespace qeg
 		: texture(size_)
 	{
 		CD3D11_TEXTURE3D_DESC txd((DXGI_FORMAT)f, size_.x, size_.y, 1U, 0U,
-			D3D11_BIND_SHADER_RESOURCE);		
+			D3D11_BIND_SHADER_RESOURCE);
 		if (gen_mips)
 		{
 			txd.MipLevels = 7;
@@ -235,7 +235,7 @@ namespace qeg
 		if (data != nullptr)
 			glGenerateMipmap(GL_TEXTURE_1D);
 	}
-	
+
 	texture1d::texture1d(device* dev, uint size_, pixel_format f, vector<void*> mip_data)
 		: texture(size_)
 	{
@@ -255,11 +255,11 @@ namespace qeg
 	{
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);
-		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)(f), 
+		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)(f),
 			size_.x, size_.y, 0, detail::get_gl_format_internal(f), detail::get_gl_format_type(f), data);
 		if (data != nullptr)
 			glGenerateMipmap(GL_TEXTURE_2D);
-	}		
+	}
 
 	texture2d::texture2d(device* dev, uvec2 size_, pixel_format f, vector<void*> mip_data)
 		: texture(size_)
@@ -271,7 +271,7 @@ namespace qeg
 		{
 			uint mipmap_scale = (uint)floor(pow(2.f, (float)i));
 			glTexSubImage2D(GL_TEXTURE_2D, i, 0, 0,
-				size_.x/mipmap_scale, size_.y/mipmap_scale, 
+				size_.x/mipmap_scale, size_.y/mipmap_scale,
 				detail::get_gl_format_internal(f), detail::get_gl_format_type(f), mip_data[i]);
 		}
 	}
@@ -301,7 +301,7 @@ namespace qeg
 				size_.x, size_.y, 0, (GLenum)f,
 				detail::get_gl_format_type(f), data_per_face[idx]);
 		}
-		
+
 		if (gen_mips) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
 #endif

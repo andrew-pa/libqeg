@@ -101,7 +101,7 @@ namespace qeg
 			}
 		}
 
-		void* _load_texture(device* dev, datablob<byte>* file_data)
+		void* _load_texture(device* dev, const datablob<byte>& file_data)
 		{
 			bo_file f(file_data);
 			if (f.type() != bo_file::file_type::texture)

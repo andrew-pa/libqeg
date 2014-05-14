@@ -176,13 +176,13 @@ namespace qeg
 		RG16_SINT,
 		RG16_SNORM,
 		R32_TYPELESS = DXGI_FORMAT_R32_TYPELESS,
-		_D32_FLOAT,
+		D32_FLOAT,
 		R32_FLOAT,
 		R32_UINT,
 		R32_SINT,
 		R16_TYPELESS = DXGI_FORMAT_R16_TYPELESS,
 		R16_FLOAT,
-		_D16_UNORM,
+		D16_UNORM,
 		R16_UNORM,
 		R16_UINT,
 		R16_SNORM,
@@ -334,23 +334,32 @@ namespace qeg
 	struct datablob
 	{
 		datablob() : data(nullptr), length(-1) { }
-		datablob(T* d, size_t l) : data(d), length(l) { }
+		datablob(T* d, size_t l) : data(new T[l]), length(l) 
+		{
+			memcpy(data, d, l*sizeof(T));
+		}
 		datablob(size_t l) : data(new T[l]), length(l) { }
 
 		~datablob()
 		{
 			if(data != nullptr)
-				delete[] data;
+				delete data;
+			data = nullptr;
+			length = -1;
 		}
+
+		inline bool empty() const { return data == nullptr; }
 
 		T* data;
 		size_t length;
 	};
+
+
 	//Read in the data contained in filename, put it in to a datablob
-	datablob<byte>* read_data(const wstring& filename);
+	const datablob<byte>& read_data(const wstring& filename);
 
 	//Wrapper for read_data, but adds the executable path on to the file name
-	datablob<byte>* read_data_from_package(_In_ const wstring& filename);
+	const datablob<byte>& read_data_from_package(_In_ const wstring& filename);
 
 	enum class shader_stage
 	{

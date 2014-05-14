@@ -37,9 +37,9 @@ namespace qeg
 		bo_file(file_type t)
 			: _htype(t){}
 
-		bo_file(datablob<byte>* d)
+		bo_file(const datablob<byte>& d)
 		{
-			byte* bd = d->data;
+			byte* bd = d.data;
 			header* h = (header*)bd;
 			bd += 2 * sizeof(uint);
 			chunk_desc* cds = (chunk_desc*)bd;
@@ -52,7 +52,7 @@ namespace qeg
 			}
 		}
 
-		datablob<byte>* write()
+		const datablob<byte>& write()
 		{
 			size_t total_length = sizeof(header)+sizeof(chunk_desc)*_chunks.size();
 			for (const auto& c : _chunks)
@@ -82,7 +82,7 @@ namespace qeg
 				bd += sizeof(chunk_desc);
 			}
 
-			return new datablob<byte>(fbd, total_length);
+			return *(new datablob<byte>(fbd, total_length));
 		}
 
 		proprw(file_type, type, { return _htype; });

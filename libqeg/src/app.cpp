@@ -82,6 +82,11 @@ namespace qeg
 		UpdateWindow(wnd);
 	}
 
+	app::~app()
+	{
+		delete _dev;
+	}
+
 	void app::run()
 	{
 		MSG msg{ 0 };
