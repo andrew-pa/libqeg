@@ -161,7 +161,7 @@ namespace qeg
 			glValidateProgram(_id);
 			GLint sta;
 			glGetProgramiv(_id, GL_VALIDATE_STATUS, &sta);
-			if (sta == GL_FALSE) throw exception("error validating shader");
+			//if (sta == GL_FALSE) throw exception("error validating shader");
 		}
 
 	}

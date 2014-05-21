@@ -11,13 +11,14 @@ namespace qeg
 #ifdef DIRECTX
 	texture1d::texture1d(device* dev, uint size_, pixel_format f, void* data)
 	{
-		CD3D11_TEXTURE1D_DESC dsc((DXGI_FORMAT)f, size_, 1U, 0U, D3D11_BIND_SHADER_RESOURCE);
-		if (data != nullptr)
-		{
-			dsc.MipLevels = 7;
-			dsc.BindFlags |= D3D11_BIND_RENDER_TARGET;
-			dsc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-		}
+		CD3D11_TEXTURE1D_DESC dsc((DXGI_FORMAT)f, size_, 1U, 1U, D3D11_BIND_SHADER_RESOURCE);
+		//can't create mipmaps for 1D texture
+		//if (data != nullptr)
+		//{
+		//	dsc.MipLevels = 0; //creates full levels
+		//	dsc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+		//	dsc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+		//}
 		CD3D11_SHADER_RESOURCE_VIEW_DESC sd(D3D11_SRV_DIMENSION_TEXTURE1D, (DXGI_FORMAT)f);
 		D3D11_SUBRESOURCE_DATA d = { 0 };
 		d.pSysMem = data;
@@ -68,7 +69,8 @@ namespace qeg
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srd(D3D11_SRV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)f);
 		if (data != nullptr)
 		{
-			txd.MipLevels = 7;
+			//TODO: fix this so it calculates correct number of miplevels
+			txd.MipLevels = 1; //creates full levels
 			txd.BindFlags |= D3D11_BIND_RENDER_TARGET;
 			txd.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		}
@@ -128,7 +130,7 @@ namespace qeg
 			D3D11_BIND_SHADER_RESOURCE);
 		if (gen_mips)
 		{
-			txd.MipLevels = 7;
+			txd.MipLevels = 0; //create all mips
 			txd.BindFlags |= D3D11_BIND_RENDER_TARGET;
 			txd.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		}
@@ -186,7 +188,7 @@ namespace qeg
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srd(D3D11_SRV_DIMENSION_TEXTURECUBE, (DXGI_FORMAT)f); //make gen mips functional
 		if (gen_mips)
 		{
-			txd.MipLevels = 7;
+			txd.MipLevels = 0; //create all mips
 			txd.BindFlags |= D3D11_BIND_RENDER_TARGET;
 			txd.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		}
@@ -230,8 +232,8 @@ namespace qeg
 	{
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_1D, _id);
-		glTexImage1D(GL_TEXTURE_1D, 0, detail::get_gl_format_internal(f),
-			size_, 0, (GLenum)f, detail::get_gl_format_type(f), data);
+		glTexImage1D(GL_TEXTURE_1D, 0, (GLenum)f,
+			size_, 0, detail::get_gl_format_internal(f), detail::get_gl_format_type(f), data);
 		if (data != nullptr)
 			glGenerateMipmap(GL_TEXTURE_1D);
 	}

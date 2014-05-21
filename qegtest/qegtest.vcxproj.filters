@@ -22,8 +22,12 @@
   <ItemGroup>
     <CustomBuild Include="simple.ps.shdr" />
     <CustomBuild Include="simple.vs.shdr" />
+    <CustomBuild Include="checker.dds" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="test1.dds" />
   </ItemGroup>
 </Project>

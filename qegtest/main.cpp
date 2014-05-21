@@ -12,6 +12,7 @@
 #include <states.h>
 #include <bo_file.h>
 #include <resource.h>
+#include <render_texture2d.h>
 using namespace qeg;
 
 #include <glm/gtc/noise.hpp>
@@ -124,6 +125,18 @@ public:
 	}
 };
 
+const static vec4 diffuse_ramp_data[8] =
+{
+	vec4(0.f, 0.f, 0.f, 1.f),
+	vec4(1.f, 0.f, 0.f, 1.f),
+	vec4(0.f, 1.f, 0.f, 1.f),
+	vec4(0.f, 0.f, 1.f, 1.f),
+	vec4(1.f, 1.f, 0.f, 1.f),
+	vec4(0.f, 1.f, 1.f, 1.f),
+	vec4(1.f, 0.f, 1.f, 1.f),
+	vec4(1.f, 1.f, 1.f, 1.f),
+};
+
 //Tested Now
 //meshes, constant_buffer, camera(s), gamepad, keyboard, rasterizer_state, app, device, render_texture2d, timer,
 //Work but too lazy to add full test
@@ -137,7 +150,9 @@ class qegtest_app : public app
 	mesh* ball;
 	mesh* ground;
 	mesh* torus;
+	mesh* portal;
 	fps_camera cam;
+	camera other_cam;
 	input::gamepad ctrl0;
 
 	rasterizer_state wireframe_rs;
@@ -148,8 +163,13 @@ class qegtest_app : public app
 
 	vec3 ball_pos;
 
+	//texture1d ramptx;
+	//texture2d test;
 	texture2d tex;
+	//texture3d tex3;
 	sampler_state ss;
+
+	render_texture2d portal_tex;
 
 	void do_stuff(datablob<byte>& junk)
 	{
@@ -164,26 +184,43 @@ public:
 		L"libqeg test (OpenGL)",
 #endif
 		vec2(640, 480), false, 1.f / 60.f),
-		shd(_dev), cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 4.f, 2.f, ctrl0),
+		shd(_dev), 
+		cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
+		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
 		ctrl0(0), wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
 		bs_weird(_dev, 
 			{
-				blend_state::render_target_blend_state_desc(true, blend_factor::one, 
-					blend_factor::zero, blend_op::add, blend_factor::one,
-					blend_factor::zero, blend_op::add, write_mask::enable_all),
-			}), ball_pos(0, 1, 0),
-			tex(*texture2d::load(_dev, read_data_from_package(L"test.tex"))),
-			ss(_dev)
+		blend_state::render_target_blend_state_desc(true, blend_factor::one,
+		blend_factor::zero, blend_op::add, blend_factor::one,
+		blend_factor::zero, blend_op::add, write_mask::enable_all),
+	}), ball_pos(0, 1, 0),
+	tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
+	portal_tex(_dev, uvec2(1024)),
+	//test(_dev, vec2(8, 1), pixel_format::RGBA32_FLOAT, (void*)diffuse_ramp_data),
+	ss(_dev)//, ramptx(), tex3()
 	{
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_sphere<vertex_position_normal_texture,uint16>(1.f, 64, 64), "ball");
 		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
 		torus = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_torus<vertex_position_normal_texture, uint16>(vec2(1.f, .5f), 64), "torus");
+		portal = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture, uint16>(vec2(4), vec2(16), vec3(.5f, 0, .5f)), "portal");
 
 		shd.light(simple_shader::point_light(vec3(0, 10, 0), vec3(.5f)), 0);
 		shd.light(simple_shader::point_light(vec3(-10, 10, -7), vec3(.5f, .4f, .4f)), 1);
 		shd.light(simple_shader::point_light(vec3(14, 10, 5), vec3(.4f, .4f, .5f)), 2);
 		shd.light_count(3);
 
+		//float* wwq = new float[8*4];
+		//for (int i = 0; i < 8 * 4; ++i)
+		//	wwq[i] = (float)rand() / (float)RAND_MAX;
+		//ramptx = texture1d(_dev, 8, pixel_format::RGBA32_FLOAT, wwq);
+		//delete wwq;
+
+		/*wwq = new float[8 * 8 * 8 * 4];
+		for (int i = 0; i < 8*8*8*4; ++i)
+			wwq[i] = (float)rand() / (float)RAND_MAX;
+		tex3 = texture3d(_dev, uvec3(8), pixel_format::RGBA32_FLOAT, wwq, false, 8);
+		
+*/
 		//const int size = 512;
 		//bo_file f(bo_file::file_type::texture);
 		//qeg::detail::texture_header h;
@@ -262,28 +299,45 @@ public:
 			bs_weird.update(_dev);
 		}*/
 
+		shd.light(simple_shader::point_light(vec3(sin(t)*3.f, 10, cos(t)*3.f), vec3(.5f)), 0);
+
 		cam.update(dt);
 		cam.update_view();
+
+		other_cam.update_view();
 	}
 	
 	void resized() override
 	{
 		cam.update_proj(_dev->size());
+		other_cam.update_proj(vec2(1024));
 	}
 
-	void render(float t, float dt) override 
+	void render(float t, float dt, camera& c, bool with_rendered_textures = false)
 	{
 		if (render_wireframe) wireframe_rs.bind(_dev);
 		shd.bind(_dev);
-		shd.view_proj(cam.projection()*cam.view());
-		shd.camera_position(cam.position());
+		shd.view_proj(c.projection()*c.view());
+		shd.camera_position(c.position());
 		tex.bind(_dev, 0, shader_stage::pixel_shader, shd);
+		//		ramptx.bind(_dev, 1, shader_stage::pixel_shader, shd);
+		//	tex3.bind(_dev, 2, shader_stage::pixel_shader, shd);
 		ss.bind(_dev, 0, shader_stage::pixel_shader);
-		
+		//		ss.bind(_dev, 1, shader_stage::pixel_shader);
+		//		ss.bind(_dev, 2, shader_stage::pixel_shader);
+
 		shd.world(mat4(1));
-		shd.material(simple_shader::mat(vec3(.4f, .4f, .4f), 0.f));
+		shd.material(simple_shader::mat(vec3(.6f, .6f, .6f), 0.f));
 		shd.update(_dev);
 		ground->draw(_dev);
+
+		if (with_rendered_textures) portal_tex.bind(_dev, 0, shader_stage::pixel_shader, shd);
+		shd.world(translate(mat4(1), vec3(4, 2, 4)));
+		shd.material(simple_shader::mat(vec3(.9f, .9f, .9f), 0.f));
+		shd.update(_dev);
+		portal->draw(_dev);
+		if (with_rendered_textures)
+			tex.bind(_dev, 0, shader_stage::pixel_shader, shd);
 
 		bs_weird.bind(_dev);
 
@@ -298,11 +352,23 @@ public:
 		shd.update(_dev);
 		torus->draw(_dev);
 
-		ss.bind(_dev, 0, shader_stage::pixel_shader);
+		ss.unbind(_dev, 0, shader_stage::pixel_shader);
+		//	ss.unbind(_dev, 1, shader_stage::pixel_shader);
+		//	ss.unbind(_dev, 2, shader_stage::pixel_shader);
 		tex.unbind(_dev, 0, shader_stage::pixel_shader);
+		//	ramptx.unbind(_dev, 1, shader_stage::pixel_shader);
+		//	tex3.unbind(_dev, 2, shader_stage::pixel_shader);
 		shd.unbind(_dev);
 		bs_weird.unbind(_dev);
 		if (render_wireframe) wireframe_rs.unbind(_dev);
+	}
+
+	void render(float t, float dt) override 
+	{
+		_dev->push_render_target(&portal_tex);
+		render(t, dt, other_cam, false);
+		_dev->pop_render_target();
+		render(t, dt, cam, true);
 	}
 };
 

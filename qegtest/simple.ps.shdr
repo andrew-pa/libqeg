@@ -39,6 +39,8 @@ cbuffer(2)
 }
 
 texture2D tex(0);
+//texture1D ramp(1);
+//texture3D junk(2);
 
 void main()
 {
@@ -50,14 +52,16 @@ void main()
 		vec3 l = normalize(lights[i].pos.xyz - input.posW);
 		if(specular.w <= 0.)
 		{
-			col += diffuse.xyz * max(0.f, dot(n, l));
+			float Ld = max(0.f, dot(n, l));
+			col += diffuse.xyz * Ld;
 		}
 		else
 		{
 			vec3 hv = normalize(l+v);
 			float hdn = max(0., dot(hv, n));
 			vec3 spc = (specular.xyz*lights[i].col.xyz) * pow(hdn, specular.w);
-			vec3 dif = (diffuse.xyz*lights[i].col.xyz) * max(0., dot(n, l));
+			float Ld = max(0., dot(n, l));
+			vec3 dif = (diffuse.xyz*lights[i].col.xyz) * Ld;
 			col += dif + spc;
 		}
 	}
@@ -66,5 +70,5 @@ void main()
 
 	//if(.22 > a) discard();
 
-	output.color = vec4(col * sample_texture(tex, input.texc).xyz, a);
+	output.color = vec4(col * sample_texture(tex, input.texc).xyz, a);// * sample_texture(junk, abs(input.normW));
 }

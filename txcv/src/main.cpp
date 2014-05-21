@@ -55,146 +55,84 @@ qeg::bo_file* write_tex(gli::storage& s)
 {
 	if(s.layers() > 1)
 	{
+		if(s.faces() > 1)
+		{
+			auto pif = convert_pi(s.format());
+			auto td = s.data();
+
+			qeg::detail::texture_header hed;
+			hed.dim = qeg::texture_dimension::texture_cube;
+			hed.size = uvec3(s.dimensions(0));
+			hed.mip_count = s.levels();
+			hed.array_count = 6;
+			hed.format = pif;
+
+			qeg::bo_file* texf = new qeg::bo_file(qeg::bo_file::file_type::texture);
+			qeg::bo_file::chunk hedc(0,
+				new qeg::datablob<glm::byte>((glm::byte*)&hed, sizeof(qeg::detail::texture_header)));
+			
+			for (int i = 0; i < 6; ++i)
+			{
+				glm::byte* dat = s.data() + i*s.faceSize(0, s.levels());
+
+				
+				qeg::bo_file::chunk dc(1,
+					new qeg::datablob<glm::byte>(dat, s.faceSize(0, s.levels())));// *qeg::bytes_per_pixel(qeg::detail::convert(pif))));
+				texf->chunks().push_back(dc);
+			}
+			
+			//qeg::bo_file::chunk dc(1,
+			//	new qeg::datablob<glm::byte>((glm::byte*)s.data(), s.size()));// *qeg::bytes_per_pixel(qeg::detail::convert(pif))));
+			texf->chunks().push_back(hedc);
+			//texf->chunks().push_back(dc);
+			return texf;
+
+		}
 		throw exception("texture arrays not yet supported");
 	}
 	else
 	{
+		auto pif = convert_pi(s.format());
+		auto td = s.data();
+
+		qeg::detail::texture_header hed;
+		if      (s.dimensions(0).y == 0) hed.dim = qeg::texture_dimension::texture_1d;
+		else if (s.dimensions(0).z == 1) hed.dim = qeg::texture_dimension::texture_2d;
+		else hed.dim = qeg::texture_dimension::texture_3d;
+		hed.size = uvec3(s.dimensions(0));
+		hed.mip_count = s.levels();
+		hed.array_count = 0;
+		hed.format = pif;
+
+		qeg::bo_file* texf = new qeg::bo_file(qeg::bo_file::file_type::texture);
+		qeg::bo_file::chunk hedc(0,
+			new qeg::datablob<glm::byte>((glm::byte*)&hed, sizeof(qeg::detail::texture_header)));
+		qeg::bo_file::chunk dc(1,
+			new qeg::datablob<glm::byte>((glm::byte*)s.data(), s.size()));// *qeg::bytes_per_pixel(qeg::detail::convert(pif))));
+		texf->chunks().push_back(hedc);
+		texf->chunks().push_back(dc);
+		return texf;
 	}
 }
 
 int main(int argc, char* argv[])
 {
 	vector<string> args;
-	for (int i = 1; i < argc; ++i) args.push_back(argv[i]);
+	for (int ij = 1; ij < argc; ++ij) args.push_back(argv[ij]);
 	
-	string in_file = "test.dds";//args[0];
-	string out_file = "test.tex";//args[1];
+	string in_file = args[0];
+	string out_file = args[1];
+
+	cout << "converting " << in_file << " to " << out_file << endl;
 
 	auto i = gli::load_dds(in_file.c_str());
 
-	/*auto bf = write_tex(i);
+	auto bf = write_tex(i);
 	auto d = bf->write();
 	ofstream out(out_file, ios_base::binary);
 	out.write((const char*)d.data, d.length);
 	out.flush();
-	out.close();*/
-
-	if(i.layers() > 1) //texture array
-	{
-		throw exception("texture arrays not yet supported");
-
-		if (i.levels() > 1)
-		{
-			if (i.dimensions(0).y == 1) //1d texture array
-			{
-				gli::texture1DArray t(i);
-
-			}
-			else if (i.dimensions(0).z == 1) //2d texture array
-			{
-				gli::texture2DArray t(i);
-			}
-		}
-		else
-		{
-			if (i.dimensions(0).y == 1) //1d texture array
-			{
-				gli::texture1DArray t(i);
-
-			}
-			else if (i.dimensions(0).z == 1) //2d texture array
-			{
-				gli::texture2DArray t(i);
-			}
-		}
-	}
-	else if(i.faces() > 1) //texture cube
-	{
-		gli::textureCube t(i);
-		if(i.levels() > 1)
-		{
-		}
-		else
-		{
-		}
-	}
-	else //regular texture
-	{
-		if(i.levels() > 1)
-		{
-			if (i.dimensions(0).y == 1) //1d texture
-			{
-				gli::texture1D t(i);
-
-			}
-			else if (i.dimensions(0).z == 1) //2d texture
-			{
-				gli::texture2D t(i);
-			}
-			else //3d texture
-			{
-				gli::texture3D t(i);
-			}
-		}
-		else
-		{
-			if(i.dimensions(0).y == 0) //1d texture
-			{
-				gli::texture1D t(i);
-				auto td = t.data();
-
-				qeg::detail::texture_header hed;
-				hed.dim = qeg::texture_dimension::texture_1d;
-				hed.size = (uvec3)t.dimensions();
-				hed.mip_count = 0;
-				hed.array_count = 0;
-				hed.format = convert_pi(t.format());
-				
-				qeg::bo_file texf(qeg::bo_file::file_type::texture);
-				qeg::bo_file::chunk hedc(0,
-					new qeg::datablob<glm::byte>((glm::byte*)&hed, sizeof(qeg::detail::texture_header)));
-				qeg::bo_file::chunk dc(1,
-					new qeg::datablob<glm::byte>((glm::byte*)t.data(), t.size()));
-				auto txf = texf.write();
-				ofstream out(out_file, ios_base::binary);
-				out.write((const char*)txf.data, txf.length);
-				out.flush();
-				out.close();
-			}
-			else if(i.dimensions(0).z == 1) //2d texture
-			{
-				auto t = i;
-				auto pif = convert_pi(t.format());
-				auto td = t.data();
-
-				qeg::detail::texture_header hed;
-				hed.dim = qeg::texture_dimension::texture_2d;
-				hed.size = uvec3(t.dimensions(0));
-				hed.mip_count = 0;
-				hed.array_count = 0;
-				hed.format = pif;
-
-				qeg::bo_file texf(qeg::bo_file::file_type::texture);
-				qeg::bo_file::chunk hedc(0,
-					new qeg::datablob<glm::byte>((glm::byte*)&hed, sizeof(qeg::detail::texture_header)));
-				qeg::bo_file::chunk dc(1,
-					new qeg::datablob<glm::byte>((glm::byte*)t.data(), t.size()));// *qeg::bytes_per_pixel(qeg::detail::convert(pif))));
-				texf.chunks().push_back(hedc);
-				texf.chunks().push_back(dc);
-				auto txf = texf.write();
-				ofstream out(out_file, ios_base::binary);
-				out.write((const char*)txf.data, txf.length);
-				out.flush();
-				out.close();
-			}
-			else //3d texture
-			{
-				gli::texture3D t(i);
-			}
-		}
-	}
-	
-	getchar();
+	out.close();
 
 	return 0;
 }

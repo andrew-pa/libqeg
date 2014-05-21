@@ -54,14 +54,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
     <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg\inc;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\andre_000\Source\libqeg\DebugDX;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>C:\Users\andre_000\Source\cosl\Debug;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath>$(SolutionDir)Debug;C:\Users\andre_000\Source\cosl\Debug;$(ExecutablePath)</ExecutablePath>
     <TargetName>$(ProjectName)-dx</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">
     <IncludePath>C:\Users\andre_000\Source\libqeg\libqeg\inc;$(SolutionDir)include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Users\andre_000\Source\libqeg\DebugGL;$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName)-gl</TargetName>
-    <ExecutablePath>C:\Users\andre_000\Source\cosl\Debug;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath>C:\Users\andre_000\Source\libqeg\Debug;C:\Users\andre_000\Source\cosl\Debug;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
     <ClCompile>
@@ -133,6 +133,28 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="checker.dds">
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">txcv %(FullPath) $(OutputPath)%(Filename).tex</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Converting Texture</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutputPath)%(Filename).tex</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">false</LinkObjects>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">txcv %(FullPath) $(OutputPath)%(Filename).tex</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">txcv %(FullPath) $(OutputPath)%(Filename).tex</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Converting Texture</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting Texture</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">$(OutputPath)%(Filename).tex</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">false</LinkObjects>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">true</TreatOutputAsContent>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutputPath)%(Filename).tex</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatOutputAsContent>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="test1.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
