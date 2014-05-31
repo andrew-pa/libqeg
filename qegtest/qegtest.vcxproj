@@ -135,7 +135,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="checker.dds">
+    <CustomBuild Include="*.dds">
       <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">txcv %(FullPath) $(OutputPath)%(Filename).tex</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Converting Texture</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutputPath)%(Filename).tex</Outputs>
@@ -152,9 +152,6 @@
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
       <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatOutputAsContent>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="test1.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

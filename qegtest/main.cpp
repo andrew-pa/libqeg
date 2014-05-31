@@ -166,6 +166,7 @@ class qegtest_app : public app
 	//texture1d ramptx;
 	//texture2d test;
 	texture2d tex;
+	textureCube sky;
 	//texture3d tex3;
 	sampler_state ss;
 
@@ -195,6 +196,7 @@ public:
 		blend_factor::zero, blend_op::add, write_mask::enable_all),
 	}), ball_pos(0, 1, 0),
 	tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
+	sky(*textureCube::load(_dev, read_data_from_package(L"test1.tex"))),
 	portal_tex(_dev, uvec2(1024)),
 	//test(_dev, vec2(8, 1), pixel_format::RGBA32_FLOAT, (void*)diffuse_ramp_data),
 	ss(_dev)//, ramptx(), tex3()
@@ -320,9 +322,11 @@ public:
 		shd.view_proj(c.projection()*c.view());
 		shd.camera_position(c.position());
 		tex.bind(_dev, 0, shader_stage::pixel_shader, shd);
+		sky.bind(_dev, 1, shader_stage::pixel_shader, shd);
 		//		ramptx.bind(_dev, 1, shader_stage::pixel_shader, shd);
 		//	tex3.bind(_dev, 2, shader_stage::pixel_shader, shd);
 		ss.bind(_dev, 0, shader_stage::pixel_shader);
+		ss.bind(_dev, 1, shader_stage::pixel_shader, texture_dimension::texture_cube);
 		//		ss.bind(_dev, 1, shader_stage::pixel_shader);
 		//		ss.bind(_dev, 2, shader_stage::pixel_shader);
 
@@ -356,6 +360,7 @@ public:
 		//	ss.unbind(_dev, 1, shader_stage::pixel_shader);
 		//	ss.unbind(_dev, 2, shader_stage::pixel_shader);
 		tex.unbind(_dev, 0, shader_stage::pixel_shader);
+		sky.unbind(_dev, 1, shader_stage::pixel_shader);
 		//	ramptx.unbind(_dev, 1, shader_stage::pixel_shader);
 		//	tex3.unbind(_dev, 2, shader_stage::pixel_shader);
 		shd.unbind(_dev);

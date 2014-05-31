@@ -130,7 +130,7 @@ namespace qeg
 			D3D11_BIND_SHADER_RESOURCE);
 		if (gen_mips)
 		{
-			txd.MipLevels = 0; //create all mips
+			txd.MipLevels = 1; //create all mips
 			txd.BindFlags |= D3D11_BIND_RENDER_TARGET;
 			txd.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		}
@@ -183,28 +183,21 @@ namespace qeg
 	{
 		if (data_per_face.size() < 6)
 			throw exception("not enough data for all faces of cubemap");
-		CD3D11_TEXTURE2D_DESC txd((DXGI_FORMAT)f, size_.x, size_.y, 1U, 0U,
+		CD3D11_TEXTURE2D_DESC txd((DXGI_FORMAT)f, size_.x, size_.y, 6U, 0U,
 			D3D11_BIND_SHADER_RESOURCE, D3D11_USAGE_DEFAULT, 0U, 1U, 0U, D3D11_RESOURCE_MISC_TEXTURECUBE);
 		CD3D11_SHADER_RESOURCE_VIEW_DESC srd(D3D11_SRV_DIMENSION_TEXTURECUBE, (DXGI_FORMAT)f); //make gen mips functional
 		if (gen_mips)
 		{
-			txd.MipLevels = 0; //create all mips
+			txd.MipLevels = 1; //create all mips
 			txd.BindFlags |= D3D11_BIND_RENDER_TARGET;
 			txd.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
 		}
 
-		size_t facesize_bytes = (size_.x * size_.y * bytes_per_pixel(f));
-		byte* data = new byte[facesize_bytes * 6];
-		for (int i = 0; i < 6; ++i)
-			memcpy(data + (i*facesize_bytes), data_per_face[i], facesize_bytes);
-
-		D3D11_SUBRESOURCE_DATA initdata = { 0 };
-		initdata.pSysMem = data;
-		initdata.SysMemPitch = sys_pitch;
-		chr(dev->ddevice()->CreateTexture2D(&txd, &initdata, &texd));
+		vector<D3D11_SUBRESOURCE_DATA> initdatas;
+		for (const byte* d : data_per_face)
+			initdatas.push_back(detail::CD3D11_SUBRESOURCE_DATA((void*)d, sys_pitch, 0U));
+		chr(dev->ddevice()->CreateTexture2D(&txd, initdatas.data(), &texd));
 		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srd, &srv));
-
-		delete[] data;
 	}
 
 
@@ -295,17 +288,30 @@ namespace qeg
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
 
-		for (uint face = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-			face < GL_TEXTURE_CUBE_MAP_NEGATIVE_Z; ++face)
+		for (uint idx = 0; idx < 6; ++idx)
 		{
-			uint idx = face - GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-			glTexImage2D(face, 0, detail::get_gl_format_internal(f),
-				size_.x, size_.y, 0, (GLenum)f,
+			uint face = idx + GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+			glTexImage2D(face, 0, (GLenum)f,
+				size_.x, size_.y, 0, detail::get_gl_format_internal(f),
 				detail::get_gl_format_type(f), data_per_face[idx]);
 		}
 
 		if (gen_mips) glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 	}
+
+	void textureCube::bind(device* dev, int slot, shader_stage ss, shader& s)
+	{
+		glActiveTexture(GL_TEXTURE0 + slot);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
+		auto i = glGetUniformLocation(s.program_id(), generate_tex_name(slot, ss));
+		glUniform1i(i, slot);
+	}
+
+	void textureCube::unbind(device* dev, int slot, shader_stage ss)
+	{
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	}
+
 #endif
 
 #ifdef DIRECTX

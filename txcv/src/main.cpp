@@ -55,7 +55,10 @@ qeg::bo_file* write_tex(gli::storage& s)
 {
 	if(s.layers() > 1)
 	{
-		if(s.faces() > 1)
+
+		throw exception("texture arrays not yet supported");
+	}
+			if(s.faces() > 1)
 		{
 			auto pif = convert_pi(s.format());
 			auto td = s.data();
@@ -73,11 +76,11 @@ qeg::bo_file* write_tex(gli::storage& s)
 			
 			for (int i = 0; i < 6; ++i)
 			{
-				glm::byte* dat = s.data() + i*s.faceSize(0, s.levels());
+				glm::byte* dat = s.data() + i*s.faceSize(0, 0);
 
 				
 				qeg::bo_file::chunk dc(1,
-					new qeg::datablob<glm::byte>(dat, s.faceSize(0, s.levels())));// *qeg::bytes_per_pixel(qeg::detail::convert(pif))));
+					new qeg::datablob<glm::byte>(dat, s.faceSize(0, 0)));// *qeg::bytes_per_pixel(qeg::detail::convert(pif))));
 				texf->chunks().push_back(dc);
 			}
 			
@@ -88,8 +91,6 @@ qeg::bo_file* write_tex(gli::storage& s)
 			return texf;
 
 		}
-		throw exception("texture arrays not yet supported");
-	}
 	else
 	{
 		auto pif = convert_pi(s.format());
@@ -117,14 +118,14 @@ qeg::bo_file* write_tex(gli::storage& s)
 
 int main(int argc, char* argv[])
 {
-	vector<string> args;
+	vector<string> args;	
 	for (int ij = 1; ij < argc; ++ij) args.push_back(argv[ij]);
 	
 	string in_file = args[0];
 	string out_file = args[1];
 
 	cout << "converting " << in_file << " to " << out_file << endl;
-
+	
 	auto i = gli::load_dds(in_file.c_str());
 
 	auto bf = write_tex(i);

@@ -22,5 +22,6 @@
   <ItemGroup>
     <Image Include="test.dds" />
     <Image Include="test2.dds" />
+    <Image Include="test1.dds" />
   </ItemGroup>
 </Project>

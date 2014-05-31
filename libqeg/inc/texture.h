@@ -247,6 +247,11 @@ namespace qeg
 			return static_cast<textureCube*>(detail::_load_texture(_dev, file));
 		}
 
+#ifdef OPENGL
+		void bind(device* dev, int slot, shader_stage ss, shader& s) override;
+		void unbind(device* dev, int slot, shader_stage ss) override;
+#endif
+
 		//TODO: Implement or consider loading TexCube mipmaps
 #ifdef DIRECTX
 		textureCube(device* dev, CD3D11_TEXTURE2D_DESC desc);

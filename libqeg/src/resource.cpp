@@ -224,7 +224,7 @@ namespace qeg
 			}
 			else if (h->dim == texture_dimension::texture_cube)
 			{
-				if (h->array_count > 0)
+				if (h->array_count > 6)
 				{
 					throw exception("texture arrays not supported yet");
 				}

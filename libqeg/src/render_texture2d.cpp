@@ -28,7 +28,7 @@ namespace qeg
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuf);
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);
-		glTexImage2D(GL_TEXTURE_2D, 0, detail::get_gl_format_internal(f), _size.x, _size.y, 0, (GLenum)f, detail::get_gl_format_type(f), 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)f, _size.x, _size.y, 0, detail::get_gl_format_internal(f), detail::get_gl_format_type(f), 0);
 		glGenRenderbuffers(1, &depthbuf);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthbuf);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, _size.x, _size.y);
