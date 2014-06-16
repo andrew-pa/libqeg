@@ -125,6 +125,43 @@ public:
 	}
 };
 
+class sky_shader : public shader
+{
+	constant_buffer<mat4> wvp_mat;
+	textureCube* sky_texture;
+public:
+	sky_shader(device* _dev, const datablob<byte>& vs_data, const datablob<byte>& ps_data)
+		: shader(_dev, vs_data, ps_data), wvp_mat(_dev, *this, 0, mat4(), shader_stage::vertex_shader) {}
+	void set_wvp(const mat4& m) 
+	{
+		wvp_mat.data() = m;
+	}
+
+	void set_texture(textureCube* t)
+	{
+		sky_texture = t;
+	}
+
+	void bind(device* _dev) override
+	{
+		shader::bind(_dev);
+		sky_texture->bind(_dev, 0, shader_stage::pixel_shader, *this);
+		wvp_mat.bind(_dev);
+	}
+
+	void update(device* _dev) override
+	{
+		shader::update(_dev);
+		wvp_mat.update(_dev);
+	}
+
+	void unbind(device* _dev) override
+	{
+		shader::unbind(_dev);
+		wvp_mat.unbind(_dev);
+	}
+};
+
 const static vec4 diffuse_ramp_data[8] =
 {
 	vec4(0.f, 0.f, 0.f, 1.f),
@@ -151,6 +188,7 @@ class qegtest_app : public app
 	mesh* ground;
 	mesh* torus;
 	mesh* portal;
+	mesh* sky_mesh;
 	fps_camera cam;
 	camera other_cam;
 	input::gamepad ctrl0;
@@ -158,6 +196,8 @@ class qegtest_app : public app
 	rasterizer_state wireframe_rs;
 	bool render_wireframe;
 	float wireframe_timer;
+
+	rasterizer_state sky_rs;
 
 	blend_state bs_weird;
 
@@ -189,6 +229,7 @@ public:
 		cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
 		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
 		ctrl0(0), wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
+		sky_rs(_dev, fill_mode::solid, cull_mode::front),
 		bs_weird(_dev, 
 			{
 		blend_state::render_target_blend_state_desc(true, blend_factor::one,
@@ -205,7 +246,8 @@ public:
 		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
 		torus = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_torus<vertex_position_normal_texture, uint16>(vec2(1.f, .5f), 64), "torus");
 		portal = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture, uint16>(vec2(4), vec2(16), vec3(.5f, 0, .5f)), "portal");
-
+		sky_mesh = new interleaved_mesh<vertex_position, uint16>(_dev, generate_sphere<vertex_position, uint16>(20.f, 32, 32), "sky");
+		
 		shd.light(simple_shader::point_light(vec3(0, 10, 0), vec3(.5f)), 0);
 		shd.light(simple_shader::point_light(vec3(-10, 10, -7), vec3(.5f, .4f, .4f)), 1);
 		shd.light(simple_shader::point_light(vec3(14, 10, 5), vec3(.4f, .4f, .5f)), 2);
@@ -351,10 +393,10 @@ public:
 		shd.update(_dev);
 		ball->draw(_dev);
 
-		shd.world(rotate(translate(mat4(1), vec3(-3, 1.4f, 3)), t, vec3(.2f, .6f, .4f)));
-		shd.material(simple_shader::mat(vec3(.1f, .8f, .1f), 256.f));
-		shd.update(_dev);
-		torus->draw(_dev);
+		//shd.world(rotate(translate(mat4(1), vec3(-3, 1.4f, 3)), t, vec3(.2f, .6f, .4f)));
+		//shd.material(simple_shader::mat(vec3(.1f, .8f, .1f), 256.f));
+		//shd.update(_dev);
+		//torus->draw(_dev);
 
 		ss.unbind(_dev, 0, shader_stage::pixel_shader);
 		//	ss.unbind(_dev, 1, shader_stage::pixel_shader);

@@ -63,7 +63,9 @@ namespace qeg
 	public:
 		texture() {}
 		texture(dim_type _s)
-			: _size(_s)	{}
+			: _size(_s)	
+		{
+		}
 
 
 		virtual void bind(device* dev, int slot, shader_stage ss, shader& s)

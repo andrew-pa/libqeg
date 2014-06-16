@@ -427,7 +427,7 @@ else
 	void device::update_render_target()
 	{	
 		glBindFramebuffer(GL_FRAMEBUFFER, rt_sk.top()->frame_buffer());
-		if (rt_sk.top()->size().x == -1)
+		if (rt_sk.top()->frame_buffer() == 0)
 			glViewport(0, 0, (GLsizei)size().x, (GLsizei)size().y);
 		else
 			glViewport(0, 0, (GLsizei)rt_sk.top()->size().x, (GLsizei)rt_sk.top()->size().y);

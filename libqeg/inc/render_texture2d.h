@@ -13,8 +13,9 @@ namespace qeg
 		ComPtr<ID3D11DepthStencilView> dsv;
 #endif
 #ifdef OPENGL
-		GLuint framebuf;
-		GLuint depthbuf;
+		GLuint _fbo;
+		GLuint _db;
+		GLuint _dbro;
 #endif
 	public:
 		render_texture2d(device* dev, uvec2 size, pixel_format f = pixel_format::RGBA32_FLOAT);
@@ -28,9 +29,9 @@ namespace qeg
 #endif
 #ifdef OPENGL
 		render_texture2d(uvec2 size_, GLuint fb, GLuint db)
-			: texture2d(size_), framebuf(fb), depthbuf(db) {}
-		propr(GLuint, frame_buffer, { return framebuf; });
-		propr(GLuint, depth_buffer, { return depthbuf; });
+			: texture2d(size_), _fbo(fb), _db(db) {}
+		propr(GLuint, frame_buffer, { return _fbo; });
+		propr(GLuint, depth_buffer, { return _db; });
 #endif
 	};
 };

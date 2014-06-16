@@ -23,12 +23,35 @@ namespace qeg
 	}
 #elif defined(OPENGL)
 	render_texture2d::render_texture2d(device* dev, uvec2 size, pixel_format f)
+		: texture2d(size)
 	{	
-		glGenFramebuffers(1, &framebuf);
+
+		glGenFramebuffers(1, &_fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+
+		glGenTextures(1, &_id);
+		glGenTextures(1, &_db);
+
+		glBindTexture(GL_TEXTURE_2D, _id);
+		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)f, _size.x, _size.y, 0, 
+			detail::get_gl_format_internal(f), detail::get_gl_format_type(f), 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _id, 0);
+
+		glBindTexture(GL_TEXTURE_2D, _db);
+		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)f, _size.x, _size.y, 0,
+			detail::get_gl_format_internal(f), detail::get_gl_format_type(f), 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+		/*glGenFramebuffers(1, &framebuf);
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuf);
 		glGenTextures(1, &_id);
 		glBindTexture(GL_TEXTURE_2D, _id);
-		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)f, _size.x, _size.y, 0, detail::get_gl_format_internal(f), detail::get_gl_format_type(f), 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)f, _size.x, _size.y, 0, 
+			detail::get_gl_format_internal(f), detail::get_gl_format_type(f), 0);
 		glGenRenderbuffers(1, &depthbuf);
 		glBindRenderbuffer(GL_RENDERBUFFER, depthbuf);
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, _size.x, _size.y);
@@ -36,16 +59,16 @@ namespace qeg
 		GLenum db[1] = { GL_COLOR_ATTACHMENT0 };
 		glDrawBuffers(1, db);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
 	}
 
 
 	render_texture2d::~render_texture2d()
 	{	
-		if(depthbuf != 0)
-			glDeleteRenderbuffers(1, &depthbuf);
-		if (framebuf != 0)
-			glDeleteFramebuffers(1, &framebuf);
+		if (_db != 0)
+			glDeleteTextures(1, &_db);
+		if (_fbo != 0)
+			glDeleteFramebuffers(1, &_fbo);
 	}
 #endif
 }

@@ -45,6 +45,13 @@ textureCube env(1);
 
 void main()
 {
+	vec2 texmul;
+#ifdef HLSL
+	texmul = vec2(1,1);
+#endif
+#ifdef GLSL
+	texmul = vec2(1,-1);
+#endif
 	vec3 v = normalize(cam_pos.xyz - input.posW);
 	vec3 n = normalize(input.normW);
 	vec3 col = vec3(0.,0.,0.);
@@ -71,5 +78,5 @@ void main()
 
 	//if(.22 > a) discard();
 
-	output.color = vec4(col * sample_texture(tex, input.texc).xyz, a) * sample_texture(env, reflect(v, n));// * sample_texture(junk, abs(input.normW));
+	output.color = vec4(col * sample_texture(tex, input.texc*texmul).xyz, a) * sample_texture(env, reflect(v, n));// * sample_texture(junk, abs(input.normW));
 }
