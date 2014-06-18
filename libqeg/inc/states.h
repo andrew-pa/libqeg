@@ -190,4 +190,59 @@ namespace qeg
 		void update(device* _dev);
 		void unbind(device* _dev);
 	};
+
+	enum class comparison_func 
+	{ 
+		never = 1, less, equal, less_equal, greater, not_equal, greater_equal, always
+	};
+
+	enum class stencil_op 
+	{
+		keep = 1,
+		zero, replace, incr_sat, decr_sat, invert, incr, decr,
+	};
+
+	struct depth_stencil_state 
+	{
+#ifdef DIRECTX
+		ComPtr<ID3D11DepthStencilState> dss;
+#endif
+	public:
+		bool allow_depthstencil_writes;
+		bool depth_enable;
+		comparison_func depth_comp;
+		
+		bool stencil_enable;
+		uint8 stencil_read_mask;
+		uint8 stencil_write_mask;
+
+		struct depthstencil_op
+		{
+			stencil_op fail;
+			stencil_op depth_fail;
+			stencil_op pass_op;
+			comparison_func stencil_comp;
+
+			depthstencil_op(stencil_op f = stencil_op::keep, 
+				stencil_op df = stencil_op::keep, stencil_op p = stencil_op::keep, 
+				comparison_func cf = comparison_func::always) 
+				: fail(f), depth_fail(df), pass_op(p), stencil_comp(cf) {}
+		};
+
+		depthstencil_op frontface_op;
+		depthstencil_op backface_op;
+
+		depth_stencil_state(bool depthenable = true, bool depthwritemask = true, 
+			comparison_func depthfunc = comparison_func::less, bool stencilenable = false, 
+			uint8 stencilwritemask = 0xff, uint8 stencilreadmask = 0xff, 
+			depthstencil_op frontdsop = depthstencil_op(), depthstencil_op backdsop = depthstencil_op())
+			: depth_enable(depthenable), allow_depthstencil_writes(depthwritemask), depth_comp(depthfunc),
+			stencil_enable(stencilenable), stencil_write_mask(stencilwritemask), stencil_read_mask(stencilreadmask),
+			frontface_op(frontdsop), backface_op(backdsop) 
+		{}
+
+		void bind(device* _dev, uint stencil_ref);
+		void update(device* _dev);
+		void unbind(device* _dev);
+	};
 }

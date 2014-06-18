@@ -1,0 +1,24 @@
+$vertex_shader
+
+input
+{
+	vec3 pos : position;
+}
+
+output
+{
+	vec4 pos : rs_position;
+	vec3 texc : texcoord
+}
+
+cbuffer(0)
+{
+	mat4 wvp;
+}
+
+void main()
+{
+	vec4 wvp_pos = mul(wvp, vec4(input.pos, 1.0));
+	output.pos = wvp_pos.xyww;
+	output.texc = input.pos;
+}

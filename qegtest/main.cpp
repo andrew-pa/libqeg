@@ -130,8 +130,8 @@ class sky_shader : public shader
 	constant_buffer<mat4> wvp_mat;
 	textureCube* sky_texture;
 public:
-	sky_shader(device* _dev, const datablob<byte>& vs_data, const datablob<byte>& ps_data)
-		: shader(_dev, vs_data, ps_data), wvp_mat(_dev, *this, 0, mat4(), shader_stage::vertex_shader) {}
+	sky_shader(device* _dev)
+		: shader(_dev, read_data_from_package(L"sky.vs.csh"), read_data_from_package(L"sky.ps.csh")), wvp_mat(_dev, *this, 0, mat4(), shader_stage::vertex_shader) {}
 	void set_wvp(const mat4& m) 
 	{
 		wvp_mat.data() = m;
@@ -184,6 +184,8 @@ const static vec4 diffuse_ramp_data[8] =
 class qegtest_app : public app
 {
 	simple_shader shd;
+	sky_shader skshd;
+
 	mesh* ball;
 	mesh* ground;
 	mesh* torus;
@@ -225,7 +227,7 @@ public:
 		L"libqeg test (OpenGL)",
 #endif
 		vec2(640, 480), false, 1.f / 60.f),
-		shd(_dev), 
+		shd(_dev), skshd(_dev), 
 		cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
 		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
 		ctrl0(0), wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
@@ -407,6 +409,15 @@ public:
 		//	tex3.unbind(_dev, 2, shader_stage::pixel_shader);
 		shd.unbind(_dev);
 		bs_weird.unbind(_dev);
+
+		sky_rs.bind(_dev);
+		skshd.set_texture(&sky);
+		skshd.bind(_dev);
+		skshd.set_wvp(translate(mat4(0), c.position())*c.view()*c.projection());
+		skshd.update(_dev);
+		sky_mesh->draw(_dev);
+		skshd.unbind(_dev);
+		sky_rs.unbind(_dev);
 		if (render_wireframe) wireframe_rs.unbind(_dev);
 	}
 

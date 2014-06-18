@@ -1,0 +1,19 @@
+$pixel_shader
+
+input
+{
+	vec4 pos : rs_position;
+	vec3 texc : texcoord
+}
+
+
+output
+{
+	vec4 color : target0;
+}
+
+textureCube sky(0);
+void main()
+{
+	output.color = sample_texture(sky, input.pos);
+}
