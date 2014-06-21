@@ -7,7 +7,7 @@ namespace qeg
 #ifdef WIN32
 #ifdef DIRECTX
 	device::device(vec2 s, HWND win_, uint msaa_lvl_)
-		: msaa_level(msaa_lvl_), _window(win_), win_bnds(s)
+		: msaa_level(msaa_lvl_), _window(win_), win_bnds(s), _back_buffer(nullptr)
 	{
 		create_d2d_res();
 		create_device_res();
@@ -69,18 +69,16 @@ namespace qeg
 		GetClientRect(_window, &cre);
 		win_bnds = vec2(convdp((float)(cre.right - cre.left)), convdp((float)(cre.bottom - cre.top)));
 		
-		render_target.Reset();
-		depth_stencil.Reset();
-
+		delete _back_buffer;
 		rt_sk = stack<render_texture2d*>();
 
-		if (msaa_level > 1)
-			backBuffer.Reset();
+		backBuffer.Reset();
 
 		auto fmt = DXGI_FORMAT_B8G8R8A8_UNORM;
 
 		if (_swap_chain != nullptr)
 		{
+			_context->ClearState();
 			chr(_swap_chain->ResizeBuffers(2, (UINT)win_bnds.x, (UINT)win_bnds.y, fmt, 0));
 		}
 		else
@@ -117,6 +115,10 @@ namespace qeg
 			CD3D11_TEXTURE2D_DESC desc(DXGI_FORMAT_B8G8R8A8_UNORM, (UINT)win_bnds.x, (UINT)win_bnds.y, 1, 1);
 			desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 			desc.SampleDesc.Count = msaa_level;
+
+
+			ComPtr<ID3D11RenderTargetView> render_target;
+			ComPtr<ID3D11DepthStencilView> depth_stencil;
 
 			chr(
 				_device->CreateTexture2D(
@@ -167,7 +169,7 @@ namespace qeg
 					)
 				);
 
-			push_render_target(new render_texture2d(win_bnds, offscreenRenderTargetView, depth_stencil));
+			push_render_target(_back_buffer = new render_texture2d(win_bnds, offscreenRenderTargetView, depth_stencil));
 		}
 #pragma endregion
 #pragma region NO MSAA
@@ -176,6 +178,8 @@ namespace qeg
 			//ComPtr<ID3D11Texture2D> backBuffer;
 			chr(_swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backBuffer));
 
+			ComPtr<ID3D11RenderTargetView> render_target;
+			ComPtr<ID3D11DepthStencilView> depth_stencil;
 			chr(_device->CreateRenderTargetView(backBuffer.Get(), nullptr, &render_target));
 
 			CD3D11_TEXTURE2D_DESC depthStencilDesc(
@@ -193,7 +197,7 @@ namespace qeg
 			CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(D3D11_DSV_DIMENSION_TEXTURE2D);
 			chr(_device->CreateDepthStencilView(depthStencil.Get(), &dsvd, &depth_stencil));
 
-			push_render_target(new render_texture2d(win_bnds, render_target, depth_stencil));
+			push_render_target(_back_buffer = new render_texture2d(win_bnds, render_target, depth_stencil));
 		}
 #pragma endregion
 		
@@ -240,8 +244,8 @@ else
 		}
 		DXGI_PRESENT_PARAMETERS p = { 0 };
 		auto h = _swap_chain->Present1(1, 0, &p);
-		_context->DiscardView(render_target.Get());
-		_context->DiscardView(depth_stencil.Get());
+		_context->DiscardView(_back_buffer->render_target().Get());
+		_context->DiscardView(_back_buffer->depth_stencil().Get());
 		if (h == DXGI_ERROR_DEVICE_REMOVED)
 		{
 			h = _device->GetDeviceRemovedReason();

@@ -218,28 +218,24 @@ namespace qeg
 
 		struct depthstencil_op
 		{
-			stencil_op fail;
-			stencil_op depth_fail;
+			stencil_op fail_op;
+			stencil_op depth_fail_op;
 			stencil_op pass_op;
 			comparison_func stencil_comp;
 
 			depthstencil_op(stencil_op f = stencil_op::keep, 
 				stencil_op df = stencil_op::keep, stencil_op p = stencil_op::keep, 
 				comparison_func cf = comparison_func::always) 
-				: fail(f), depth_fail(df), pass_op(p), stencil_comp(cf) {}
+				: fail_op(f), depth_fail_op(df), pass_op(p), stencil_comp(cf) {}
 		};
 
 		depthstencil_op frontface_op;
 		depthstencil_op backface_op;
 
-		depth_stencil_state(bool depthenable = true, bool depthwritemask = true, 
-			comparison_func depthfunc = comparison_func::less, bool stencilenable = false, 
-			uint8 stencilwritemask = 0xff, uint8 stencilreadmask = 0xff, 
-			depthstencil_op frontdsop = depthstencil_op(), depthstencil_op backdsop = depthstencil_op())
-			: depth_enable(depthenable), allow_depthstencil_writes(depthwritemask), depth_comp(depthfunc),
-			stencil_enable(stencilenable), stencil_write_mask(stencilwritemask), stencil_read_mask(stencilreadmask),
-			frontface_op(frontdsop), backface_op(backdsop) 
-		{}
+		depth_stencil_state(device* _dev, bool depthenable = true, bool depthwritemask = true,
+			comparison_func depthfunc = comparison_func::less, bool stencilenable = false,
+			uint8 stencilwritemask = 0xff, uint8 stencilreadmask = 0xff,
+			depthstencil_op frontdsop = depthstencil_op(), depthstencil_op backdsop = depthstencil_op());
 
 		void bind(device* _dev, uint stencil_ref);
 		void update(device* _dev);

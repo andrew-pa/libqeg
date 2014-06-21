@@ -43,8 +43,7 @@ namespace qeg
 		ComPtr<ID3D11Device2> _device;
 		ComPtr<ID3D11DeviceContext2> _context;
 		ComPtr<IDXGISwapChain1> _swap_chain;
-		ComPtr<ID3D11RenderTargetView> render_target;
-		ComPtr<ID3D11DepthStencilView> depth_stencil;
+		render_texture2d* _back_buffer;
 
 		ComPtr<ID2D1Factory1> _d2factory;
 		ComPtr<IDWriteFactory1> _dwfactory;

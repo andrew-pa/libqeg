@@ -316,6 +316,145 @@ namespace qeg
 		}
 	}
 #endif
+
+	depth_stencil_state::depth_stencil_state(device* _dev, bool depthenable, bool depthwritemask,
+		comparison_func depthfunc, bool stencilenable,
+		uint8 stencilwritemask, uint8 stencilreadmask,
+		depthstencil_op frontdsop, depthstencil_op backdsop)
+		: depth_enable(depthenable), allow_depthstencil_writes(depthwritemask), depth_comp(depthfunc),
+		stencil_enable(stencilenable), stencil_write_mask(stencilwritemask), stencil_read_mask(stencilreadmask),
+		frontface_op(frontdsop), backface_op(backdsop)
+#ifdef DIRECTX
+	{
+		CD3D11_DEPTH_STENCIL_DESC dsd(depth_enable, (allow_depthstencil_writes ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO),
+			(D3D11_COMPARISON_FUNC)depth_comp, stencil_enable, (UINT8)stencil_read_mask, (UINT8)stencil_write_mask, 
+			(D3D11_STENCIL_OP)frontface_op.fail_op, (D3D11_STENCIL_OP)frontface_op.depth_fail_op, 
+			(D3D11_STENCIL_OP)frontface_op.pass_op, (D3D11_COMPARISON_FUNC)frontface_op.stencil_comp,
+			(D3D11_STENCIL_OP)backface_op.fail_op, (D3D11_STENCIL_OP)backface_op.depth_fail_op, 
+			(D3D11_STENCIL_OP)backface_op.pass_op, (D3D11_COMPARISON_FUNC)backface_op.stencil_comp);
+		_dev->ddevice()->CreateDepthStencilState(&dsd, dss.GetAddressOf());
+	}
+#elif  OPENGL
+	{}
+#endif
+
+#ifdef OPENGL
+	GLenum convert_compfunc(comparison_func cf) 
+	{
+		switch (cf)
+		{
+		case qeg::comparison_func::never:
+			return GL_NEVER;
+		case qeg::comparison_func::less:
+			return GL_LESS;
+		case qeg::comparison_func::equal:
+			return GL_EQUAL;
+		case qeg::comparison_func::less_equal:
+			return GL_LEQUAL;
+		case qeg::comparison_func::greater:
+			return GL_GREATER;
+		case qeg::comparison_func::not_equal:
+			return GL_NOTEQUAL;
+		case qeg::comparison_func::greater_equal:
+			return GL_GEQUAL;
+		case qeg::comparison_func::always:
+			return GL_ALWAYS;
+		}
+	}
+	GLenum convert_sop(stencil_op o) 
+	{
+		switch (o)
+		{
+		case qeg::stencil_op::keep:
+			return GL_KEEP;
+		case qeg::stencil_op::zero:
+			return GL_ZERO;
+		case qeg::stencil_op::replace:
+			return GL_REPLACE;
+		case qeg::stencil_op::incr_sat:
+			return GL_INCR;
+		case qeg::stencil_op::decr_sat:
+			return GL_DECR;
+		case qeg::stencil_op::invert:
+			return GL_INVERT;
+		case qeg::stencil_op::incr:
+			return GL_INCR_WRAP;
+		case qeg::stencil_op::decr:
+			return GL_DECR_WRAP;
+		}
+	}
+#endif
+
+	void depth_stencil_state::bind(device* _dev, uint srf)
+#ifdef DIRECTX
+	{
+		_dev->context()->OMSetDepthStencilState(dss.Get(), srf);
+	}
+#elif  OPENGL
+	{
+		if (depth_enable && allow_depthstencil_writes)
+		{
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(convert_compfunc(depth_comp));
+		}
+		else glDisable(GL_DEPTH_TEST);
+		if (stencil_enable && allow_depthstencil_writes) 
+		{
+			glEnable(GL_STENCIL_TEST);
+
+			glStencilOpSeparate(GL_FRONT, convert_sop(frontface_op.fail_op),
+				convert_sop(frontface_op.depth_fail_op),
+				convert_sop(frontface_op.pass_op));
+			glStencilFuncSeparate(GL_FRONT,
+				convert_compfunc(frontface_op.stencil_comp),
+				srf, stencil_read_mask);
+
+
+			glStencilOpSeparate(GL_BACK, convert_sop(backface_op.fail_op),
+				convert_sop(backface_op.depth_fail_op),
+				convert_sop(backface_op.pass_op));
+			glStencilFuncSeparate(GL_BACK,
+				convert_compfunc(backface_op.stencil_comp),
+				srf, stencil_read_mask);
+
+			glStencilMask(stencil_write_mask);
+		}
+		else glDisable(GL_STENCIL_TEST);
+	}
+#endif
+
+	void depth_stencil_state::update(device* _dev)
+#ifdef DIRECTX
+	{
+		dss.Reset();
+		CD3D11_DEPTH_STENCIL_DESC dsd(depth_enable, (allow_depthstencil_writes ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO),
+			(D3D11_COMPARISON_FUNC)depth_comp, stencil_enable, (UINT8)stencil_read_mask, (UINT8)stencil_write_mask,
+			(D3D11_STENCIL_OP)frontface_op.fail_op, (D3D11_STENCIL_OP)frontface_op.depth_fail_op,
+			(D3D11_STENCIL_OP)frontface_op.pass_op, (D3D11_COMPARISON_FUNC)frontface_op.stencil_comp,
+			(D3D11_STENCIL_OP)backface_op.fail_op, (D3D11_STENCIL_OP)backface_op.depth_fail_op,
+			(D3D11_STENCIL_OP)backface_op.pass_op, (D3D11_COMPARISON_FUNC)backface_op.stencil_comp);
+		_dev->ddevice()->CreateDepthStencilState(&dsd, dss.GetAddressOf());
+	}
+#elif  OPENGL
+	{
+	}
+#endif
+
+	void depth_stencil_state::unbind(device* _dev)
+#ifdef DIRECTX
+	{
+		_dev->context()->OMSetDepthStencilState(nullptr, 0);
+	}
+#elif OPENGL
+	{
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glDisable(GL_STENCIL_TEST);
+		glStencilMask(0xff);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+		glStencilFunc(GL_ALWAYS, 0, 0xff);
+	}
+#endif
 }
 
 

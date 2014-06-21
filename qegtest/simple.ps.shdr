@@ -78,5 +78,5 @@ void main()
 
 	//if(.22 > a) discard();
 
-	output.color = vec4(col * sample_texture(tex, input.texc*texmul).xyz, a) * sample_texture(env, reflect(v, n));// * sample_texture(junk, abs(input.normW));
+	output.color = vec4(col * sample_texture(tex, input.texc*texmul).xyz, a) + (sample_texture(env, reflect(v, n))*.4);// * sample_texture(junk, abs(input.normW));
 }

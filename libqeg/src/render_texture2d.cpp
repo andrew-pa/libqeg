@@ -20,6 +20,14 @@ namespace qeg
 
 	render_texture2d::~render_texture2d()
 	{
+		if (dsv != nullptr) 
+		{ 
+			dsv.Reset(); dsv = nullptr; 
+		}
+		if (rtv != nullptr) 
+		{
+			rtv.Reset(); rtv = nullptr; 
+		}
 	}
 #elif defined(OPENGL)
 	render_texture2d::render_texture2d(device* dev, uvec2 size, pixel_format f)

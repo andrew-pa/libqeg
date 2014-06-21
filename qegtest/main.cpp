@@ -158,6 +158,7 @@ public:
 	void unbind(device* _dev) override
 	{
 		shader::unbind(_dev);
+		sky_texture->unbind(_dev, 0, shader_stage::pixel_shader);
 		wvp_mat.unbind(_dev);
 	}
 };
@@ -203,6 +204,8 @@ class qegtest_app : public app
 
 	blend_state bs_weird;
 
+	depth_stencil_state sky_dss;
+
 	vec3 ball_pos;
 
 	//texture1d ramptx;
@@ -226,7 +229,7 @@ public:
 #elif OPENGL
 		L"libqeg test (OpenGL)",
 #endif
-		vec2(640, 480), false, 1.f / 60.f),
+		vec2(1280, 960), false, 1.f / 60.f),
 		shd(_dev), skshd(_dev), 
 		cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
 		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
@@ -241,6 +244,7 @@ public:
 	tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
 	sky(*textureCube::load(_dev, read_data_from_package(L"test1.tex"))),
 	portal_tex(_dev, uvec2(1024)),
+	sky_dss(_dev, true, true, comparison_func::less_equal),
 	//test(_dev, vec2(8, 1), pixel_format::RGBA32_FLOAT, (void*)diffuse_ramp_data),
 	ss(_dev)//, ramptx(), tex3()
 	{
@@ -248,7 +252,7 @@ public:
 		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
 		torus = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_torus<vertex_position_normal_texture, uint16>(vec2(1.f, .5f), 64), "torus");
 		portal = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture, uint16>(vec2(4), vec2(16), vec3(.5f, 0, .5f)), "portal");
-		sky_mesh = new interleaved_mesh<vertex_position, uint16>(_dev, generate_sphere<vertex_position, uint16>(20.f, 32, 32), "sky");
+		sky_mesh = new interleaved_mesh<vertex_position, uint16>(_dev, generate_sphere<vertex_position, uint16>(10.f, 32, 32), "sky");
 		
 		shd.light(simple_shader::point_light(vec3(0, 10, 0), vec3(.5f)), 0);
 		shd.light(simple_shader::point_light(vec3(-10, 10, -7), vec3(.5f, .4f, .4f)), 1);
@@ -395,13 +399,13 @@ public:
 		shd.update(_dev);
 		ball->draw(_dev);
 
-		//shd.world(rotate(translate(mat4(1), vec3(-3, 1.4f, 3)), t, vec3(.2f, .6f, .4f)));
-		//shd.material(simple_shader::mat(vec3(.1f, .8f, .1f), 256.f));
-		//shd.update(_dev);
-		//torus->draw(_dev);
+		shd.world(rotate(translate(mat4(1), vec3(-3, 1.4f, 3)), t, vec3(.2f, .6f, .4f)));
+		shd.material(simple_shader::mat(vec3(.1f, .8f, .1f), 256.f));
+		shd.update(_dev);
+		torus->draw(_dev);
 
 		ss.unbind(_dev, 0, shader_stage::pixel_shader);
-		//	ss.unbind(_dev, 1, shader_stage::pixel_shader);
+		ss.unbind(_dev, 1, shader_stage::pixel_shader);
 		//	ss.unbind(_dev, 2, shader_stage::pixel_shader);
 		tex.unbind(_dev, 0, shader_stage::pixel_shader);
 		sky.unbind(_dev, 1, shader_stage::pixel_shader);
@@ -411,12 +415,16 @@ public:
 		bs_weird.unbind(_dev);
 
 		sky_rs.bind(_dev);
+		sky_dss.bind(_dev, 0);
 		skshd.set_texture(&sky);
 		skshd.bind(_dev);
-		skshd.set_wvp(translate(mat4(0), c.position())*c.view()*c.projection());
+		ss.bind(_dev, 0, shader_stage::pixel_shader, texture_dimension::texture_cube);
+		skshd.set_wvp(c.projection()*c.view());
 		skshd.update(_dev);
 		sky_mesh->draw(_dev);
 		skshd.unbind(_dev);
+		ss.unbind(_dev, 0, shader_stage::pixel_shader);
+		sky_dss.unbind(_dev);
 		sky_rs.unbind(_dev);
 		if (render_wireframe) wireframe_rs.unbind(_dev);
 	}

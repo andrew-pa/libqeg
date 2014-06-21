@@ -75,7 +75,7 @@ namespace qeg
 
 		_dev = new device(winsize, wnd
 #ifdef DIRECTX
-			, 4
+			, 1
 #endif
 			);
 		ShowWindow(wnd, SW_SHOW);
