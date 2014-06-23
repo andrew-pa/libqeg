@@ -242,7 +242,7 @@ public:
 		blend_factor::zero, blend_op::add, write_mask::enable_all),
 	}), ball_pos(0, 1, 0),
 	tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
-	sky(*textureCube::load(_dev, read_data_from_package(L"test1.tex"))),
+	sky(*textureCube::load(_dev, read_data_from_package(L"testcm.tex"))),
 	portal_tex(_dev, uvec2(1024)),
 	sky_dss(_dev, true, true, comparison_func::less_equal),
 	//test(_dev, vec2(8, 1), pixel_format::RGBA32_FLOAT, (void*)diffuse_ramp_data),
@@ -252,7 +252,7 @@ public:
 		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
 		torus = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_torus<vertex_position_normal_texture, uint16>(vec2(1.f, .5f), 64), "torus");
 		portal = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture, uint16>(vec2(4), vec2(16), vec3(.5f, 0, .5f)), "portal");
-		sky_mesh = new interleaved_mesh<vertex_position, uint16>(_dev, generate_sphere<vertex_position, uint16>(10.f, 32, 32), "sky");
+		sky_mesh = new interleaved_mesh<vertex_position, uint16>(_dev, generate_sphere<vertex_position, uint16>(2.f, 32, 32), "sky");
 		
 		shd.light(simple_shader::point_light(vec3(0, 10, 0), vec3(.5f)), 0);
 		shd.light(simple_shader::point_light(vec3(-10, 10, -7), vec3(.5f, .4f, .4f)), 1);
@@ -413,20 +413,20 @@ public:
 		//	tex3.unbind(_dev, 2, shader_stage::pixel_shader);
 		shd.unbind(_dev);
 		bs_weird.unbind(_dev);
+		if (render_wireframe) wireframe_rs.unbind(_dev);
 
 		sky_rs.bind(_dev);
 		sky_dss.bind(_dev, 0);
 		skshd.set_texture(&sky);
 		skshd.bind(_dev);
 		ss.bind(_dev, 0, shader_stage::pixel_shader, texture_dimension::texture_cube);
-		skshd.set_wvp(c.projection()*c.view());
+		skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
 		skshd.update(_dev);
 		sky_mesh->draw(_dev);
 		skshd.unbind(_dev);
 		ss.unbind(_dev, 0, shader_stage::pixel_shader);
 		sky_dss.unbind(_dev);
 		sky_rs.unbind(_dev);
-		if (render_wireframe) wireframe_rs.unbind(_dev);
 	}
 
 	void render(float t, float dt) override 

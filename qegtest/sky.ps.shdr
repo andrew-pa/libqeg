@@ -15,5 +15,5 @@ output
 textureCube sky(0);
 void main()
 {
-	output.color = vec4(input.texc, 1.);//sample_texture(sky, input.texc);
+	output.color = sample_texture(sky, input.texc);
 }

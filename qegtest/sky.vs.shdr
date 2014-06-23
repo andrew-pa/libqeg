@@ -18,7 +18,7 @@ cbuffer(0)
 
 void main()
 {
-	vec4 wvp_pos = mul(wvp, vec4(input.pos, 1.0));
+	vec4 wvp_pos = mul(vec4(input.pos, 1.0), wvp);
 	output.pos = wvp_pos.xyww;
 	output.texc = input.pos;
 }

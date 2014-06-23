@@ -128,7 +128,7 @@ namespace qeg
 
 			pixel_format h_format = convert(h->format);
 
-			bool gen_mips = h->mip_count == 0;
+			bool gen_mips = h->mip_count <= 1;
 
 			if (data_chunk_indices.size() == 0) throw exception("no data chunks");
 
@@ -240,7 +240,7 @@ namespace qeg
 						facedata.push_back(c.data->data);
 					}
 					return new textureCube(dev, uvec2(h->size[0], h->size[1]), h_format,
-						facedata, gen_mips, bytes_per_pixel(h_format)*h->size.y);
+						facedata, true, bytes_per_pixel(h_format)*h->size.y);
 				}
 			}
 

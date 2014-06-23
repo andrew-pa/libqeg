@@ -27,11 +27,11 @@ qeg::detail::pi_pixel_format convert_pi(gli::format f)
 		
 		pfb(8, UNORM)
 		pfb(16, UNORM)
-		pfb(32, UNORM)
+		//pfb(32, UNORM)
 
 		pfb(8, SNORM)
 		pfb(16, SNORM)
-		pfb(32, SNORM)
+		//pfb(32, SNORM)
 
 		pfb(8, UINT)
 		pfb(16, UINT)
@@ -56,9 +56,9 @@ qeg::bo_file* write_tex(gli::storage& s)
 	if(s.layers() > 1)
 	{
 
-		throw exception("texture arrays not yet supported");
+		//throw exception("texture arrays not yet supported");
 	}
-			if(s.faces() > 1)
+			if(s.faces() >= 1)
 		{
 			auto pif = convert_pi(s.format());
 			auto td = s.data();

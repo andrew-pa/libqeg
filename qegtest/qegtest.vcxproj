@@ -156,22 +156,26 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="*.dds">
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">txcv %(FullPath) $(OutputPath)%(Filename).tex</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Converting Texture</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutputPath)%(Filename).tex</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">false</LinkObjects>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</TreatOutputAsContent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">txcv %(FullPath) $(OutputPath)%(Filename).tex</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">txcv %(FullPath) $(OutputPath)%(Filename).tex</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Converting Texture</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Converting Texture</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">$(OutputPath)%(Filename).tex</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">false</LinkObjects>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">true</TreatOutputAsContent>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutputPath)%(Filename).tex</Outputs>
-      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
-      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatOutputAsContent>
+    <CustomBuild Include="checker.dds">
+      <Command>txcv C:\Users\andre_000\Source\libqeg\qegtest\checker.dds C:\Users\andre_000\Source\libqeg\DebugDX\checker.tex</Command>
+      <Message>Converting Texture</Message>
+      <Outputs>C:\Users\andre_000\Source\libqeg\DebugDX\checker.tex</Outputs>
+      <LinkObjects>false</LinkObjects>
+      <TreatOutputAsContent>true</TreatOutputAsContent>
+    </CustomBuild>
+    <CustomBuild Include="test1.dds">
+      <Command>txcv C:\Users\andre_000\Source\libqeg\qegtest\test1.dds C:\Users\andre_000\Source\libqeg\DebugDX\test1.tex</Command>
+      <Message>Converting Texture</Message>
+      <Outputs>C:\Users\andre_000\Source\libqeg\DebugDX\test1.tex</Outputs>
+      <LinkObjects>false</LinkObjects>
+      <TreatOutputAsContent>true</TreatOutputAsContent>
+    </CustomBuild>
+    <CustomBuild Include="testcm.dds">
+      <Command>txcv C:\Users\andre_000\Source\libqeg\qegtest\testcm.dds C:\Users\andre_000\Source\libqeg\DebugDX\testcm.tex</Command>
+      <Message>Converting Texture</Message>
+      <Outputs>C:\Users\andre_000\Source\libqeg\DebugDX\testcm.tex</Outputs>
+      <LinkObjects>false</LinkObjects>
+      <TreatOutputAsContent>true</TreatOutputAsContent>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
