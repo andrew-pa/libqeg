@@ -55,13 +55,15 @@ protected:
 	constant_buffer<mat> mat_cb;
 	constant_buffer<lighting_cbd> li_cb;
 	constant_buffer<vec4> campos_cb;
+	texture2d* _tex, *_old_tex;
+	bool _tex_changed;
 public:
 	simple_shader(device* _dev)
 		: shader(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")),
 		vsmt_cb(_dev, *this, 0, vs_matxs(), shader_stage::vertex_shader),
 		mat_cb(_dev, *this, 0, mat(), shader_stage::pixel_shader),
 		li_cb(_dev, *this, 1, lighting_cbd(), shader_stage::pixel_shader),
-		campos_cb(_dev, *this, 2, vec4(0.f), shader_stage::pixel_shader)
+		campos_cb(_dev, *this, 2, vec4(0.f), shader_stage::pixel_shader), _tex_changed(false), _tex(nullptr), _old_tex(nullptr)
 	{
 	}
 
@@ -79,6 +81,13 @@ public:
 	inline void material(const mat& m)
 	{
 		mat_cb.data() = m;
+	}
+
+	inline void diffuse_tex(texture2d* t)
+	{
+		_old_tex = _tex;
+		_tex = t;
+		_tex_changed = true;
 	}
 
 	inline void light(const point_light& l, int idx)
@@ -113,6 +122,13 @@ public:
 		mat_cb.update(_dev);
 		li_cb.update(_dev);
 		campos_cb.update(_dev);
+		if(_tex_changed)
+		{
+			if (_old_tex != nullptr)
+				_old_tex->unbind(_dev, 0, shader_stage::pixel_shader);
+			if (_tex != nullptr)
+				_tex->bind(_dev, 0, shader_stage::pixel_shader, *this);
+		}
 	}
 
 	void unbind(device* _dev) override
@@ -185,42 +201,35 @@ const static vec4 diffuse_ramp_data[8] =
 class qegtest_app : public app
 {
 	simple_shader shd;
-	sky_shader skshd;
 
 	mesh* ball;
 	mesh* ground;
 	mesh* torus;
 	mesh* portal;
-	mesh* sky_mesh;
+
 	fps_camera cam;
 	camera other_cam;
+
 	input::gamepad ctrl0;
 
 	rasterizer_state wireframe_rs;
 	bool render_wireframe;
 	float wireframe_timer;
 
-	rasterizer_state sky_rs;
-
 	blend_state bs_weird;
-
-	depth_stencil_state sky_dss;
 
 	vec3 ball_pos;
 
-	//texture1d ramptx;
-	//texture2d test;
 	texture2d tex;
-	textureCube sky;
-	//texture3d tex3;
 	sampler_state ss;
 
-	render_texture2d portal_tex;
+	sky_shader skshd;
+	textureCube sky;
+	mesh* sky_mesh;
+	rasterizer_state sky_rs;
+	depth_stencil_state sky_dss;
 
-	void do_stuff(datablob<byte>& junk)
-	{
-		cdlog.write((const char*)junk.data, junk.length);
-	}
+	render_texture2d portal_tex;
 public:
 	qegtest_app()
 		: app(
@@ -230,98 +239,46 @@ public:
 		L"libqeg test (OpenGL)",
 #endif
 		vec2(1280, 960), false, 1.f / 60.f),
+
 		shd(_dev), skshd(_dev), 
+		
 		cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
 		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
-		ctrl0(0), wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
+		
+		ctrl0(0), 
+		
+		wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
 		sky_rs(_dev, fill_mode::solid, cull_mode::front),
+		
 		bs_weird(_dev, 
 			{
-		blend_state::render_target_blend_state_desc(true, blend_factor::one,
-		blend_factor::zero, blend_op::add, blend_factor::one,
-		blend_factor::zero, blend_op::add, write_mask::enable_all),
-	}), ball_pos(0, 1, 0),
-	tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
-	sky(*textureCube::load(_dev, read_data_from_package(L"testcm.tex"))),
-	portal_tex(_dev, uvec2(1024)),
-	sky_dss(_dev, true, true, comparison_func::less_equal),
-	//test(_dev, vec2(8, 1), pixel_format::RGBA32_FLOAT, (void*)diffuse_ramp_data),
-	ss(_dev)//, ramptx(), tex3()
+				blend_state::render_target_blend_state_desc(true, blend_factor::src_alpha,
+				blend_factor::inv_src_alpha, blend_op::add, blend_factor::one,
+				blend_factor::zero, blend_op::add, write_mask::enable_all),
+			}), 
+		ball_pos(0, 1, 0),
+		
+		tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
+		sky(*textureCube::load(_dev, read_data_from_package(L"testcm.tex"))),
+		portal_tex(_dev, uvec2(1024)),
+		
+		sky_dss(_dev, true, true, comparison_func::less_equal),
+		ss(_dev)
 	{
+		//generate scene meshes
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_sphere<vertex_position_normal_texture,uint16>(1.f, 64, 64), "ball");
 		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
 		torus = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_torus<vertex_position_normal_texture, uint16>(vec2(1.f, .5f), 64), "torus");
 		portal = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture, uint16>(vec2(4), vec2(16), vec3(.5f, 0, .5f)), "portal");
+		
+		//generate sky dome mesh
 		sky_mesh = new interleaved_mesh<vertex_position, uint16>(_dev, generate_sphere<vertex_position, uint16>(2.f, 32, 32), "sky");
 		
+		//initialize shader lights
 		shd.light(simple_shader::point_light(vec3(0, 10, 0), vec3(.5f)), 0);
 		shd.light(simple_shader::point_light(vec3(-10, 10, -7), vec3(.5f, .4f, .4f)), 1);
 		shd.light(simple_shader::point_light(vec3(14, 10, 5), vec3(.4f, .4f, .5f)), 2);
 		shd.light_count(3);
-
-		//float* wwq = new float[8*4];
-		//for (int i = 0; i < 8 * 4; ++i)
-		//	wwq[i] = (float)rand() / (float)RAND_MAX;
-		//ramptx = texture1d(_dev, 8, pixel_format::RGBA32_FLOAT, wwq);
-		//delete wwq;
-
-		/*wwq = new float[8 * 8 * 8 * 4];
-		for (int i = 0; i < 8*8*8*4; ++i)
-			wwq[i] = (float)rand() / (float)RAND_MAX;
-		tex3 = texture3d(_dev, uvec3(8), pixel_format::RGBA32_FLOAT, wwq, false, 8);
-		
-*/
-		//const int size = 512;
-		//bo_file f(bo_file::file_type::texture);
-		//qeg::detail::texture_header h;
-		//h.dim = texture_dimension::texture_2d;
-		//h.size = uvec3(size, size, 0);
-		//h.array_count = 0;
-		//h.mip_count = 10;
-		//h.format = qeg::detail::pi_pixel_format::RGBA32_FLOAT;
-		////vec4* img = new vec4[size * size];
-		////for (int y = 0; y < size; ++y)
-		////	for (int x = 0; x < size; x++)
-		////	{
-		////		vec2 p = vec2((float)x / (float)size, (float)y / (float)size);
-		////		float n = abs(perlin(p*32.f));
-		////		img[x + y * size] = vec4(vec3(n), 1.f);
-		////	}
-		//uint fsize = 0;
-		//vector<size_t> offsets;
-		//for (int i = 0; i < h.mip_count; ++i)
-		//{
-		//	uvec2 msize = (uvec2)floor(vec2(size) / pow(2.f, (float)i));
-		//	offsets.push_back(fsize);
-		//	fsize += msize.x * msize.y;		
-		//}
-		// 
-		//vec4* img = new vec4[fsize];
-		//vector<vec3> pal(20);
-		//generate(pal.begin(), pal.end(), [&] { return vec3(linearRand(vec3(.2f), vec3(.8f))); });
-		//for (int i = 0; i < h.mip_count; ++i)
-		//{
-		//	vec4* im = img + offsets[i];
-		//	uvec2 msize = (uvec2)floor(vec2(size) / pow(2.f, (float)i));
-		//	for (int y = 0; y < msize.y; ++y)
-		//		for (int x = 0; x < msize.x; ++x)
-		//		{
-		//			vec2 p = vec2((float)x / (float)msize.x, (float)y / (float)msize.y);
-		//			float n = abs(perlin(p*32.f));
-		//			im[x + (y * msize.y)] = vec4(n, n, n,1.f);
-		//		}
-		//}
-		//
-		//bo_file::chunk hc(0, new datablob<byte>((byte*)&h, sizeof(qeg::detail::texture_header)));
-		//bo_file::chunk dc(1, new datablob<byte>((byte*)img, fsize*sizeof(vec4)));
-		//f.chunks().push_back(hc);
-		//f.chunks().push_back(dc);
-		//auto txf = f.write();
-		//
-		//ofstream out("perlin.tex", ios_base::binary);
-		//out.write((const char*)txf->data, txf->length);
-		//out.flush();
-		//out.close();
 	}
 
 	void update(float t, float dt) override
@@ -329,10 +286,13 @@ public:
 		ctrl0.update();
 		auto gs = ctrl0.get_state();
 		auto ks = input::keyboard::get_state();
+		
+		//check to see if user wants to quit
 		if (gs.button_down(input::gamepad::button::back) ||
 			ks.key_down(input::key::escape))
 			PostQuitMessage(0);
 
+		//check wireframe toggle
 		wireframe_timer += dt;
 		if((gs.button_pressed(input::gamepad::button::X)) ||
 			(wireframe_timer > .2f && ks.key_pressed(input::key::key_u)))
@@ -341,6 +301,7 @@ public:
 			render_wireframe = !render_wireframe;
 		}
 		
+		//check blend state write mask toggle
 		//tests blend_state::update
 	/*	if((gs.is_button_down(input::gamepad::button::Y) && !prev_gs.is_button_down(input::gamepad::button::Y))
 			|| ks.key_pressed(input::key::key_y))
@@ -349,11 +310,14 @@ public:
 			bs_weird.update(_dev);
 		}*/
 
+		//update the light that moves
 		shd.light(simple_shader::point_light(vec3(sin(t)*3.f, 10, cos(t)*3.f), vec3(.5f)), 0);
 
+		//update cameras
 		cam.update(dt);
 		cam.update_view();
 
+		other_cam.look_at(vec3(cos(t*.4f)*8.f, 2+sin(t*.3f), sin(t*.4f)*8.f), vec3(0.1f), vec3(0, 1, 0)); //move the portal camera around in a circle
 		other_cam.update_view();
 	}
 	
@@ -365,56 +329,55 @@ public:
 
 	void render(float t, float dt, camera& c, bool with_rendered_textures = false)
 	{
-		if (render_wireframe) wireframe_rs.bind(_dev);
-		shd.bind(_dev);
+		if (render_wireframe) wireframe_rs.bind(_dev); //if wireframe on, then bind that rasterizer state
+
+		shd.bind(_dev); //bind shader & set camera values
 		shd.view_proj(c.projection()*c.view());
 		shd.camera_position(c.position());
-		tex.bind(_dev, 0, shader_stage::pixel_shader, shd);
-		sky.bind(_dev, 1, shader_stage::pixel_shader, shd);
-		//		ramptx.bind(_dev, 1, shader_stage::pixel_shader, shd);
-		//	tex3.bind(_dev, 2, shader_stage::pixel_shader, shd);
-		ss.bind(_dev, 0, shader_stage::pixel_shader);
-		ss.bind(_dev, 1, shader_stage::pixel_shader, texture_dimension::texture_cube);
-		//		ss.bind(_dev, 1, shader_stage::pixel_shader);
-		//		ss.bind(_dev, 2, shader_stage::pixel_shader);
 
+		//bind sampler state
+		ss.bind(_dev, 0, shader_stage::pixel_shader);
+
+		//bind default texture to draw the ground with
+		shd.diffuse_tex(&tex);
 		shd.world(mat4(1));
 		shd.material(simple_shader::mat(vec3(.6f, .6f, .6f), 0.f));
 		shd.update(_dev);
 		ground->draw(_dev);
 
-		if (with_rendered_textures) portal_tex.bind(_dev, 0, shader_stage::pixel_shader, shd);
+		//draw the portal
+		if (with_rendered_textures) shd.diffuse_tex(&portal_tex); //if this is the render to render the texture, then use the rendered texture
 		shd.world(translate(mat4(1), vec3(4, 2, 4)));
 		shd.material(simple_shader::mat(vec3(.9f, .9f, .9f), 0.f));
 		shd.update(_dev);
 		portal->draw(_dev);
-		if (with_rendered_textures)
-			tex.bind(_dev, 0, shader_stage::pixel_shader, shd);
+		if (with_rendered_textures) shd.diffuse_tex(&tex); //reset the texture if needed
 
+		//bind the 'wierd' blend state
 		bs_weird.bind(_dev);
 
-
-		shd.world(translate(mat4(1), ball_pos));
-		shd.material(simple_shader::mat(vec3(.8f, .45f, 0.f), 64.f));
-		shd.update(_dev);
-		ball->draw(_dev);
-
+		//draw the torus
 		shd.world(rotate(translate(mat4(1), vec3(-3, 1.4f, 3)), t, vec3(.2f, .6f, .4f)));
 		shd.material(simple_shader::mat(vec3(.1f, .8f, .1f), 256.f));
 		shd.update(_dev);
 		torus->draw(_dev);
 
-		ss.unbind(_dev, 0, shader_stage::pixel_shader);
-		ss.unbind(_dev, 1, shader_stage::pixel_shader);
-		//	ss.unbind(_dev, 2, shader_stage::pixel_shader);
-		tex.unbind(_dev, 0, shader_stage::pixel_shader);
-		sky.unbind(_dev, 1, shader_stage::pixel_shader);
-		//	ramptx.unbind(_dev, 1, shader_stage::pixel_shader);
-		//	tex3.unbind(_dev, 2, shader_stage::pixel_shader);
-		shd.unbind(_dev);
+		//unbind the 'wierd' blend state
 		bs_weird.unbind(_dev);
-		if (render_wireframe) wireframe_rs.unbind(_dev);
 
+		//draw the ball
+		shd.world(translate(mat4(1), ball_pos));
+		shd.material(simple_shader::mat(vec3(.8f, .45f, 0.f), 64.f));
+		shd.update(_dev);
+		ball->draw(_dev);
+
+		//unbind the sampler state and shader
+		ss.unbind(_dev, 0, shader_stage::pixel_shader);
+		shd.unbind(_dev);
+
+		if (render_wireframe) wireframe_rs.unbind(_dev); //unbind the wireframe rasterizer state
+
+		//render sky dome 
 		sky_rs.bind(_dev);
 		sky_dss.bind(_dev, 0);
 		skshd.set_texture(&sky);

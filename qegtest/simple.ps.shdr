@@ -39,7 +39,6 @@ cbuffer(2)
 }
 
 texture2D tex(0);
-textureCube env(1);
 //texture1D ramp(1);
 //texture3D junk(2);
 
@@ -58,6 +57,7 @@ void main()
 	for(int i = 0; i < light_count; i++)
 	{
 		vec3 l = normalize(lights[i].pos.xyz - input.posW);
+		
 		if(specular.w <= 0.)
 		{
 			float Ld = max(0.f, dot(n, l));
@@ -70,13 +70,15 @@ void main()
 			vec3 spc = (specular.xyz*lights[i].col.xyz) * pow(hdn, specular.w);
 			float Ld = max(0., dot(n, l));
 			vec3 dif = (diffuse.xyz*lights[i].col.xyz) * Ld;
-			col += dif + spc;
+			col += (dif + spc);
 		}
 	}
 
-	float a = clamp(abs(sin(input.texc.x*8.)+cos(input.texc.y*8.)), .2, 1.);
+	float a = clamp(abs(sin(input.texc.x*8.)+cos(input.texc.y*8.)), 0.7, 1.);
 
 	//if(.22 > a) discard();
 
-	output.color = vec4(col * sample_texture(tex, input.texc*texmul).xyz, a) + (sample_texture(env, reflect(v, n))*.4);// * sample_texture(junk, abs(input.normW));
+	vec4 final = vec4(col * sample_texture(tex, input.texc*texmul).xyz, a);// * sample_texture(junk, abs(input.normW));
+
+	output.color = final;
 }
