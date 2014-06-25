@@ -238,7 +238,7 @@ public:
 #elif OPENGL
 		"libqeg test (OpenGL)",
 #endif
-		vec2(1280, 960), 1, false, 1.f / 60.f),
+		vec2(1280, 960), 8, false, 1.f / 60.f),
 
 		shd(_dev), skshd(_dev), 
 		

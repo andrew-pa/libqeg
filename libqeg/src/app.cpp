@@ -219,9 +219,45 @@ namespace qeg
 
 		glfwSetKeyCallback(wnd, [](GLFWwindow* w, int key, int scancode, int action, int mods) 
 		{
-			auto p = (app*)glfwGetWindowUserPointer(w);
+			//auto p = (app*)glfwGetWindowUserPointer(w);
 			input::keyboard::__update(translate_key(key), action == GLFW_PRESS || action == GLFW_REPEAT);
+			if (check_flag(GLFW_MOD_SHIFT, mods))
+				input::keyboard::__update(input::key::shift, action == GLFW_PRESS || action == GLFW_REPEAT);
+			if (check_flag(GLFW_MOD_CONTROL, mods))
+				input::keyboard::__update(input::key::control, action == GLFW_PRESS || action == GLFW_REPEAT);
+			if (check_flag(GLFW_MOD_ALT, mods))
+				input::keyboard::__update(input::key::menu, action == GLFW_PRESS || action == GLFW_REPEAT);
 		});
+		glfwSetMouseButtonCallback(wnd, [](GLFWwindow* w, int button, int action, int mods) 
+		{
+			auto s = input::mouse::get_state();
+			bool lft = s.left, rht = s.right, mdl = s.middle;
+			switch (button)
+			{
+			case GLFW_MOUSE_BUTTON_LEFT:
+				lft = (action == GLFW_PRESS);
+				break;
+			case GLFW_MOUSE_BUTTON_MIDDLE:
+				rht = (action == GLFW_PRESS);
+				break;
+			case GLFW_MOUSE_BUTTON_RIGHT:
+				mdl = (action == GLFW_PRESS);
+				break;
+			}
+			input::mouse::__update(s.pos, lft, mdl, rht);
+		});
+		glfwSetCursorPosCallback(wnd, [](GLFWwindow* w, double x, double y)
+		{
+			auto s = input::mouse::get_state();
+			input::mouse::__update(vec2(x,y), s.left, s.middle, s.right);
+		});
+		glfwSetWindowSizeCallback(wnd, [](GLFWwindow* w, int width, int height)
+		{
+			auto p = (app*)glfwGetWindowUserPointer(w);
+			p->_dev->resize(vec2(width, height));
+			size_changed = true;
+		});
+
 
 		_dev = new device(winsize, wnd, aa_samples);
 #endif
