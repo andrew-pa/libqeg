@@ -76,9 +76,9 @@ namespace qeg
 			ph -= (45.f)*dt;
 		if (ks.key_down(input::key::down))
 			ph += 45.f*dt;
-		if (ks.key_down(input::key::next))
+		if (ks.key_down(input::key::page_up))
 			ra += (5.f)*dt;
-		if (ks.key_down(input::key::prior))
+		if (ks.key_down(input::key::page_down))
 			ra -= 5.f*dt;
 	}
 

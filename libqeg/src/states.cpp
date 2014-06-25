@@ -360,6 +360,7 @@ namespace qeg
 		case qeg::comparison_func::always:
 			return GL_ALWAYS;
 		}
+		throw exception("invalid comparison function");
 	}
 	GLenum convert_sop(stencil_op o) 
 	{
@@ -382,6 +383,7 @@ namespace qeg
 		case qeg::stencil_op::decr:
 			return GL_DECR_WRAP;
 		}
+		throw exception("invalid stencil op");
 	}
 #endif
 

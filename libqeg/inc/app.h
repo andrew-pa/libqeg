@@ -11,12 +11,14 @@ namespace qeg
 		float fps; float mpf;
 		bool var_fps; float targ_mpf;
 
-#ifdef WIN32
+		string _title;
+#if defined(WIN32) && defined(DIRECTX)
 		HWND wnd;
-		wstring _title;
+#elif OPENGL
+		GLFWwindow* wnd;
 #endif
 	public:
-		app(const wstring& title, vec2 winsize, bool vfps = false, float tmpf = 1.f/70.f);
+		app(const string& title, vec2 winsize, uint aa_samples, bool vfps = false, float tmpf = 1.f/70.f);
 
 		~app();
 		
@@ -24,9 +26,7 @@ namespace qeg
 
 		virtual void render(float t, float dt) = 0;
 		virtual void update(float t, float dt) = 0;
-		virtual void resized()
-		{
-		}
+		virtual void resized(){}
 	};
 }
 

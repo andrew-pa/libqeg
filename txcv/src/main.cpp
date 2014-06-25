@@ -6,6 +6,7 @@
 
 #include "gli/gli.hpp"
 
+
 //txcv:	 reads in textures (DDS) and converts them into .tex files
 //usage txcv <in_file> <out_file>
 
@@ -118,6 +119,7 @@ qeg::bo_file* write_tex(gli::storage& s)
 
 int main(int argc, char* argv[])
 {
+
 	vector<string> args;	
 	for (int ij = 1; ij < argc; ++ij) args.push_back(argv[ij]);
 	

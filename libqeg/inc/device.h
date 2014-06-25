@@ -11,8 +11,11 @@ namespace qeg
 	protected:
 #ifdef WIN32
 #ifdef OPENGL
-		HDC dc;
-		HGLRC rc;
+		//HDC dc;
+		//HGLRC rc;
+		
+		GLFWwindow* wnd;
+		
 		vec2 _rtsize;
 
 		uint next_uniform_buffer_bind_index;
@@ -73,14 +76,7 @@ namespace qeg
 #endif
 	public:
 		device(){}
-		device(vec2 _s 
-#ifdef WIN32
-			, HWND win_
-#endif
-#ifdef DIRECTX
-			, uint msaa_lvl_ = 4
-#endif
-			);
+		device(vec2 _s , void* win_, uint aa_lvl_ = 4);
 		~device();
 		inline render_texture2d* current_render_target() const;
 		void pop_render_target();

@@ -84,7 +84,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>libqeg-gl.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libqeg-gl.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -176,6 +176,8 @@
       <Outputs>C:\Users\andre_000\Source\libqeg\DebugDX\testcm.tex</Outputs>
       <LinkObjects>false</LinkObjects>
       <TreatOutputAsContent>true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">txcv C:\Users\andre_000\Source\libqeg\qegtest\testcm.dds $(OutDir)testcm.tex</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)testcm.tex</Outputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

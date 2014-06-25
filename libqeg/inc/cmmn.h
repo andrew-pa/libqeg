@@ -16,6 +16,8 @@
 #include <functional>
 #include <exception>
 #include <algorithm>
+#include <chrono>
+#include <thread>
 using namespace std;
 
 #define proprw(t, n, gc) inline t& n() gc
@@ -60,7 +62,9 @@ using Microsoft::WRL::ComPtr;
 #ifdef OPENGL
 #include <GL/glew.h>
 #include <GL/wglew.h>
+#include <GLFW/glfw3.h>
 #ifdef LINK
+#pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "SOIL.lib")
@@ -90,6 +94,10 @@ namespace qeg
 	}
 
 #define pi glm::pi<float>()
+	
+#ifndef WIN32
+	typedef unsigned char byte;
+#endif
 
 	static auto cdlog =
 #ifdef _DEBUG

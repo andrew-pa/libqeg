@@ -234,11 +234,11 @@ public:
 	qegtest_app()
 		: app(
 #ifdef DIRECTX
-		L"libqeg test (DirectX)", 
+		"libqeg test (DirectX)", 
 #elif OPENGL
-		L"libqeg test (OpenGL)",
+		"libqeg test (OpenGL)",
 #endif
-		vec2(1280, 960), false, 1.f / 60.f),
+		vec2(1280, 960), 1, false, 1.f / 60.f),
 
 		shd(_dev), skshd(_dev), 
 		
@@ -329,6 +329,22 @@ public:
 
 	void render(float t, float dt, camera& c, bool with_rendered_textures = false)
 	{
+		//render sky dome 
+		if (!with_rendered_textures) {
+			sky_rs.bind(_dev);
+			sky_dss.bind(_dev, 0);
+			skshd.set_texture(&sky);
+			skshd.bind(_dev);
+			ss.bind(_dev, 0, shader_stage::pixel_shader, texture_dimension::texture_cube);
+			skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
+			skshd.update(_dev);
+			sky_mesh->draw(_dev);
+			skshd.unbind(_dev);
+			ss.unbind(_dev, 0, shader_stage::pixel_shader);
+			sky_dss.unbind(_dev);
+			sky_rs.unbind(_dev);
+		}
+
 		if (render_wireframe) wireframe_rs.bind(_dev); //if wireframe on, then bind that rasterizer state
 
 		shd.bind(_dev); //bind shader & set camera values
@@ -378,18 +394,20 @@ public:
 		if (render_wireframe) wireframe_rs.unbind(_dev); //unbind the wireframe rasterizer state
 
 		//render sky dome 
-		sky_rs.bind(_dev);
-		sky_dss.bind(_dev, 0);
-		skshd.set_texture(&sky);
-		skshd.bind(_dev);
-		ss.bind(_dev, 0, shader_stage::pixel_shader, texture_dimension::texture_cube);
-		skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
-		skshd.update(_dev);
-		sky_mesh->draw(_dev);
-		skshd.unbind(_dev);
-		ss.unbind(_dev, 0, shader_stage::pixel_shader);
-		sky_dss.unbind(_dev);
-		sky_rs.unbind(_dev);
+		if (with_rendered_textures) {
+			sky_rs.bind(_dev);
+			sky_dss.bind(_dev, 0);
+			skshd.set_texture(&sky);
+			skshd.bind(_dev);
+			ss.bind(_dev, 0, shader_stage::pixel_shader, texture_dimension::texture_cube);
+			skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
+			skshd.update(_dev);
+			sky_mesh->draw(_dev);
+			skshd.unbind(_dev);
+			ss.unbind(_dev, 0, shader_stage::pixel_shader);
+			sky_dss.unbind(_dev);
+			sky_rs.unbind(_dev);
+		}
 	}
 
 	void render(float t, float dt) override 

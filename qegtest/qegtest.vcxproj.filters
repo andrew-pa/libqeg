@@ -24,17 +24,16 @@
     <CustomBuild Include="simple.vs.shdr" />
     <CustomBuild Include="sky.ps.shdr" />
     <CustomBuild Include="sky.vs.shdr" />
+    <CustomBuild Include="test1.dds" />
+    <CustomBuild Include="testcm.dds" />
+    <CustomBuild Include="test1.dds" />
     <CustomBuild Include="*.dds" />
     <CustomBuild Include="test1.dds" />
     <CustomBuild Include="*.dds" />
-    <CustomBuild Include="sunsetcube.dds" />
-    <CustomBuild Include="test1.dds" />
-    <CustomBuild Include="*.dds" />
+    <CustomBuild Include="checker.dds" />
+    <CustomBuild Include="testcm.dds" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="testcm.dds" />
   </ItemGroup>
 </Project>

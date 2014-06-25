@@ -6,8 +6,8 @@ namespace qeg
 {
 #ifdef WIN32
 #ifdef DIRECTX
-	device::device(vec2 s, HWND win_, uint msaa_lvl_)
-		: msaa_level(msaa_lvl_), _window(win_), win_bnds(s), _back_buffer(nullptr)
+	device::device(vec2 s, void* win_, uint msaa_lvl_)
+		: msaa_level(msaa_lvl_), _window((HWND)win_), win_bnds(s), _back_buffer(nullptr)
 	{
 		create_d2d_res();
 		create_device_res();
@@ -341,9 +341,10 @@ else
 			cdlog << "GL: " << oss.str();//OutputDebugStringA(oss.str().c_str());
 	}
 
-	device::device(vec2 _s, HWND win_)
-		: dc(GetDC(win_)), _rtsize(_s), next_uniform_buffer_bind_index(0)
+	device::device(vec2 _s, void* win_, uint _aa_samples)
+		: _rtsize(_s), next_uniform_buffer_bind_index(0), wnd((GLFWwindow*)win_)
 	{
+#ifdef legacy
 		PIXELFORMATDESCRIPTOR pfd;
 		ZeroMemory(&pfd, sizeof(pfd));
 		pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -383,6 +384,10 @@ else
 		{
 			throw exception("OpenGL 3.x+ context not supported!");
 		}
+#endif
+
+		glfwMakeContextCurrent(wnd);
+		glewInit();
 
 #ifdef _DEBUG
 		const GLubyte* glVersionString = glGetString(GL_VERSION);
@@ -407,7 +412,7 @@ else
 	
 	void device::present()
 	{
-		SwapBuffers(dc);
+		glfwSwapBuffers(wnd);
 	}
 	
 	render_texture2d* device::current_render_target() const

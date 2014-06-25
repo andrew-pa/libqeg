@@ -126,7 +126,7 @@ namespace qeg
 			_idvp = glCreateShader(GL_VERTEX_SHADER);
 			const GLchar* vsd = (GLchar*)vs_data.data;
 			const GLint vsl = vs_data.length;
-			OutputDebugStringA(vsd);
+			//OutputDebugStringA(vsd);
 			glShaderSource(_idvp, 1, &vsd, &vsl);
 			glCompileShader(_idvp);
 			validate_shader(_idvp, vsd);
