@@ -19,6 +19,17 @@ namespace qeg
 				!mouse_lst.right  && mouse_cst.right);
 		}
 
+//		void mouse::toggle_cursor()
+//		{
+//#if defined(WIN32) && defined(DIRECTX)
+//			static bool last_value = true;
+//			ShowCursor(last_value = !last_value);
+//#elif OPENGL
+//			auto m = glfwGetInputMode(wnd, GLFW_CURSOR);
+//			
+//#endif
+//		}
+
 		void mouse::__update(vec2 p, bool left, bool middle, bool right)
 		{
 			mouse_lst = mouse_cst;

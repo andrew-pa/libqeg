@@ -25,6 +25,10 @@ namespace qeg
 
 			static const state get_delta_state();
 
+			//static void toggle_cursor();
+
+			//static void set_mouse_pos(vec2 p);
+
 			static void __update(vec2 p, bool left, bool middle, bool right);
 		};
 

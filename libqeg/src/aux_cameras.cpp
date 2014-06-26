@@ -22,6 +22,20 @@ namespace qeg
 			rot = gs.right_stick()*vec2(1.f, -1.f)*rs;
 		}
 
+		auto mos = mouse::get_state();
+		{
+			static vec2 dr = vec2(0.f);
+			static float lnx = 0.f;
+			static float lny = 0.f;
+			float nx = mos.pos.x;
+			float ny = mos.pos.y;
+			float dnx = nx - lnx;
+			float dny = ny - lny;
+			dr = vec2(dnx, dny)*(pi*2);
+			rot = dr/dt;
+			lnx = nx;
+			lny = ny;
+		}
 
 		if (ks.key_down(input::key::key_w))
 			move.x = ms;

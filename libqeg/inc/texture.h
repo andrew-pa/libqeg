@@ -3,6 +3,7 @@
 #include "device.h"
 #include "shader.h"
 #include "resource.h"
+#include "states.h"
 
 namespace qeg
 {
@@ -39,6 +40,7 @@ namespace qeg
 		typedef typename vec_of<Dim, uint, highp>::x dim_type;
 	protected:
 		dim_type _size;
+		sampler_state* samplr;
 #ifdef DIRECTX
 		ComPtr<ID3D11ShaderResourceView> srv;
 		texture(ComPtr<ID3D11ShaderResourceView> srv_)
@@ -61,16 +63,19 @@ namespace qeg
 		}
 #endif
 	public:
-		texture() {}
-		texture(dim_type _s)
-			: _size(_s)	
+		texture(sampler_state* s = nullptr)
+			: samplr(s)
+		{}
+		texture(dim_type _s, sampler_state* ss = nullptr)
+			: _size(_s), samplr(ss)
 		{
 		}
 
 
 		virtual void bind(device* dev, int slot, shader_stage ss, shader& s)
-#ifdef DIRECTX
 		{
+			if (samplr) samplr->bind(dev, slot, ss, texture_dimension(Dim));
+#ifdef DIRECTX
 			switch (ss)
 			{
 			case qeg::shader_stage::pixel_shader:
@@ -80,19 +85,18 @@ namespace qeg
 				dev->context()->VSSetShaderResources(slot, 1, srv.GetAddressOf());
 				return;
 			}
-		}
 #elif OPENGL
-		{
 			glActiveTexture(GL_TEXTURE0 + slot);
 			glBindTexture(detail::gl_texture_slot_id_from_dim<Dim>::value, _id);
 
 			auto i = glGetUniformLocation(s.program_id(), generate_tex_name(slot, ss));
 			glUniform1i(i, slot);
-		}
 #endif
+		}
 		virtual void unbind(device* dev, int slot, shader_stage ss)
-#ifdef DIRECTX
 		{
+			if (samplr) samplr->unbind(dev, slot, ss);
+#ifdef DIRECTX
 			ID3D11ShaderResourceView* srvnll[] = { nullptr };
 			switch (ss)
 			{
@@ -103,15 +107,13 @@ namespace qeg
 				dev->context()->VSSetShaderResources(slot, 1, srvnll);
 				return;
 			}
-		}
 #elif OPENGL
-		{
 			glBindTexture(detail::gl_texture_slot_id_from_dim<Dim>::value, 0);
-		}
-
 #endif
+		}
 
 		propr(dim_type, size, { return _size; });
+		proprw(sampler_state*, tex_sampler, { return samplr; });
 #ifdef DIRECTX
 		propr(ComPtr<ID3D11ShaderResourceView>, shader_resource_view, { return srv; });
 #elif OPENGL
@@ -249,10 +251,8 @@ namespace qeg
 			return static_cast<textureCube*>(detail::_load_texture(_dev, file));
 		}
 
-#ifdef OPENGL
 		void bind(device* dev, int slot, shader_stage ss, shader& s) override;
 		void unbind(device* dev, int slot, shader_stage ss) override;
-#endif
 
 		//TODO: Implement or consider loading TexCube mipmaps
 #ifdef DIRECTX

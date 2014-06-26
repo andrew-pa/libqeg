@@ -217,6 +217,34 @@ namespace qeg
 		: texture2d(srv_)
 	{
 	}
+
+	void textureCube::bind(device* dev, int slot, shader_stage ss, shader& s)
+	{
+		if (samplr) samplr->bind(dev, slot, ss, texture_dimension::texture_cube);
+		switch (ss)
+		{
+		case qeg::shader_stage::pixel_shader:
+			dev->context()->PSSetShaderResources(slot, 1, srv.GetAddressOf());
+			return;
+		case qeg::shader_stage::vertex_shader:
+			dev->context()->VSSetShaderResources(slot, 1, srv.GetAddressOf());
+			return;
+		}
+	}
+	void textureCube::unbind(device* dev, int slot, shader_stage ss)
+	{
+		if (samplr) samplr->unbind(dev, slot, ss);
+		ID3D11ShaderResourceView* srvnll[] = { nullptr };
+		switch (ss)
+		{
+		case qeg::shader_stage::pixel_shader:
+			dev->context()->PSSetShaderResources(slot, 1, srvnll);
+			return;
+		case qeg::shader_stage::vertex_shader:
+			dev->context()->VSSetShaderResources(slot, 1, srvnll);
+			return;
+		}
+	}
 #endif
 
 #ifdef OPENGL
@@ -301,6 +329,7 @@ namespace qeg
 
 	void textureCube::bind(device* dev, int slot, shader_stage ss, shader& s)
 	{
+		if(samplr) samplr->bind(dev, slot, ss, texture_dimension::texture_cube);
 		glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, _id);
 		auto i = glGetUniformLocation(s.program_id(), generate_tex_name(slot, ss));
@@ -309,6 +338,7 @@ namespace qeg
 
 	void textureCube::unbind(device* dev, int slot, shader_stage ss)
 	{
+		if(samplr) samplr->unbind(dev, slot, ss);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 

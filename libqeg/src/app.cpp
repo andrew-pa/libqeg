@@ -160,7 +160,7 @@ namespace qeg
 				|| msg == WM_RBUTTONUP)
 			{
 				input::mouse::__update(
-					(vec2(GET_X_LPARAM(lp), GET_Y_LPARAM(lp)) / this_app->_dev->size()) - vec2(.5f), 
+					((vec2(GET_X_LPARAM(lp), GET_Y_LPARAM(lp)) / this_app->_dev->size()) - vec2(.5f)), 
 					check_flag(MK_LBUTTON, (int)wp), check_flag(MK_MBUTTON, (int)wp), check_flag(MK_RBUTTON, (int)wp));
 			}
 			else if(msg == WM_KEYDOWN)
@@ -194,6 +194,10 @@ namespace qeg
 		wnd = CreateWindowEx(exsty, t.c_str(), t.c_str(), WS_OVERLAPPEDWINDOW,
 			CW_USEDEFAULT, CW_USEDEFAULT, (int)winsize.x, (int)winsize.y, nullptr, nullptr, inst, nullptr);
 
+		RECT r;
+		GetWindowRect(wnd, &r);
+		SetCursorPos(r.left + ceil(winsize.x/2), r.top + ceil(winsize.y/2));
+
 		_dev = new device(winsize, wnd, aa_samples);
 		ShowWindow(wnd, SW_SHOW);
 		UpdateWindow(wnd);
@@ -208,12 +212,14 @@ namespace qeg
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
 
-		wnd = glfwCreateWindow(winsize.x, winsize.y, title.c_str(), nullptr, nullptr);
+		wnd = glfwCreateWindow((int)floor(winsize.x), (int)floor(winsize.y), title.c_str(), nullptr, nullptr);
 		if(!wnd)
 		{
 			glfwTerminate();
 			throw exception("GLFW window creation failed");
 		}
+
+		if (!vfps) glfwSwapInterval(1);
 
 		glfwSetWindowUserPointer(wnd, this);
 
@@ -248,8 +254,10 @@ namespace qeg
 		});
 		glfwSetCursorPosCallback(wnd, [](GLFWwindow* w, double x, double y)
 		{
-			auto s = input::mouse::get_state();
-			input::mouse::__update(vec2(x,y), s.left, s.middle, s.right);
+			auto s = input::mouse::get_state(); 
+			auto p = (app*)glfwGetWindowUserPointer(w);
+			vec2 ss = p->_dev->size();
+			input::mouse::__update((vec2(x,y)/ss) - (.5f), s.left, s.middle, s.right);
 		});
 		glfwSetWindowSizeCallback(wnd, [](GLFWwindow* w, int width, int height)
 		{
@@ -258,6 +266,7 @@ namespace qeg
 			size_changed = true;
 		});
 
+		glfwSetCursorPos(wnd, winsize.x / 2, winsize.y / 2);
 
 		_dev = new device(winsize, wnd, aa_samples);
 #endif

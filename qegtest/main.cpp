@@ -256,14 +256,15 @@ public:
 				blend_factor::inv_src_alpha, blend_op::add, blend_factor::one,
 				blend_factor::zero, blend_op::add, write_mask::enable_all),
 			}), 
+
 		ball_pos(0, 1, 0),
 		
+		ss(_dev),
 		tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
 		sky(*textureCube::load(_dev, read_data_from_package(L"testcm.tex"))),
 		portal_tex(_dev, uvec2(1024)),
 		
-		sky_dss(_dev, true, true, comparison_func::less_equal),
-		ss(_dev)
+		sky_dss(_dev, true, true, comparison_func::less_equal)
 	{
 		//generate scene meshes
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_sphere<vertex_position_normal_texture,uint16>(1.f, 64, 64), "ball");
@@ -279,6 +280,10 @@ public:
 		shd.light(simple_shader::point_light(vec3(-10, 10, -7), vec3(.5f, .4f, .4f)), 1);
 		shd.light(simple_shader::point_light(vec3(14, 10, 5), vec3(.4f, .4f, .5f)), 2);
 		shd.light_count(3);
+
+		tex.tex_sampler() = &ss;
+		sky.tex_sampler() = &ss;
+		portal_tex.tex_sampler() = &ss;
 	}
 
 	void update(float t, float dt) override
@@ -303,12 +308,12 @@ public:
 		
 		//check blend state write mask toggle
 		//tests blend_state::update
-	/*	if((gs.is_button_down(input::gamepad::button::Y) && !prev_gs.is_button_down(input::gamepad::button::Y))
-			|| ks.key_pressed(input::key::key_y))
-		{
-			bs_weird.render_targets[0].writemask = write_mask::enable_green;
-			bs_weird.update(_dev);
-		}*/
+		//if((gs.is_button_down(input::gamepad::button::Y) && !prev_gs.is_button_down(input::gamepad::button::Y))
+		//	|| ks.key_pressed(input::key::key_y))
+		//{
+		//	bs_weird.render_targets[0].writemask = write_mask::enable_green;
+		//	bs_weird.update(_dev);
+		//}
 
 		//update the light that moves
 		shd.light(simple_shader::point_light(vec3(sin(t)*3.f, 10, cos(t)*3.f), vec3(.5f)), 0);
@@ -319,6 +324,7 @@ public:
 
 		other_cam.look_at(vec3(cos(t*.4f)*8.f, 2+sin(t*.3f), sin(t*.4f)*8.f), vec3(0.1f), vec3(0, 1, 0)); //move the portal camera around in a circle
 		other_cam.update_view();
+
 	}
 	
 	void resized() override
@@ -335,12 +341,10 @@ public:
 			sky_dss.bind(_dev, 0);
 			skshd.set_texture(&sky);
 			skshd.bind(_dev);
-			ss.bind(_dev, 0, shader_stage::pixel_shader, texture_dimension::texture_cube);
 			skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
 			skshd.update(_dev);
 			sky_mesh->draw(_dev);
 			skshd.unbind(_dev);
-			ss.unbind(_dev, 0, shader_stage::pixel_shader);
 			sky_dss.unbind(_dev);
 			sky_rs.unbind(_dev);
 		}
@@ -350,9 +354,6 @@ public:
 		shd.bind(_dev); //bind shader & set camera values
 		shd.view_proj(c.projection()*c.view());
 		shd.camera_position(c.position());
-
-		//bind sampler state
-		ss.bind(_dev, 0, shader_stage::pixel_shader);
 
 		//bind default texture to draw the ground with
 		shd.diffuse_tex(&tex);
@@ -369,7 +370,7 @@ public:
 		portal->draw(_dev);
 		if (with_rendered_textures) shd.diffuse_tex(&tex); //reset the texture if needed
 
-		//bind the 'wierd' blend state
+		//bind the 'weird' blend state
 		bs_weird.bind(_dev);
 
 		//draw the torus
@@ -378,7 +379,7 @@ public:
 		shd.update(_dev);
 		torus->draw(_dev);
 
-		//unbind the 'wierd' blend state
+		//unbind the 'weird' blend state
 		bs_weird.unbind(_dev);
 
 		//draw the ball
@@ -387,8 +388,6 @@ public:
 		shd.update(_dev);
 		ball->draw(_dev);
 
-		//unbind the sampler state and shader
-		ss.unbind(_dev, 0, shader_stage::pixel_shader);
 		shd.unbind(_dev);
 
 		if (render_wireframe) wireframe_rs.unbind(_dev); //unbind the wireframe rasterizer state
@@ -399,12 +398,10 @@ public:
 			sky_dss.bind(_dev, 0);
 			skshd.set_texture(&sky);
 			skshd.bind(_dev);
-			ss.bind(_dev, 0, shader_stage::pixel_shader, texture_dimension::texture_cube);
 			skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
 			skshd.update(_dev);
 			sky_mesh->draw(_dev);
 			skshd.unbind(_dev);
-			ss.unbind(_dev, 0, shader_stage::pixel_shader);
 			sky_dss.unbind(_dev);
 			sky_rs.unbind(_dev);
 		}
