@@ -16,4 +16,9 @@ textureCube sky(0);
 void main()
 {
 	output.color = sample_texture(sky, input.texc);
+//	vec3 rd = input.texc;
+//	float d = max(dot(rd, normalize(vec3(1,1,0))), 0.);
+//	output.color = vec4(mix(vec3(0.1, 0.1, .4), vec3(0.0,0.5,0.7),
+//		 d), 1.) * sample_texture(sky, input.texc);
+//	if(d > 1.98) output.color = vec4(.8, .8, 0., 1.);
 }

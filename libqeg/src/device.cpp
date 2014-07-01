@@ -70,7 +70,7 @@ namespace qeg
 		win_bnds = vec2(convdp((float)(cre.right - cre.left)), convdp((float)(cre.bottom - cre.top)));
 		
 		delete _back_buffer;
-		rt_sk = stack<render_texture2d*>();
+		rt_sk = stack<render_target*>();
 
 		backBuffer.Reset();
 
@@ -168,8 +168,9 @@ namespace qeg
 					&depth_stencil
 					)
 				);
-
-			push_render_target(_back_buffer = new render_texture2d(win_bnds, offscreenRenderTargetView, depth_stencil));
+			
+			_back_buffer = new render_texture2d(win_bnds, offscreenRenderTargetView, depth_stencil);
+			push_render_target(new default_render_target);
 		}
 #pragma endregion
 #pragma region NO MSAA
@@ -196,8 +197,9 @@ namespace qeg
 
 			CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(D3D11_DSV_DIMENSION_TEXTURE2D);
 			chr(_device->CreateDepthStencilView(depthStencil.Get(), &dsvd, &depth_stencil));
-
-			push_render_target(_back_buffer = new render_texture2d(win_bnds, render_target, depth_stencil));
+			
+			_back_buffer = new render_texture2d(win_bnds, render_target, depth_stencil);
+			push_render_target(new default_render_target);
 		}
 #pragma endregion
 		
@@ -260,7 +262,7 @@ else
 		else chr(h);
 	}
 
-	void device::push_render_target(render_texture2d* rt)
+	void device::push_render_target(render_target* rt)
 	{
 		rt_sk.push(rt);
 		update_render_target();
@@ -269,17 +271,18 @@ else
 	void device::update_render_target()
 	{
 		auto r = rt_sk.top();
-		const float clear_color[] = { 1.f, .5f, 0.f, 0.f };
+		r->ombind(this);
+		/*const float clear_color[] = { 1.f, .5f, 0.f, 0.f };
 		if (r->render_target() != nullptr)
 			_context->ClearRenderTargetView(r->render_target().Get(), clear_color);
 		if (r->depth_stencil() != nullptr)
 			_context->ClearDepthStencilView(r->depth_stencil().Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
 		_context->OMSetRenderTargets(1, r->render_target().GetAddressOf(), r->depth_stencil().Get());
 		CD3D11_VIEWPORT vp(0.f, 0.f, (FLOAT)r->size().x, (FLOAT)r->size().y);
-		_context->RSSetViewports(1, &vp);
+		_context->RSSetViewports(1, &vp);*/
 	}
 
-	render_texture2d* device::current_render_target() const
+	render_target* device::current_render_target() const
 	{
 		return rt_sk.top();
 	}
@@ -402,7 +405,7 @@ else
 		glDebugMessageCallbackARB((GLDEBUGPROCARB)&debug_gl_callback, this);
 #endif
 
-		rt_sk.push(new render_texture2d(vec2(-1,-1), 0, 0));
+		rt_sk.push(new default_render_target);
 
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
@@ -415,7 +418,7 @@ else
 		glfwSwapBuffers(wnd);
 	}
 	
-	render_texture2d* device::current_render_target() const
+	render_target* device::current_render_target() const
 	{
 		return rt_sk.top();
 	}
@@ -427,7 +430,7 @@ else
 		update_render_target();
 	}
 
-	void device::push_render_target(render_texture2d* rt)
+	void device::push_render_target(render_target* rt)
 	{
 		rt_sk.push(rt);
 		update_render_target();
@@ -435,12 +438,7 @@ else
 
 	void device::update_render_target()
 	{	
-		glBindFramebuffer(GL_FRAMEBUFFER, rt_sk.top()->frame_buffer());
-		if (rt_sk.top()->frame_buffer() == 0)
-			glViewport(0, 0, (GLsizei)size().x, (GLsizei)size().y);
-		else
-			glViewport(0, 0, (GLsizei)rt_sk.top()->size().x, (GLsizei)rt_sk.top()->size().y);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		rt_sk.top()->ombind(this);
 	}
 	
 	void device::resize(vec2 ns)

@@ -62,12 +62,17 @@ using Microsoft::WRL::ComPtr;
 #ifdef OPENGL
 #include <GL/glew.h>
 #include <GL/wglew.h>
+#ifdef WIN32
+#define GLFW
 #include <GLFW/glfw3.h>
+#endif
 #ifdef LINK
+#ifdef WIN32
 #pragma comment(lib, "glfw3.lib")
 #pragma comment(lib, "glew32.lib")
 #pragma comment(lib, "opengl32.lib")
 #pragma comment(lib, "SOIL.lib")
+#endif
 #endif
 #endif
 
@@ -261,11 +266,13 @@ namespace qeg
 		RG16_UNORM = GL_RG16,
 		RG16_SNORM = GL_RG16_SNORM,
 		R32_TYPELESS = GL_R32UI,
+		D32_FLOAT = 0,
 		R32_FLOAT = GL_R32F,
 		R32_UINT = GL_R32UI,
 		R32_SINT = GL_R32I,
 		R16_TYPELESS = GL_R16UI,
 		R16_FLOAT = GL_R16F,
+		D16_UNORM = 0,
 		R16_UNORM = GL_R16,
 		R16_UINT = GL_R16UI,
 		R16_SNORM = GL_R16_SNORM,

@@ -42,6 +42,8 @@ texture2D tex(0);
 //texture1D ramp(1);
 //texture3D junk(2);
 
+
+
 void main()
 {
 	vec2 texmul;
@@ -79,6 +81,6 @@ void main()
 	//if(.22 > a) discard();
 
 	vec4 final = vec4(col * sample_texture(tex, input.texc*texmul).xyz, a);// * sample_texture(junk, abs(input.normW));
-
+	//
 	output.color = final;
 }

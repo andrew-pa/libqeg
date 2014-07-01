@@ -4,10 +4,11 @@
 
 namespace qeg
 {
+	class render_target;
 	class render_texture2d;
 	class device
 	{
-		stack<render_texture2d*> rt_sk;
+		stack<render_target*> rt_sk;
 	protected:
 #ifdef WIN32
 #ifdef OPENGL
@@ -78,9 +79,9 @@ namespace qeg
 		device(){}
 		device(vec2 _s , void* win_, uint aa_lvl_ = 4);
 		~device();
-		inline render_texture2d* current_render_target() const;
+		inline render_target* current_render_target() const;
 		void pop_render_target();
-		void push_render_target(render_texture2d* rt);
+		void push_render_target(render_target* rt);
 		void update_render_target();
 		void present();
 		void resize(vec2 ns);
@@ -90,6 +91,7 @@ namespace qeg
 #elif DIRECTX
 		propr(vec2, size, { return win_bnds; });
 		friend struct rasterizer_state; //for _bind_default_rs_state
+		friend class default_render_target; //so that default_render_target can access _back_buffer render_texture2d 
 #endif
 	};
 };

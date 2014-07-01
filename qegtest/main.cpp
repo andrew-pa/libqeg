@@ -315,6 +315,7 @@ public:
 		//	bs_weird.update(_dev);
 		//}
 
+		
 		//update the light that moves
 		shd.light(simple_shader::point_light(vec3(sin(t)*3.f, 10, cos(t)*3.f), vec3(.5f)), 0);
 
@@ -336,7 +337,7 @@ public:
 	void render(float t, float dt, camera& c, bool with_rendered_textures = false)
 	{
 		//render sky dome 
-		if (!with_rendered_textures) {
+		//if (!with_rendered_textures) {
 			sky_rs.bind(_dev);
 			sky_dss.bind(_dev, 0);
 			skshd.set_texture(&sky);
@@ -347,7 +348,7 @@ public:
 			skshd.unbind(_dev);
 			sky_dss.unbind(_dev);
 			sky_rs.unbind(_dev);
-		}
+		//}
 
 		if (render_wireframe) wireframe_rs.bind(_dev); //if wireframe on, then bind that rasterizer state
 
@@ -370,6 +371,12 @@ public:
 		portal->draw(_dev);
 		if (with_rendered_textures) shd.diffuse_tex(&tex); //reset the texture if needed
 
+		//draw the ball
+		shd.world(translate(mat4(1), ball_pos));
+		shd.material(simple_shader::mat(vec3(.8f, .45f, 0.f), 64.f));
+		shd.update(_dev);
+		ball->draw(_dev);
+		
 		//bind the 'weird' blend state
 		bs_weird.bind(_dev);
 
@@ -382,29 +389,23 @@ public:
 		//unbind the 'weird' blend state
 		bs_weird.unbind(_dev);
 
-		//draw the ball
-		shd.world(translate(mat4(1), ball_pos));
-		shd.material(simple_shader::mat(vec3(.8f, .45f, 0.f), 64.f));
-		shd.update(_dev);
-		ball->draw(_dev);
-
 		shd.unbind(_dev);
 
 		if (render_wireframe) wireframe_rs.unbind(_dev); //unbind the wireframe rasterizer state
 
 		//render sky dome 
-		if (with_rendered_textures) {
-			sky_rs.bind(_dev);
-			sky_dss.bind(_dev, 0);
-			skshd.set_texture(&sky);
-			skshd.bind(_dev);
-			skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
-			skshd.update(_dev);
-			sky_mesh->draw(_dev);
-			skshd.unbind(_dev);
-			sky_dss.unbind(_dev);
-			sky_rs.unbind(_dev);
-		}
+		//if (with_rendered_textures) {
+		//	sky_rs.bind(_dev);
+		//	sky_dss.bind(_dev, 0);
+		//	skshd.set_texture(&sky);
+		//	skshd.bind(_dev);
+		//	skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
+		//	skshd.update(_dev);
+		//	sky_mesh->draw(_dev);
+		//	skshd.unbind(_dev);
+		//	sky_dss.unbind(_dev);
+		//	sky_rs.unbind(_dev);
+		//}
 	}
 
 	void render(float t, float dt) override 

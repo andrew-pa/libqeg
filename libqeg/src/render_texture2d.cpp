@@ -5,7 +5,7 @@ namespace qeg
 #ifdef DIRECTX
 	render_texture2d::render_texture2d(device* dev, uvec2 size_, pixel_format f)
 		: texture2d(dev, CD3D11_TEXTURE2D_DESC((DXGI_FORMAT)f, size_.x, size_.y, 1, 1, 
-			D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE))
+			D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)), _vp(size_)
 	{
 		CD3D11_TEXTURE2D_DESC dd(DXGI_FORMAT_R24G8_TYPELESS, size_.x, size_.y);
 		dd.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
@@ -17,6 +17,28 @@ namespace qeg
 		chr(dev->ddevice()->CreateRenderTargetView(texd.Get(), &rsvd, &rtv));
 	}
 
+	void render_texture2d::ombind(device* _dev)
+	{
+		const float clear_color[] = { 1.f, .5f, 0.f, 0.f };
+		if (rtv != nullptr)
+			_dev->context()->ClearRenderTargetView(rtv.Get(), clear_color);
+		if (dsv != nullptr)
+			_dev->context()->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 1.f, 0);
+		_dev->context()->OMSetRenderTargets(1, rtv.GetAddressOf(), dsv.Get());
+		CD3D11_VIEWPORT vp;
+		vp.TopLeftX = _vp.offset.x;
+		vp.TopLeftY = _vp.offset.y;
+		vp.Width = _vp.size.x < 0 ? _dev->size().x : _vp.size.x;
+		vp.Height = _vp.size.y < 0 ? _dev->size().y : _vp.size.y;
+		vp.MinDepth = _vp.min_depth < 0 ? D3D11_MIN_DEPTH : _vp.min_depth;
+		vp.MaxDepth = _vp.max_depth < 0 ? D3D11_MAX_DEPTH : _vp.max_depth;
+		_dev->context()->RSSetViewports(1, &vp);
+	}
+
+	void default_render_target::ombind(device* _dev)
+	{
+		_dev->_back_buffer->ombind(_dev);
+	}
 
 	render_texture2d::~render_texture2d()
 	{
@@ -31,7 +53,7 @@ namespace qeg
 	}
 #elif defined(OPENGL)
 	render_texture2d::render_texture2d(device* dev, uvec2 size, pixel_format f)
-		: texture2d(size)
+		: texture2d(size), _vp(size)
 	{	
 
 		glGenFramebuffers(1, &_fbo);
@@ -46,30 +68,33 @@ namespace qeg
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _id, 0);
 
 		glBindTexture(GL_TEXTURE_2D, _db);
-		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)f, _size.x, _size.y, 0,
-			detail::get_gl_format_internal(f), detail::get_gl_format_type(f), 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _size.x, _size.y, 0,
+			GL_DEPTH_COMPONENT, GL_FLOAT, 0);
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-		/*glGenFramebuffers(1, &framebuf);
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuf);
-		glGenTextures(1, &_id);
-		glBindTexture(GL_TEXTURE_2D, _id);
-		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)f, _size.x, _size.y, 0, 
-			detail::get_gl_format_internal(f), detail::get_gl_format_type(f), 0);
-		glGenRenderbuffers(1, &depthbuf);
-		glBindRenderbuffer(GL_RENDERBUFFER, depthbuf);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, _size.x, _size.y);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, depthbuf, 0);
-		GLenum db[1] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, db);
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
 	}
 
+	void render_texture2d::ombind(device* _dev)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+		glViewport(_vp.offset.x, _vp.offset.y, 
+			_vp.size.x < 0 ? _dev->size().x : _vp.size.x, 
+			_vp.size.y < 0 ? _dev->size().y : _vp.size.y);
+		glDepthRange(_vp.min_depth < 0 ? 0.f : _vp.min_depth, 
+			_vp.max_depth < 0 ? 1.f : _vp.max_depth);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	void default_render_target::ombind(device* _dev)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, _dev->size().x, _dev->size().y);
+		glDepthRange(0.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 
 	render_texture2d::~render_texture2d()
 	{	
