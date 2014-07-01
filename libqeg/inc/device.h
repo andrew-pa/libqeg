@@ -1,6 +1,6 @@
 #pragma once
 #include "cmmn.h"
-//#include "render_texture2d.h"
+//#include "render_target.h"
 
 namespace qeg
 {

@@ -1147,9 +1147,6 @@
     <ClInclude Include="inc\states.h" />
     <ClInclude Include="inc\texture.h" />
     <ClInclude Include="inc\timer.h" />
-    <ClInclude Include="inc\app.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="inc\aux_cameras.h" />
     <ClInclude Include="inc\basic_input.h" />
     <ClInclude Include="inc\bo_file.h" />
@@ -1287,6 +1284,9 @@
     <ClInclude Include="inc\states.h" />
     <ClInclude Include="inc\texture.h" />
     <ClInclude Include="inc\timer.h" />
+    <ClInclude Include="inc\render_target.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp">
@@ -1868,9 +1868,6 @@
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\states.cpp" />
     <ClCompile Include="src\texture.cpp" />
-    <ClCompile Include="src\app.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\aux_cameras.cpp" />
     <ClCompile Include="src\basic_input.cpp" />
     <ClCompile Include="src\camera.cpp" />
@@ -1944,6 +1941,9 @@
     <ClCompile Include="src\states.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\render_texture_ex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render_target.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,4 +1,4 @@
-#include "render_texture2d.h"
+#include "render_target.h"
 
 namespace qeg
 {
@@ -8,6 +8,20 @@ namespace qeg
 			D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)), _vp(size_)
 	{
 		CD3D11_TEXTURE2D_DESC dd(DXGI_FORMAT_R24G8_TYPELESS, size_.x, size_.y);
+		dd.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+		ComPtr<ID3D11Texture2D> dst;
+		chr(dev->ddevice()->CreateTexture2D(&dd, nullptr, &dst));
+		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(dst.Get(), D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT);
+		chr(dev->ddevice()->CreateDepthStencilView(dst.Get(), &dsvd, dsv.GetAddressOf()));
+		CD3D11_RENDER_TARGET_VIEW_DESC rsvd(texd.Get(), D3D11_RTV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)f);
+		chr(dev->ddevice()->CreateRenderTargetView(texd.Get(), &rsvd, &rtv));
+	}
+
+	render_texture2d::render_texture2d(device* dev, const viewport& vp, pixel_format f)
+		: texture2d(dev, CD3D11_TEXTURE2D_DESC((DXGI_FORMAT)f, vp.size.x, vp.size.y, 1, 1,
+		D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)), _vp(vp)
+	{
+		CD3D11_TEXTURE2D_DESC dd(DXGI_FORMAT_R24G8_TYPELESS, _vp.size.x, _vp.size.y);
 		dd.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		ComPtr<ID3D11Texture2D> dst;
 		chr(dev->ddevice()->CreateTexture2D(&dd, nullptr, &dst));
@@ -54,6 +68,31 @@ namespace qeg
 #elif defined(OPENGL)
 	render_texture2d::render_texture2d(device* dev, uvec2 size, pixel_format f)
 		: texture2d(size), _vp(size)
+	{	
+
+		glGenFramebuffers(1, &_fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+
+		glGenTextures(1, &_id);
+		glGenTextures(1, &_db);
+
+		glBindTexture(GL_TEXTURE_2D, _id);
+		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)f, _size.x, _size.y, 0, 
+			detail::get_gl_format_internal(f), detail::get_gl_format_type(f), 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _id, 0);
+
+		glBindTexture(GL_TEXTURE_2D, _db);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _size.x, _size.y, 0,
+			GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	}
+
+	render_texture2d::render_texture2d(device* dev, const viewport& vp, pixel_format f)
+		: texture2d(vp.size), _vp(vp)
 	{	
 
 		glGenFramebuffers(1, &_fbo);

@@ -42,12 +42,11 @@ namespace qeg
 #ifdef OPENGL
 		GLuint _fbo;
 		GLuint _db;
-		GLuint _dbro;
 #endif
 		viewport _vp;
 	public:
 		render_texture2d(device* dev, uvec2 size, pixel_format f = pixel_format::RGBA32_FLOAT);
-		render_texture2d(device* dev, viewport vp, pixel_format f = pixel_format::RGBA32_FLOAT);
+		render_texture2d(device* dev, const viewport& vp, pixel_format f = pixel_format::RGBA32_FLOAT);
 		~render_texture2d();
 
 		void ombind(device* _dev) override;

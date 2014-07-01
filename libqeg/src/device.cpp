@@ -1,6 +1,6 @@
 #include "cmmn.h"
 #include "device.h"
-#include "render_texture2d.h"
+#include "render_target.h"
 
 namespace qeg
 {

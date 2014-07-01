@@ -12,7 +12,7 @@
 #include <states.h>
 #include <bo_file.h>
 #include <resource.h>
-#include <render_texture2d.h>
+#include <render_target.h>
 using namespace qeg;
 
 #include <glm/gtc/noise.hpp>
@@ -190,7 +190,7 @@ const static vec4 diffuse_ramp_data[8] =
 	vec4(1.f, 0.f, 1.f, 1.f),
 	vec4(1.f, 1.f, 1.f, 1.f),
 };
-
+#include "render_texture_ex.h"
 //Tested Now
 //meshes, constant_buffer, camera(s), gamepad, keyboard, rasterizer_state, app, device, render_texture2d, timer,
 //Work but too lazy to add full test

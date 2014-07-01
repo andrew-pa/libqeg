@@ -110,7 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="inc\*.h" />
+    <ClInclude Include="inc\render_target.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
@@ -120,7 +120,7 @@
     <ClCompile Include="src\cmmn.cpp" />
     <ClCompile Include="src\device.cpp" />
     <ClCompile Include="src\mesh.cpp" />
-    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\render_target.cpp" />
     <ClCompile Include="src\render_texture_ex.cpp" />
     <ClCompile Include="src\resource.cpp" />
     <ClCompile Include="src\shader.cpp" />
