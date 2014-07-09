@@ -15,7 +15,7 @@ namespace qeg
 		texture_filter mag_filter;
 		texture_filter mip_filter;
 		texture_address_mode address_modes[3]; //0:u, 1:v, 2:w || 0:s, 1:t, 2:r
-		uint max_anisotropy;
+		float max_anisotropy;
 		float mip_lod_bias;
 		float min_lod;
 		float max_lod;
@@ -28,7 +28,7 @@ namespace qeg
 			texture_address_mode addressu = texture_address_mode::wrap, 
 			texture_address_mode addressv = texture_address_mode::wrap,
 			texture_address_mode addressw = texture_address_mode::wrap,
-			uint max_ansio = 16, vec4 bordercolor = vec4(.5f, .5f, .5f, 1),
+			float max_ansio = 1.f, vec4 bordercolor = vec4(.5f, .5f, .5f, 1),
 			float mipLODbias = 0, float minLOD = -FLT_MAX, float maxLOD = FLT_MAX);
 
 		void bind(device* _dev, int slot, shader_stage ss, texture_dimension d = texture_dimension::texture_2d);

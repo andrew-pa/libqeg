@@ -5,7 +5,8 @@ namespace qeg
 #ifdef DIRECTX
 	depth_render_texture2d::depth_render_texture2d(device* _dev, uvec2 size)
 		: texture2d(_dev, CD3D11_TEXTURE2D_DESC(DXGI_FORMAT_R24G8_TYPELESS, size.x, size.y, 1, 1, 
-			D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE)), _vp(size)
+			D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE), 
+			CD3D11_SHADER_RESOURCE_VIEW_DESC(D3D11_SRV_DIMENSION_TEXTURE2D, DXGI_FORMAT_R24_UNORM_X8_TYPELESS)), _vp(size)
 	{
 		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(texd.Get(), D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT);
 		chr(_dev->ddevice()->CreateDepthStencilView(texd.Get(), &dsvd, dsv.GetAddressOf()));

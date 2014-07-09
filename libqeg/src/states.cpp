@@ -51,7 +51,7 @@ namespace qeg
 		texture_address_mode addressu,
 		texture_address_mode addressv,
 		texture_address_mode addressw,
-		uint max_ansio, vec4 bordercolor,
+		float max_ansio, vec4 bordercolor,
 		float mipLODbias, float minLOD, float maxLOD)
 		: min_filter(mf), mag_filter(gf), mip_filter(pf),
 			max_anisotropy(max_ansio), border_color(bordercolor),
@@ -89,7 +89,9 @@ namespace qeg
 		{
 			glTexParameteri(glxd, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(glxd, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glTexParameterf(glxd, GL_TEXTURE_MAX_ANISOTROPY_EXT, (GLfloat)max_anisotropy);
+			float dxa;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &dxa);
+			glTexParameterf(glxd, GL_TEXTURE_MAX_ANISOTROPY_EXT,  max_anisotropy * dxa);
 		}
 		else
 		{

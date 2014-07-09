@@ -46,13 +46,6 @@ texture2D tex(0);
 
 void main()
 {
-	vec2 texmul;
-#ifdef HLSL
-	texmul = vec2(1,1);
-#endif
-#ifdef GLSL
-	texmul = vec2(1,-1);
-#endif
 	vec3 v = normalize(cam_pos.xyz - input.posW);
 	vec3 n = normalize(input.normW);
 	vec3 col = vec3(0.,0.,0.);
@@ -80,7 +73,7 @@ void main()
 
 	//if(.22 > a) discard();
 	
-	vec3 texcol = sample_texture(tex, input.texc*texmul).xyz;
+	vec3 texcol = sample_texture(tex, input.texc).xyz;
 	//float d = 1. - (1. - texcol.x) * 50.;
 	//texcol = vec3(d,d,d);
 

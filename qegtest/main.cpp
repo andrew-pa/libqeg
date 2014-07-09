@@ -6,7 +6,7 @@
 #include <mesh.h>
 #include <constant_buffer.h>
 #include <camera.h>
-#include <aux_cameras.h>=
+#include <aux_cameras.h>
 #include <basic_input.h>
 #include <texture.h>
 #include <states.h>
@@ -103,10 +103,14 @@ sys_mesh<vertex_type, index_type> generate_screen_quad(vec2 offset, vec2 size)
 		vec2(-1, 1),
 	};
 
-	m.vertices.push_back(vertex_type(vec3(offset + size*z[0], 0), vec3(0, 1, 0), vec3(1, 0, 0), abs((z[0] + vec2(1.f))*vec2(.5f, -.5f)) ));
-	m.vertices.push_back(vertex_type(vec3(offset + size*z[1], 0), vec3(0, 1, 0), vec3(1, 0, 0), abs((z[1] + vec2(1.f))*vec2(.5f, -.5f)) ));
-	m.vertices.push_back(vertex_type(vec3(offset + size*z[2], 0), vec3(0, 1, 0), vec3(1, 0, 0), abs((z[2] + vec2(1.f))*vec2(.5f, -.5f)) ));
-	m.vertices.push_back(vertex_type(vec3(offset + size*z[3], 0), vec3(0, 1, 0), vec3(1, 0, 0), abs((z[3] + vec2(1.f))*vec2(.5f, -.5f)) ));
+	m.vertices.push_back(vertex_type(vec3(offset + size*z[0], 0), vec3(0, 1, 0),
+		vec3(1, 0, 0), abs((z[0] - vec2(1.f))*vec2(.5f, .5f)) ));
+	m.vertices.push_back(vertex_type(vec3(offset + size*z[1], 0), vec3(0, 1, 0),
+		vec3(1, 0, 0), abs((z[1] - vec2(1.f))*vec2(.5f, .5f)) ));
+	m.vertices.push_back(vertex_type(vec3(offset + size*z[2], 0), vec3(0, 1, 0),
+		vec3(1, 0, 0), abs((z[2] - vec2(1.f))*vec2(.5f, .5f)) ));
+	m.vertices.push_back(vertex_type(vec3(offset + size*z[3], 0), vec3(0, 1, 0),
+		vec3(1, 0, 0), abs((z[3] - vec2(1.f))*vec2(.5f, .5f)) ));
 	
 	m.indices.push_back(0);
 	m.indices.push_back(1);
@@ -185,11 +189,11 @@ public:
 #elif OPENGL
 		"libqeg test (OpenGL)",
 #endif
-		vec2(1280, 960), 1, false, 1.f / 60.f),
+		vec2(1280, 960), 8, false, 1.f / 60.f),
 
 		shd(_dev), skshd(_dev), r2ds(_dev),
 		
-		cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
+		cam(vec3(0, 3, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
 		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
 		
 		ctrl0(0), 
@@ -236,6 +240,7 @@ public:
 		tex.tex_sampler() = &ss;
 		sky.tex_sampler() = &ss;
 		portal_tex.tex_sampler() = &ss;
+		depth_tex.tex_sampler() = &ss;
 	}
 
 	void update(float t, float dt) override
@@ -275,7 +280,7 @@ public:
 		cam.update(dt);
 		cam.update_view();
 
-		other_cam.look_at(vec3(cos(t*.4f)*8.f, 2+sin(t*.3f), sin(t*.4f)*8.f), vec3(0.1f), vec3(0, 1, 0)); //move the portal camera around in a circle
+		other_cam.look_at(vec3(cos(t*.4f)*(10.f+sin(t*.2f)), 2+sin(t*.3f), sin(t*.4f)*8.f), vec3(0.1f), vec3(0, 1, 0)); //move the portal camera around in a circle
 		other_cam.update_view();
 
 	}
@@ -387,12 +392,20 @@ public:
 
 	void render(float t, float dt) override 
 	{
+		//render to render target for 'portal' + upper right texture view
 		_dev->push_render_target(&portal_tex);
 		render(t, dt, other_cam, false);
 		_dev->pop_render_target();
+
+		//render to depth target for upper middle right texture view
+		//	this currently generates a warning about having no render target set for the pixel shader, but that is because
+		//	in theory have no pixel shader bound for a depth render, but right now that doesn't happen, this being the result
+		//	: EXECUTION WARNING #3146081: DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET
 		_dev->push_render_target(&depth_tex);
-		render(t, dt, other_cam, false);
+		render(t, dt, cam, false);
 		_dev->pop_render_target();
+
+		//render main view
 		render(t, dt, cam, true);
 	}
 };
