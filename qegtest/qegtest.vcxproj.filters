@@ -27,7 +27,8 @@
     <CustomBuild Include="test1.dds" />
     <CustomBuild Include="testcm.dds" />
     <CustomBuild Include="test1.dds" />
-    <CustomBuild Include="*.dds" />
+    <CustomBuild Include="test1.dds" />
+    <CustomBuild Include="testcm.dds" />
     <CustomBuild Include="test1.dds" />
     <CustomBuild Include="*.dds" />
     <CustomBuild Include="checker.dds" />
@@ -35,5 +36,17 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sky_shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simple_shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="render2d.vs.shdr" />
+    <None Include="render2d.ps.shdr" />
   </ItemGroup>
 </Project>

@@ -33,6 +33,7 @@ namespace qeg
 
 	void render_texture2d::ombind(device* _dev)
 	{
+		//see also render_textureCube::render_textureCube_face::ombind for a unavoidable Copy & Paste of this code, seemes to be no other way to do this
 		const float clear_color[] = { 1.f, .5f, 0.f, 0.f };
 		if (rtv != nullptr)
 			_dev->context()->ClearRenderTargetView(rtv.Get(), clear_color);

@@ -74,7 +74,8 @@ namespace qeg
 
 		virtual void bind(device* dev, int slot, shader_stage ss, shader& s)
 		{
-			if (samplr) samplr->bind(dev, slot, ss, texture_dimension(Dim));
+			if (samplr) 
+				samplr->bind(dev, slot, ss, texture_dimension(Dim));
 #ifdef DIRECTX
 			switch (ss)
 			{

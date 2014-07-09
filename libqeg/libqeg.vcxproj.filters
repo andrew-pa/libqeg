@@ -1127,26 +1127,6 @@
     <ClInclude Include="inc\states.h" />
     <ClInclude Include="inc\texture.h" />
     <ClInclude Include="inc\timer.h" />
-    <ClInclude Include="inc\app.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="inc\aux_cameras.h" />
-    <ClInclude Include="inc\basic_input.h" />
-    <ClInclude Include="inc\bo_file.h" />
-    <ClInclude Include="inc\camera.h" />
-    <ClInclude Include="inc\cmmn.h" />
-    <ClInclude Include="inc\constant_buffer.h" />
-    <ClInclude Include="inc\dds_loader.h" />
-    <ClInclude Include="inc\device.h" />
-    <ClInclude Include="inc\dostream.h" />
-    <ClInclude Include="inc\mesh.h" />
-    <ClInclude Include="inc\render_texture2d.h" />
-    <ClInclude Include="inc\render_texture_ex.h" />
-    <ClInclude Include="inc\resource.h" />
-    <ClInclude Include="inc\shader.h" />
-    <ClInclude Include="inc\states.h" />
-    <ClInclude Include="inc\texture.h" />
-    <ClInclude Include="inc\timer.h" />
     <ClInclude Include="inc\aux_cameras.h" />
     <ClInclude Include="inc\basic_input.h" />
     <ClInclude Include="inc\bo_file.h" />
@@ -1287,6 +1267,57 @@
     <ClInclude Include="inc\render_target.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\states.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\dostream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\dds_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\cmmn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\constant_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\bo_file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\basic_input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\aux_cameras.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\render_target_ex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp">
@@ -1298,7 +1329,6 @@
     <ClCompile Include="src\cmmn.cpp" />
     <ClCompile Include="src\device.cpp" />
     <ClCompile Include="src\mesh.cpp" />
-    <ClCompile Include="src\render_texture2d.cpp" />
     <ClCompile Include="src\resource.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\states.cpp" />
@@ -1760,22 +1790,6 @@
     <ClCompile Include="src\cmmn.cpp" />
     <ClCompile Include="src\device.cpp" />
     <ClCompile Include="src\mesh.cpp" />
-    <ClCompile Include="src\render_target_ex.cpp" />
-    <ClCompile Include="src\render_texture2d.cpp" />
-    <ClCompile Include="src\resource.cpp" />
-    <ClCompile Include="src\shader.cpp" />
-    <ClCompile Include="src\states.cpp" />
-    <ClCompile Include="src\texture.cpp" />
-    <ClCompile Include="src\app.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\aux_cameras.cpp" />
-    <ClCompile Include="src\basic_input.cpp" />
-    <ClCompile Include="src\camera.cpp" />
-    <ClCompile Include="src\cmmn.cpp" />
-    <ClCompile Include="src\device.cpp" />
-    <ClCompile Include="src\mesh.cpp" />
-    <ClCompile Include="src\render_target_ex.cpp" />
     <ClCompile Include="src\render_texture2d.cpp" />
     <ClCompile Include="src\resource.cpp" />
     <ClCompile Include="src\shader.cpp" />
@@ -1856,6 +1870,21 @@
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\states.cpp" />
     <ClCompile Include="src\texture.cpp" />
+    <ClCompile Include="src\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\aux_cameras.cpp" />
+    <ClCompile Include="src\basic_input.cpp" />
+    <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\cmmn.cpp" />
+    <ClCompile Include="src\device.cpp" />
+    <ClCompile Include="src\mesh.cpp" />
+    <ClCompile Include="src\render_target_ex.cpp" />
+    <ClCompile Include="src\render_texture2d.cpp" />
+    <ClCompile Include="src\resource.cpp" />
+    <ClCompile Include="src\shader.cpp" />
+    <ClCompile Include="src\states.cpp" />
+    <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\aux_cameras.cpp" />
     <ClCompile Include="src\basic_input.cpp" />
     <ClCompile Include="src\camera.cpp" />
@@ -1940,10 +1969,10 @@
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\states.cpp" />
     <ClCompile Include="src\texture.cpp" />
-    <ClCompile Include="src\render_texture_ex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\render_target.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\render_target_ex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

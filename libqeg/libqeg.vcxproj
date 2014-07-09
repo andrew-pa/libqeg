@@ -110,7 +110,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="inc\app.h" />
+    <ClInclude Include="inc\aux_cameras.h" />
+    <ClInclude Include="inc\basic_input.h" />
+    <ClInclude Include="inc\bo_file.h" />
+    <ClInclude Include="inc\camera.h" />
+    <ClInclude Include="inc\cmmn.h" />
+    <ClInclude Include="inc\constant_buffer.h" />
+    <ClInclude Include="inc\dds_loader.h" />
+    <ClInclude Include="inc\device.h" />
+    <ClInclude Include="inc\dostream.h" />
+    <ClInclude Include="inc\mesh.h" />
     <ClInclude Include="inc\render_target.h" />
+    <ClInclude Include="inc\render_target_ex.h" />
+    <ClInclude Include="inc\resource.h" />
+    <ClInclude Include="inc\shader.h" />
+    <ClInclude Include="inc\states.h" />
+    <ClInclude Include="inc\texture.h" />
+    <ClInclude Include="inc\timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\app.cpp" />
@@ -121,7 +138,7 @@
     <ClCompile Include="src\device.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\render_target.cpp" />
-    <ClCompile Include="src\render_texture_ex.cpp" />
+    <ClCompile Include="src\render_target_ex.cpp" />
     <ClCompile Include="src\resource.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\states.cpp" />

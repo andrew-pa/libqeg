@@ -1,0 +1,34 @@
+$pixel_shader
+
+input
+{
+	vec4 pos : rs_position;
+	vec2 texc : texcoord;
+}
+
+
+output
+{
+	vec4 color : target0;
+}
+
+cbuffer(0)
+{
+	uvec4 options; //(Depth Texture), Unused, Unused, Unused)
+}
+
+texture2D tex(0);
+
+void main()
+{
+	if(options.x > 0)
+	{
+		float depth = sample_texture(tex, input.texc).x;
+		float x = 1. - (1. - depth) * 50.;
+		output.color = vec4(x,x,x,1.);
+	}
+	else
+	{
+		output.color = sample_texture(tex, input.texc);
+	}
+}

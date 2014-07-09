@@ -55,6 +55,8 @@ namespace qeg
 #ifdef DIRECTX
 		render_texture2d(uvec2 size_, ComPtr<ID3D11RenderTargetView> rtv_, ComPtr<ID3D11DepthStencilView> dsv_)
 			: texture2d(size_), rtv(rtv_), dsv(dsv_), _vp(size_) {}
+		//render_texture2d(const viewport& vp_, ComPtr<ID3D11RenderTargetView> rtv_, ComPtr<ID3D11DepthStencilView> dsv_)
+		//	: texture2d(vp_.size), rtv(rtv_), dsv(dsv_), _vp(vp_) {}
 		propr(ComPtr<ID3D11RenderTargetView>, render_target, { return rtv; });
 		propr(ComPtr<ID3D11DepthStencilView>, depth_stencil, { return dsv; });
 #endif

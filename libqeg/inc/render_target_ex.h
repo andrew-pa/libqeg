@@ -34,4 +34,46 @@ namespace qeg
 		propr(GLuint, depth_buffer, { return _id; });
 #endif
 	};
+	
+	class render_textureCube : public textureCube
+	{
+		//1x DSV for all faces
+		//1x viewport for all faces
+		//DX: 6x RSVs for each face 
+		//GL: 6x FBOs for each face
+		viewport _vp;
+
+		struct render_textureCube_face : public render_target
+		{
+			render_textureCube* rtc;
+			uint idx;
+			render_textureCube_face(render_textureCube* rtc_, uint _i)
+				: rtc(rtc_), idx(_i){}
+
+			void ombind(device* _dev) override;
+
+			viewport& mviewport() override
+			{
+				return rtc->_vp;
+			}
+		};
+
+		render_textureCube_face* rtx[6];
+
+#ifdef DIRECTX
+		ComPtr<ID3D11RenderTargetView> rtv[6];
+		ComPtr<ID3D11DepthStencilView> dsv;
+#elif OPENGL
+		GLuint _fbo[6];
+		GLuint _db;
+#endif
+	public:
+		render_textureCube(device* _dev, uint size, pixel_format f = pixel_format::RGBA32_FLOAT);
+		render_textureCube(device* _dev, const viewport& vp, pixel_format f = pixel_format::RGBA32_FLOAT);
+		~render_textureCube();
+
+		render_target* target_for_face(uint idx);
+		
+		proprw(viewport, mviewport, { return _vp; })
+	};
 }

@@ -103,7 +103,7 @@ namespace qeg
 		vec2 tex;
 		vertex_position_normal_tangent_texture(){}
 		vertex_position_normal_tangent_texture(vec3 p, vec3 n, vec3 tg, vec2 t)
-			: pos(p), norm(n), tex(t)
+			: pos(p), norm(n), tang(tg), tex(t)
 		{
 		}
 	};
@@ -225,7 +225,7 @@ namespace qeg
 			glBindVertexArray(vtx_array);			
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
 			glDrawElements((GLenum)dt, (oindex_count == -1 ? idx_cnt : oindex_count),
-				GL_UNSIGNED_SHORT, (void*)0);
+				GL_UNSIGNED_SHORT, (void*)0); //TODO: Change GL_UNSIGNED_SHORT to whatever the appropriate GL_* const is for the index_type
 		}
 #endif
 		
@@ -414,6 +414,8 @@ namespace qeg
 		
 		return m;
 	}
+
+	
 
 	//use interleaved mesh instead!
 	//mesh_psnmtx

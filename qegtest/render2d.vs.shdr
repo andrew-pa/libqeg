@@ -1,0 +1,26 @@
+$vertex_shader
+
+input
+{
+	vec3 pos : position;
+	vec3 norm : normal;
+	vec2 tex : texcoord;
+}
+
+output
+{
+	vec4 pos : rs_position;
+	vec2 texc : texcoord;
+}
+
+cbuffer(0)
+{
+	mat4 transform;
+}
+
+void main()
+{
+	vec4 rp = vec4(input.pos.xy-vec2(1.,1.), .5, 1.);
+	output.pos = mul(rp, transform);
+	output.texc = input.tex;
+}

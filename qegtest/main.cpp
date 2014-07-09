@@ -6,7 +6,7 @@
 #include <mesh.h>
 #include <constant_buffer.h>
 #include <camera.h>
-#include <aux_cameras.h>
+#include <aux_cameras.h>=
 #include <basic_input.h>
 #include <texture.h>
 #include <states.h>
@@ -17,167 +17,108 @@ using namespace qeg;
 
 #include <glm/gtc/noise.hpp>
 
-class simple_shader : public shader
+#include "simple_shader.h"
+#include "sky_shader.h"
+
+class render2d_shader : public shader
 {
+	constant_buffer<mat4> transform_mat;
+	constant_buffer<uvec4> options_cb;
+
+	texture2d* tex, *oldtex;
+	bool _texchanged;
+	depth_stencil_state dss;
+	rasterizer_state rss;
 public:
-	struct vs_matxs
-	{
-		mat4 world;
-		mat4 view_proj;
-		mat4 inv_world;
-	};
-	struct mat
-	{
-		vec3 diffuse;
-		float extra;
-		vec4 specular;
-		mat(vec3 dif = vec3(0), float spec_exp = 0.f, vec3 spc = vec3(1.f))
-			: diffuse(dif), specular(spc, spec_exp){}
 
-	};
-
-	struct point_light
+	render2d_shader(device* _dev)
+		: shader(_dev, read_data_from_package(L"render2d.vs.csh"), read_data_from_package(L"render2d.ps.csh")), 
+			transform_mat(_dev, *this, 0, mat4(), shader_stage::vertex_shader),
+			options_cb(_dev, *this, 0, uvec4(0U), shader_stage::pixel_shader),
+			oldtex(nullptr), _texchanged(false),
+			dss(_dev, false), rss(_dev, fill_mode::solid, cull_mode::none)
+	{}
+	
+	void set_transform(const mat4& m)
 	{
-		vec4 pos;
-		vec4 col;
-		point_light(vec3 p = vec3(0), vec3 c = vec3(0))
-			: pos(p.x,p.y,p.z,-1.f), col(c.x,c.y,c.z,-1.f) {}
-	};
-
-	struct lighting_cbd
-	{
-		point_light lights[3];
-		uint light_count;
-		uvec3 extra;
-	};
-protected:
-	constant_buffer<vs_matxs> vsmt_cb;
-	constant_buffer<mat> mat_cb;
-	constant_buffer<lighting_cbd> li_cb;
-	constant_buffer<vec4> campos_cb;
-	texture2d* _tex, *_old_tex;
-	bool _tex_changed;
-public:
-	simple_shader(device* _dev)
-		: shader(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")),
-		vsmt_cb(_dev, *this, 0, vs_matxs(), shader_stage::vertex_shader),
-		mat_cb(_dev, *this, 0, mat(), shader_stage::pixel_shader),
-		li_cb(_dev, *this, 1, lighting_cbd(), shader_stage::pixel_shader),
-		campos_cb(_dev, *this, 2, vec4(0.f), shader_stage::pixel_shader), _tex_changed(false), _tex(nullptr), _old_tex(nullptr)
-	{
+		transform_mat.data() = m;
 	}
 
-	inline void world(const mat4& m)
+	void set_texture(texture2d* t)
 	{
-		vsmt_cb.data().world = m;
-		vsmt_cb.data().inv_world = inverse(m);
+		oldtex = tex;
+		tex = t;
+		_texchanged = true;
 	}
 
-	inline void view_proj(const mat4& vp)
+	void is_depth_texture(bool isadepthtexture)
 	{
-		vsmt_cb.data().view_proj = vp;
-	}
-
-	inline void material(const mat& m)
-	{
-		mat_cb.data() = m;
-	}
-
-	inline void diffuse_tex(texture2d* t)
-	{
-		_old_tex = _tex;
-		_tex = t;
-		_tex_changed = true;
-	}
-
-	inline void light(const point_light& l, int idx)
-	{
-		if (idx > 3) throw exception();
-		li_cb.data().lights[idx] = l;
-	}
-
-	inline void light_count(uint count)
-	{
-		li_cb.data().light_count = count;
-	}
-
-	inline void camera_position(vec3 p)
-	{
-		campos_cb.data() = vec4(p, 0.f);
+		options_cb.data().x = isadepthtexture ? 1U : 0U;
 	}
 
 	void bind(device* _dev) override
 	{
 		shader::bind(_dev);
-		vsmt_cb.bind(_dev);
-		mat_cb.bind(_dev);
-		li_cb.bind(_dev);
-		campos_cb.bind(_dev);
+		transform_mat.bind(_dev);
+		options_cb.bind(_dev);
+		dss.bind(_dev, 0);
+		rss.bind(_dev);
 	}
 
 	void update(device* _dev) override
 	{
 		shader::update(_dev);
-		vsmt_cb.update(_dev);
-		mat_cb.update(_dev);
-		li_cb.update(_dev);
-		campos_cb.update(_dev);
-		if(_tex_changed)
+		transform_mat.update(_dev);
+		options_cb.update(_dev);
+		if(_texchanged)
 		{
-			if (_old_tex != nullptr)
-				_old_tex->unbind(_dev, 0, shader_stage::pixel_shader);
-			if (_tex != nullptr)
-				_tex->bind(_dev, 0, shader_stage::pixel_shader, *this);
+			if (oldtex != nullptr)
+				oldtex->unbind(_dev, 0, shader_stage::pixel_shader);
+			if (tex != nullptr)
+				tex->bind(_dev, 0, shader_stage::pixel_shader, *this);
 		}
 	}
 
 	void unbind(device* _dev) override
 	{
 		shader::unbind(_dev);
-		vsmt_cb.unbind(_dev);
-		mat_cb.unbind(_dev);
-		li_cb.unbind(_dev);
-		campos_cb.unbind(_dev);
+		tex->unbind(_dev, 0, shader_stage::pixel_shader);
+		transform_mat.unbind(_dev);
+		options_cb.unbind(_dev);
+		dss.unbind(_dev);
+		rss.unbind(_dev);
 	}
 };
 
-class sky_shader : public shader
+template <typename vertex_type, typename index_type>
+sys_mesh<vertex_type, index_type> generate_screen_quad(vec2 offset, vec2 size)
 {
-	constant_buffer<mat4> wvp_mat;
-	textureCube* sky_texture;
-public:
-	sky_shader(device* _dev)
-		: shader(_dev, read_data_from_package(L"sky.vs.csh"), read_data_from_package(L"sky.ps.csh")), wvp_mat(_dev, *this, 0, mat4(), shader_stage::vertex_shader) {}
-	void set_wvp(const mat4& m) 
-	{
-		wvp_mat.data() = m;
-	}
+	sys_mesh<vertex_type, index_type> m;
 
-	void set_texture(textureCube* t)
+	const vec2 z[] = 
 	{
-		sky_texture = t;
-	}
+		vec2(1, 1),
+		vec2(1, -1),
+		vec2(-1, -1),
+		vec2(-1, 1),
+	};
 
-	void bind(device* _dev) override
-	{
-		shader::bind(_dev);
-		sky_texture->bind(_dev, 0, shader_stage::pixel_shader, *this);
-		wvp_mat.bind(_dev);
-	}
+	m.vertices.push_back(vertex_type(vec3(offset + size*z[0], 0), vec3(0, 1, 0), vec3(1, 0, 0), abs((z[0] + vec2(1.f))*vec2(.5f, -.5f)) ));
+	m.vertices.push_back(vertex_type(vec3(offset + size*z[1], 0), vec3(0, 1, 0), vec3(1, 0, 0), abs((z[1] + vec2(1.f))*vec2(.5f, -.5f)) ));
+	m.vertices.push_back(vertex_type(vec3(offset + size*z[2], 0), vec3(0, 1, 0), vec3(1, 0, 0), abs((z[2] + vec2(1.f))*vec2(.5f, -.5f)) ));
+	m.vertices.push_back(vertex_type(vec3(offset + size*z[3], 0), vec3(0, 1, 0), vec3(1, 0, 0), abs((z[3] + vec2(1.f))*vec2(.5f, -.5f)) ));
+	
+	m.indices.push_back(0);
+	m.indices.push_back(1);
+	m.indices.push_back(2);
 
-	void update(device* _dev) override
-	{
-		shader::update(_dev);
-		wvp_mat.update(_dev);
-	}
+	m.indices.push_back(2);
+	m.indices.push_back(3);
+	m.indices.push_back(0);
 
-	void unbind(device* _dev) override
-	{
-		shader::unbind(_dev);
-		sky_texture->unbind(_dev, 0, shader_stage::pixel_shader);
-		wvp_mat.unbind(_dev);
-	}
-};
+	
+	return m;
+}
 
 const static vec4 diffuse_ramp_data[8] =
 {
@@ -190,7 +131,9 @@ const static vec4 diffuse_ramp_data[8] =
 	vec4(1.f, 0.f, 1.f, 1.f),
 	vec4(1.f, 1.f, 1.f, 1.f),
 };
-#include "render_texture_ex.h"
+
+#include "render_target_ex.h"
+
 //Tested Now
 //meshes, constant_buffer, camera(s), gamepad, keyboard, rasterizer_state, app, device, render_texture2d, timer,
 //Work but too lazy to add full test
@@ -229,7 +172,11 @@ class qegtest_app : public app
 	rasterizer_state sky_rs;
 	depth_stencil_state sky_dss;
 
-	render_texture2d portal_tex;
+	render_texture2d portal_tex; 
+	depth_render_texture2d depth_tex;
+
+	mesh* quad_mesh;
+	render2d_shader r2ds;
 public:
 	qegtest_app()
 		: app(
@@ -238,9 +185,9 @@ public:
 #elif OPENGL
 		"libqeg test (OpenGL)",
 #endif
-		vec2(1280, 960), 8, false, 1.f / 60.f),
+		vec2(1280, 960), 1, false, 1.f / 60.f),
 
-		shd(_dev), skshd(_dev), 
+		shd(_dev), skshd(_dev), r2ds(_dev),
 		
 		cam(vec3(0, 2, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
 		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
@@ -263,18 +210,23 @@ public:
 		tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
 		sky(*textureCube::load(_dev, read_data_from_package(L"testcm.tex"))),
 		portal_tex(_dev, uvec2(1024)),
-		
+		depth_tex(_dev, uvec2(1024)),
 		sky_dss(_dev, true, true, comparison_func::less_equal)
 	{
 		//generate scene meshes
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_sphere<vertex_position_normal_texture,uint16>(1.f, 64, 64), "ball");
 		ground = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture,uint16>(vec2(32), vec2(16), vec3(0, -1.f, 0)), "ground");
 		torus = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_torus<vertex_position_normal_texture, uint16>(vec2(1.f, .5f), 64), "torus");
-		portal = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_plane<vertex_position_normal_texture, uint16>(vec2(4), vec2(16), vec3(.5f, 0, .5f)), "portal");
+		portal = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
+			generate_plane<vertex_position_normal_texture, uint16>(vec2(4), vec2(16), vec3(.5f, 0, .5f)), "portal");
 		
 		//generate sky dome mesh
 		sky_mesh = new interleaved_mesh<vertex_position, uint16>(_dev, generate_sphere<vertex_position, uint16>(2.f, 32, 32), "sky");
 		
+		//generate quad mesh for drawing debug textures
+		quad_mesh = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
+			generate_screen_quad<vertex_position_normal_texture, uint16>(vec2(1.0f), vec2(1.f)), "quad_2d");;
+
 		//initialize shader lights
 		shd.light(simple_shader::point_light(vec3(0, 10, 0), vec3(.5f)), 0);
 		shd.light(simple_shader::point_light(vec3(-10, 10, -7), vec3(.5f, .4f, .4f)), 1);
@@ -394,23 +346,51 @@ public:
 		if (render_wireframe) wireframe_rs.unbind(_dev); //unbind the wireframe rasterizer state
 
 		//render sky dome 
-		//if (with_rendered_textures) {
-		//	sky_rs.bind(_dev);
-		//	sky_dss.bind(_dev, 0);
-		//	skshd.set_texture(&sky);
-		//	skshd.bind(_dev);
-		//	skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
-		//	skshd.update(_dev);
-		//	sky_mesh->draw(_dev);
-		//	skshd.unbind(_dev);
-		//	sky_dss.unbind(_dev);
-		//	sky_rs.unbind(_dev);
-		//}
+		if (with_rendered_textures) {
+			sky_rs.bind(_dev);
+			sky_dss.bind(_dev, 0);
+			skshd.set_texture(&sky);
+			skshd.bind(_dev);
+			skshd.set_wvp(c.projection()*c.view()*translate(mat4(1), c.position()));
+			skshd.update(_dev);
+			sky_mesh->draw(_dev);
+			skshd.unbind(_dev);
+			sky_dss.unbind(_dev);
+			sky_rs.unbind(_dev);
+		}
+
+		if(with_rendered_textures) //make sure not to render 2d stuff on to render target
+		{
+			r2ds.bind(_dev);
+			r2ds.set_transform(mat4(.2f, 0, 0, 0, 
+									0, .2f, 0, 0,
+									0, 0, 1, 0,
+									.75f, .75f, 0, 1));
+			r2ds.set_texture(&portal_tex);
+			r2ds.is_depth_texture(false);
+			r2ds.update(_dev);
+			quad_mesh->draw(_dev);
+			r2ds.unbind(_dev);
+
+			r2ds.bind(_dev);
+			r2ds.set_transform(mat4(.2f, 0, 0, 0,
+				0, .2f, 0, 0,
+				0, 0, 1, 0,
+				.25f, .75f, 0, 1));
+			r2ds.set_texture(&depth_tex);
+			r2ds.is_depth_texture(true);
+			r2ds.update(_dev);
+			quad_mesh->draw(_dev);
+			r2ds.unbind(_dev);
+		}
 	}
 
 	void render(float t, float dt) override 
 	{
 		_dev->push_render_target(&portal_tex);
+		render(t, dt, other_cam, false);
+		_dev->pop_render_target();
+		_dev->push_render_target(&depth_tex);
 		render(t, dt, other_cam, false);
 		_dev->pop_render_target();
 		render(t, dt, cam, true);
