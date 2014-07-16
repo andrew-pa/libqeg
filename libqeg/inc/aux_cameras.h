@@ -38,5 +38,29 @@ namespace qeg
 		void update(float dt) override;
 		void update_view() override;
 	};
+
+	class cubemap_camera_rig
+	{
+		vec3 _pos; float _fov;
+		float _nz; float _fz;
+		vector<camera> _cameras;
+	public:
+
+		cubemap_camera_rig(vec3 p, vec2 ss, float fov_ = radians(90.f), float nz_ = 0.01f, float fz_ = 1000.f);
+
+		proprw(vec3, position, { return _pos; });
+		proprw(float, fov, { return _fov; });
+		proprw(float, near_z, { return _nz; });
+		proprw(float, far_z, { return _fz; });
+
+		void update();
+		void update_proj(vec2 s);
+		void update_view();
+
+		inline camera& camera_for_face(uint i)
+		{
+			return _cameras[i];
+		}
+	};
 }
 

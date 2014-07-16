@@ -25,8 +25,10 @@ class render2d_shader : public shader
 	constant_buffer<mat4> transform_mat;
 	constant_buffer<uvec4> options_cb;
 
-	texture2d* tex, *oldtex;
-	bool _texchanged;
+	//texture2d* tex, *oldtex;
+	//bool _texchanged;
+	texture_holder<2> tex;
+	texture_holder<2> envtex;
 	depth_stencil_state dss;
 	rasterizer_state rss;
 public:
@@ -35,7 +37,8 @@ public:
 		: shader(_dev, read_data_from_package(L"render2d.vs.csh"), read_data_from_package(L"render2d.ps.csh")), 
 			transform_mat(_dev, *this, 0, mat4(), shader_stage::vertex_shader),
 			options_cb(_dev, *this, 0, uvec4(0U), shader_stage::pixel_shader),
-			oldtex(nullptr), _texchanged(false),
+			//oldtex(nullptr), _texchanged(false),
+			tex(0, shader_stage::pixel_shader), envtex(1, shader_stage::pixel_shader),
 			dss(_dev, false), rss(_dev, fill_mode::solid, cull_mode::none)
 	{}
 	
@@ -46,9 +49,16 @@ public:
 
 	void set_texture(texture2d* t)
 	{
-		oldtex = tex;
-		tex = t;
-		_texchanged = true;
+		tex.set(t);
+		//oldtex = tex;
+		//tex = t;
+		options_cb.data().y = 0;
+		//_texchanged = true;
+	}
+	void set_texture(textureCube* t)
+	{
+		envtex.set(t);
+		options_cb.data().y = 1;
 	}
 
 	void is_depth_texture(bool isadepthtexture)
@@ -70,19 +80,23 @@ public:
 		shader::update(_dev);
 		transform_mat.update(_dev);
 		options_cb.update(_dev);
-		if(_texchanged)
+		tex.bind(_dev, *this);
+		envtex.bind(_dev, *this);
+		/*if(_texchanged)
 		{
 			if (oldtex != nullptr)
 				oldtex->unbind(_dev, 0, shader_stage::pixel_shader);
 			if (tex != nullptr)
 				tex->bind(_dev, 0, shader_stage::pixel_shader, *this);
-		}
+		}*/
 	}
 
 	void unbind(device* _dev) override
 	{
 		shader::unbind(_dev);
-		tex->unbind(_dev, 0, shader_stage::pixel_shader);
+		tex.unbind(_dev);
+		envtex.unbind(_dev);
+		//tex->unbind(_dev, 0, shader_stage::pixel_shader);
 		transform_mat.unbind(_dev);
 		options_cb.unbind(_dev);
 		dss.unbind(_dev);
@@ -181,6 +195,9 @@ class qegtest_app : public app
 
 	mesh* quad_mesh;
 	render2d_shader r2ds;
+
+	render_textureCube rcb;
+	cubemap_camera_rig rcb_rig;
 public:
 	qegtest_app()
 		: app(
@@ -195,7 +212,7 @@ public:
 		
 		cam(vec3(0, 3, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
 		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
-		
+		rcb_rig(vec3(0, 4, -10), vec2(1024)),
 		ctrl0(0), 
 		
 		wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
@@ -214,7 +231,7 @@ public:
 		tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
 		sky(*textureCube::load(_dev, read_data_from_package(L"testcm.tex"))),
 		portal_tex(_dev, uvec2(1024)),
-		depth_tex(_dev, uvec2(1024)),
+		depth_tex(_dev, uvec2(1024)), rcb(_dev, 1024),
 		sky_dss(_dev, true, true, comparison_func::less_equal)
 	{
 		//generate scene meshes
@@ -306,7 +323,6 @@ public:
 			sky_dss.unbind(_dev);
 			sky_rs.unbind(_dev);
 		//}
-
 		if (render_wireframe) wireframe_rs.bind(_dev); //if wireframe on, then bind that rasterizer state
 
 		shd.bind(_dev); //bind shader & set camera values
@@ -351,7 +367,7 @@ public:
 		if (render_wireframe) wireframe_rs.unbind(_dev); //unbind the wireframe rasterizer state
 
 		//render sky dome 
-		if (with_rendered_textures) {
+	/*	if (with_rendered_textures) {
 			sky_rs.bind(_dev);
 			sky_dss.bind(_dev, 0);
 			skshd.set_texture(&sky);
@@ -362,7 +378,7 @@ public:
 			skshd.unbind(_dev);
 			sky_dss.unbind(_dev);
 			sky_rs.unbind(_dev);
-		}
+		}*/
 
 		if(with_rendered_textures) //make sure not to render 2d stuff on to render target
 		{
@@ -387,6 +403,16 @@ public:
 			r2ds.update(_dev);
 			quad_mesh->draw(_dev);
 			r2ds.unbind(_dev);
+			r2ds.bind(_dev);
+			r2ds.set_transform(mat4(.3f, 0, 0, 0,
+				0, .3f, 0, 0,
+				0, 0, 1, 0,
+				-.45f, .65f, 0, 1));
+			r2ds.set_texture(&rcb);
+			r2ds.is_depth_texture(false);
+			r2ds.update(_dev);
+			quad_mesh->draw(_dev);
+			r2ds.unbind(_dev);
 		}
 	}
 
@@ -404,6 +430,15 @@ public:
 		_dev->push_render_target(&depth_tex);
 		render(t, dt, cam, false);
 		_dev->pop_render_target();
+
+		//render to each face of the texture cube
+		for (int i = 0; i < 6; ++i)
+		{
+			auto rt = rcb.target_for_face(i);
+			_dev->push_render_target(rt);
+			render(t, dt, rcb_rig.camera_for_face(i), false);
+			_dev->pop_render_target();
+		}
 
 		//render main view
 		render(t, dt, cam, true);

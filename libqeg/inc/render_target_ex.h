@@ -72,7 +72,15 @@ namespace qeg
 		render_textureCube(device* _dev, const viewport& vp, pixel_format f = pixel_format::RGBA32_FLOAT);
 		~render_textureCube();
 
-		render_target* target_for_face(uint idx);
+		inline render_target* target_for_face(uint idx)
+		{
+			if (rtx[idx] == nullptr)
+			{
+				rtx[idx] = new render_textureCube_face(this, idx);
+			}
+			return rtx[idx];
+		}
+
 		
 		proprw(viewport, mviewport, { return _vp; })
 	};

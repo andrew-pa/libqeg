@@ -93,15 +93,6 @@ namespace qeg
 		}
 	}
 
-	render_target* render_textureCube::target_for_face(uint idx)
-	{
-		if(rtx[idx] == nullptr)
-		{
-			rtx[idx] = new render_textureCube_face(this, idx);
-		}
-		return rtx[idx];
-	}
-
 	void render_textureCube::render_textureCube_face::ombind(device* _dev)	
 	{
 		//see also render_texture2d::ombind
@@ -177,5 +168,66 @@ namespace qeg
 		if (_fbo != 0)
 			glDeleteFramebuffers(1, &_fbo);
 	}
+
+	void render_textureCube::render_textureCube_face::ombind(device* _dev)
+	{
+		auto _vp = rtc->_vp;
+		glBindFramebuffer(GL_FRAMEBUFFER, rtc->_fbo[idx]);
+		glViewport(_vp.offset.x, _vp.offset.y,
+			_vp.size.x < 0 ? _dev->size().x : _vp.size.x,
+			_vp.size.y < 0 ? _dev->size().y : _vp.size.y);
+		glDepthRange(_vp.min_depth < 0 ? 0.f : _vp.min_depth,
+			_vp.max_depth < 0 ? 1.f : _vp.max_depth);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	render_textureCube::render_textureCube(device* _dev, uint size, pixel_format f)
+		: _vp(uvec2(size)), textureCube(_dev, uvec2(size), f, vector<byte*>({ nullptr, nullptr, nullptr, nullptr, nullptr, nullptr }))
+	{
+		glGenFramebuffers(6, _fbo);
+
+		glGenTextures(1, &_db);
+		glBindTexture(GL_TEXTURE_2D, _db);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _size.x, _size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	
+		for (int i = 0; i < 6; ++i)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, _fbo[i]);
+			glFramebufferTextureFaceEXT(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _id, 0, i+GL_TEXTURE_CUBE_MAP_POSITIVE_X);
+			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
+		}
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	}
+
+	render_textureCube::render_textureCube(device* _dev, const viewport& vp, pixel_format f)
+		: _vp(vp), textureCube(_dev, vp.size, f, vector<byte*>({ nullptr, nullptr, nullptr, nullptr, nullptr, nullptr }))
+	{
+		glGenFramebuffers(6, _fbo);
+
+		glGenTextures(1, &_db);
+		glBindTexture(GL_TEXTURE_2D, _db);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _size.x, _size.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+		for (int i = 0; i < 6; ++i)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, _fbo[i]);
+			glFramebufferTextureFaceEXT(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _id, 0, i + GL_TEXTURE_CUBE_MAP_POSITIVE_X);
+			glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
+		}
+
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	}
+
+	render_textureCube::~render_textureCube()
+	{
+		if (_db != 0)
+			glDeleteTextures(1, &_db);
+		if (_fbo[0] != 0)
+			glDeleteFramebuffers(6, _fbo);
+	}
+
 #endif
 }

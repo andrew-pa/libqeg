@@ -11,17 +11,7 @@ namespace qeg
 		vec3 move = vec3(0);
 		vec2 rot = vec2(0);
 
-		if(gp != nullptr && 
-			gp->connected())
-		{
-			auto gs = gp->get_state();
-			move.x = gs.left_stick().y*ms;
-			move.y = gs.dpad_stick().y*ms;
-			move.z = (gs.left_stick().x + gs.dpad_stick().x)*ms;
-
-			rot = gs.right_stick()*vec2(1.f, -1.f)*rs;
-		}
-
+		
 		auto mos = mouse::get_state();
 		{
 			static vec2 dr = vec2(0.f);
@@ -36,6 +26,18 @@ namespace qeg
 			lnx = nx;
 			lny = ny;
 		}
+		
+		if(gp != nullptr && 
+			gp->connected())
+		{
+			auto gs = gp->get_state();
+			move.x = gs.left_stick().y*ms;
+			move.y = gs.dpad_stick().y*ms;
+			move.z = (gs.left_stick().x + gs.dpad_stick().x)*ms;
+
+			rot = gs.right_stick()*vec2(1.f, -1.f)*rs;
+		}
+
 
 		if (ks.key_down(input::key::key_w))
 			move.x = ms;
@@ -103,5 +105,57 @@ namespace qeg
 		_pos.z = ra*sinf(radians(ph))*sinf(radians(th));
 		look_at(_pos, vec3(0), vec3(0,1,0));
 		camera::update_view();
+	}
+
+	const vec3 ctg[6] =
+	{
+		vec3(-1.f, 0.f, 0.f),
+		vec3(1.f, 0.f, 0.f),
+		vec3(0.f, 1.f, 0.f),
+		vec3(0.f, -1.f, 0.f),
+		vec3(0.f, 0.f, 1.f),
+		vec3(0.f, 0.f, -1.f),
+	};
+
+	const vec3 cup[6] =
+	{
+		vec3(0.f, 1.f, 0.f),
+		vec3(0.f, 1.f, 0.f),
+		vec3(0.f, 0.f, -1.f),
+		vec3(0.f, 0.f, 1.f),
+		vec3(0.f, 1.f, 0.f),
+		vec3(0.f, 1.f, 0.f),
+	};
+
+	cubemap_camera_rig::cubemap_camera_rig(vec3 p, vec2 ss, float fov_, float nz_, float fz_)
+		: _pos(p), _fov(fov_), _nz(nz_), _fz(fz_)
+	{
+		for (int i = 0; i < 6; ++i)
+		{
+			//vec3 t = _pos+ctg[i];
+			camera c(_pos, ctg[i], _fov, ss, cup[i], _nz, _fz);
+			//c.look_at(_pos, t, cup[i]); //redundant step? why?
+			c.update_view();
+			c.update_proj(ss);
+			_cameras.push_back(c);
+		}
+	}
+
+	void cubemap_camera_rig::update()
+	{
+		for (int i = 0; i < 6; ++i)
+		{
+			_cameras[i].position() = _pos;
+		}
+	}
+
+	void cubemap_camera_rig::update_proj(vec2 s)
+	{
+		for (int i = 0; i < 6; ++i) _cameras[i].update_proj(s);
+	}
+
+	void cubemap_camera_rig::update_view()
+	{
+		for (int i = 0; i < 6; ++i) _cameras[i].update_view();
 	}
 }

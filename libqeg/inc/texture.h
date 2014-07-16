@@ -263,5 +263,36 @@ namespace qeg
 
 		static textureCube* load_dds(device* dev, datablob<byte>* data);
 	};
+
+	template <int D>
+	struct texture_holder
+	{
+	public:
+		texture<D>* tex;
+		texture<D>* oldtex;
+		bool changed;
+		uint slot;
+		shader_stage ss;
+
+		texture_holder(uint slot_, shader_stage ss_)
+			: slot(slot_), ss(ss_) {}
+
+		void set(texture<D>* t) { oldtex = tex; tex = t; changed = true; }
+
+		void bind(device* _dev, shader& s)
+		{
+			if(changed)
+			{
+				if (oldtex != nullptr) oldtex->unbind(_dev, slot, ss);
+				if (tex != nullptr) tex->bind(_dev, slot, ss, s);
+			}
+		}
+
+		void unbind(device* _dev)
+		{
+			if (oldtex != nullptr) oldtex->unbind(_dev, slot, ss);
+			if (tex != nullptr) tex->unbind(_dev, slot, ss);
+		}
+	};
 };
 
