@@ -147,7 +147,6 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Translating Shader</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)%(Filename).csh</Outputs>
     </CustomBuild>
-
     <CustomBuild Include="render2d.vs.shdr">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tvs_5_0 /nologo /Fo$(OutDir)%(Filename).csh ;</Command>
@@ -158,7 +157,7 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Translating Shader</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)%(Filename).csh</Outputs>
     </CustomBuild>
-  <CustomBuild Include="render2d.ps.shdr">
+    <CustomBuild Include="render2d.ps.shdr">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tps_5_0 /nologo /Fo$(OutDir)%(Filename).csh ;</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">
@@ -168,7 +167,6 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Translating Shader</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)%(Filename).csh</Outputs>
     </CustomBuild>
-      
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl">
@@ -203,6 +201,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="debug_render2d.h" />
     <ClInclude Include="simple_shader.h" />
     <ClInclude Include="sky_shader.h" />
   </ItemGroup>

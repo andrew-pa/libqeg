@@ -111,8 +111,13 @@ namespace qeg
 	{
 		vec3(-1.f, 0.f, 0.f),
 		vec3(1.f, 0.f, 0.f),
+#ifdef DIRECTX
 		vec3(0.f, 1.f, 0.f),
 		vec3(0.f, -1.f, 0.f),
+#elif OPENGL
+		vec3(0.f, -1.f, 0.f),
+		vec3(0.f, 1.f, 0.f),
+#endif
 		vec3(0.f, 0.f, 1.f),
 		vec3(0.f, 0.f, -1.f),
 	};

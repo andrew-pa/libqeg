@@ -177,6 +177,9 @@ namespace qeg
 		RG32_FLOAT,// = DXGI_FORMAT_R32G32_FLOAT,
 		RG32_UINT,// = DXGI_FORMAT_R32G32_UINT,
 		RG32_SINT,// = DXGI_FORMAT_R32G32_SINT,
+		R32G8X24_TYPELESS = DXGI_FORMAT_R32G8X24_TYPELESS,
+		D32_FLOAT_S8X24_UINT,
+		R32_FLOAT_X8X24_TYPELESS,
 		RGBA8_TYPELESS = DXGI_FORMAT_R8G8B8A8_TYPELESS,
 		RGBA8_UNORM,// = DXGI_FORMAT_R8G8B8A8_UNORM,
 		RGBA8_UINT,// = DXGI_FORMAT_R8G8B8A8_TYPELESS,
@@ -193,6 +196,9 @@ namespace qeg
 		R32_FLOAT,
 		R32_UINT,
 		R32_SINT,
+		R24G8_TYPELESS = DXGI_FORMAT_R24G8_TYPELESS,
+		D24_UNORM_S8_UINT = DXGI_FORMAT_D24_UNORM_S8_UINT,
+		R24_UNORM_X8_TYPELESS = DXGI_FORMAT_R24_UNORM_X8_TYPELESS,
 		R16_TYPELESS = DXGI_FORMAT_R16_TYPELESS,
 		R16_FLOAT,
 		D16_UNORM,
@@ -205,6 +211,7 @@ namespace qeg
 		R8_UINT,
 		R8_SNORM,
 		R8_SINT,
+		BGRA8_UNORM = DXGI_FORMAT_B8G8R8A8_UNORM
 	};	//this exploits the orderly nature of DXGI_FORMAT enum. if it changes, then this will need to reflect it.
 
 	enum class texture_address_mode
@@ -227,6 +234,9 @@ namespace qeg
 				SysMemSlicePitch = sys_pitch_slice;
 			}
 		};
+
+		pixel_format get_texture_format_for_depth(pixel_format df);
+		pixel_format make_valid_for_srv(pixel_format pf);
 	}
 #endif
 
@@ -254,6 +264,9 @@ namespace qeg
 		RG32_FLOAT = GL_RG32F,
 		RG32_UINT = GL_RG32UI,
 		RG32_SINT = GL_RG32I,
+		R32G8X24_TYPELESS = 112011,
+		D32_FLOAT_S8X24_UINT = GL_DEPTH32F_STENCIL8,
+		R32_FLOAT_X8X24_TYPELESS = 112012,
 		RGBA8_TYPELESS = GL_RGBA8UI,
 		RGBA8_UNORM = GL_RGBA,
 		RGBA8_UINT = GL_RGBA8UI,
@@ -266,23 +279,27 @@ namespace qeg
 		RG16_UNORM = GL_RG16,
 		RG16_SNORM = GL_RG16_SNORM,
 		R32_TYPELESS = GL_R32UI,
-		D32_FLOAT = 0,
+		D32_FLOAT = GL_DEPTH_COMPONENT32F,
 		R32_FLOAT = GL_R32F,
 		R32_UINT = GL_R32UI,
 		R32_SINT = GL_R32I,
 		R16_TYPELESS = GL_R16UI,
 		R16_FLOAT = GL_R16F,
-		D16_UNORM = 0,
+		D16_UNORM = GL_DEPTH_COMPONENT16,
 		R16_UNORM = GL_R16,
 		R16_UINT = GL_R16UI,
 		R16_SNORM = GL_R16_SNORM,
 		R16_SINT = GL_R16I,
+		R24G8_TYPELESS = 111011,
+		D24_UNORM_S8_UINT = GL_DEPTH24_STENCIL8,
+		R24_UNORM_X8_TYPELESS = 111012,
 		R8_TYPELESS = GL_R8UI,
 		R8_UNORM = GL_R8,
 		R8_UINT = GL_R8UI,
 		R8_SNORM = GL_R8_SNORM,
 		R8_SINT = GL_R8I,
 		BGR8_UNORM = GL_BGR,
+		BGRA8_UNORM = GL_BGRA
 	};
 
 	enum class texture_address_mode
@@ -290,7 +307,7 @@ namespace qeg
 		wrap = GL_REPEAT,
 		mirror = GL_MIRRORED_REPEAT,
 		clamp = GL_CLAMP_TO_EDGE,
-		border = GL_CLAMP_TO_BORDER,
+		border = GL_CLAMP_TO_BORDER, 
 		mirror_once = GL_MIRROR_CLAMP_TO_EDGE,
 	};
 
@@ -323,6 +340,9 @@ namespace qeg
 		// returns values like GL_RGBA
 		GLenum get_gl_format_internal(pixel_format f);
 
+		uvec4 get_color_bits(pixel_format f);
+		uvec2 get_depth_stencil_bits(pixel_format f);
+
 		uint get_size(pixel_format f);
 
 		void __check_gl();
@@ -333,6 +353,11 @@ namespace qeg
 
 	size_t bits_per_pixel(pixel_format fmt);
 	inline size_t bytes_per_pixel(pixel_format fmt) { return bits_per_pixel(fmt) / 8; }
+
+	inline bool has_stencil(pixel_format f)
+	{
+		return f == pixel_format::D24_UNORM_S8_UINT;
+	}
 
 	//error_code_exception
 	// exception the resulted from a error code that is failing

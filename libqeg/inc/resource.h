@@ -1,27 +1,13 @@
 #pragma once
 #include "cmmn.h"
 #include "device.h"
+#include "bo_file.h"
+#include "mesh.h"
 
 namespace qeg
 {
 	namespace detail
 	{
-		/*
-1	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RG8_UNORM"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	36	3	txcv
-2	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RGB16_UNORM"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	37	3	txcv
-4	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RG8_SNORM"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	40	3	txcv
-5	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RGB16_SNORM"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	41	3	txcv
-6	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "R32_SNORM"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	42	3	txcv
-7	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RG8_UINT"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	44	3	txcv
-8	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RGB16_UINT"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	45	3	txcv
-9	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RG8_SINT"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	48	3	txcv
-10	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RGB16_SINT"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	49	3	txcv
-11	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "RGB16_FLOAT"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	52	3	txcv
-
-3	IntelliSense: enum "qeg::detail::pi_pixel_format" has no member "R32_UNORM"	c:\Users\andre_000\Source\libqeg\txcv\src\main.cpp	38	3	txcv
-
-	RG8, RGB16 ;, R32
-*/
 		enum class pi_pixel_format
 		{
 			UNKNOWN = 0,
@@ -123,5 +109,16 @@ namespace qeg
 		};
 
 		void* _load_texture(device* dev, const datablob<byte>& file_data);
+	}
+
+	template <typename vertex_type, typename index_type>
+	sys_mesh<vertex_type, index_type> read_mesh(bo_file::chunk& bochunk_v, bo_file::chunk& bochunk_i)
+	{
+		sys_mesh<vertex_type, index_type> m;
+
+		m.vertices = vector<vertex_type>((vertex_type*)bochunk_v.data->data, (vertex_type*)(bochunk_v.data->data + bochunk_v.data->length));
+		m.indices = vector<index_type>((index_type*)bochunk_i.data->data, (index_type*)(bochunk_i.data->data + bochunk_i.data->length));
+
+		return m;
 	}
 }

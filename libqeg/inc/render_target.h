@@ -44,17 +44,23 @@ namespace qeg
 		GLuint _db;
 #endif
 		viewport _vp;
+		texture2d* depth_tex;
+		bool _wstencil;
 	public:
-		render_texture2d(device* dev, uvec2 size, pixel_format f = pixel_format::RGBA32_FLOAT);
-		render_texture2d(device* dev, const viewport& vp, pixel_format f = pixel_format::RGBA32_FLOAT);
+		render_texture2d(device* dev, uvec2 size, pixel_format f = pixel_format::RGBA32_FLOAT,
+			pixel_format df = pixel_format::D32_FLOAT);
+		render_texture2d(device* dev, const viewport& vp, pixel_format f = pixel_format::RGBA32_FLOAT, 
+			pixel_format df = pixel_format::D32_FLOAT);
 		~render_texture2d();
 
 		void ombind(device* _dev) override;
 		inline viewport& mviewport() override { return _vp; }
 
+		inline texture2d const* depth_texture() const { return depth_tex; }
+
 #ifdef DIRECTX
-		render_texture2d(uvec2 size_, ComPtr<ID3D11RenderTargetView> rtv_, ComPtr<ID3D11DepthStencilView> dsv_)
-			: texture2d(size_), rtv(rtv_), dsv(dsv_), _vp(size_) {}
+		render_texture2d(uvec2 size_, ComPtr<ID3D11RenderTargetView> rtv_, ComPtr<ID3D11DepthStencilView> dsv_, bool is_stencil)
+			: texture2d(size_), rtv(rtv_), dsv(dsv_), _vp(size_), _wstencil(is_stencil) {}
 		//render_texture2d(const viewport& vp_, ComPtr<ID3D11RenderTargetView> rtv_, ComPtr<ID3D11DepthStencilView> dsv_)
 		//	: texture2d(vp_.size), rtv(rtv_), dsv(dsv_), _vp(vp_) {}
 		propr(ComPtr<ID3D11RenderTargetView>, render_target, { return rtv; });

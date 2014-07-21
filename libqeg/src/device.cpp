@@ -6,8 +6,8 @@ namespace qeg
 {
 #ifdef WIN32
 #ifdef DIRECTX
-	device::device(vec2 s, void* win_, uint msaa_lvl_)
-		: msaa_level(msaa_lvl_), _window((HWND)win_), win_bnds(s), _back_buffer(nullptr)
+	device::device(vec2 s, void* win_, uint msaa_lvl_, pixel_format _f, pixel_format _df)
+		: msaa_level(msaa_lvl_), _window((HWND)win_), win_bnds(s), _back_buffer(nullptr), f(_f), df(_df)
 	{
 		create_d2d_res();
 		create_device_res();
@@ -53,6 +53,7 @@ namespace qeg
 		chr(xdev.As(&_device));
 		chr(xcntx.As(&_context));
 
+
 		ComPtr<IDXGIDevice> dxgidevice;
 		chr(_device.As(&dxgidevice));
 		chr(_d2factory->CreateDevice(dxgidevice.Get(), &_d2device));
@@ -74,7 +75,7 @@ namespace qeg
 
 		backBuffer.Reset();
 
-		auto fmt = DXGI_FORMAT_B8G8R8A8_UNORM;
+		auto fmt = (DXGI_FORMAT)f;//DXGI_FORMAT_B8G8R8A8_UNORM;
 
 		if (_swap_chain != nullptr)
 		{
@@ -112,7 +113,7 @@ namespace qeg
 #pragma region MSAA
 		if (msaa_level > 1)
 		{
-			CD3D11_TEXTURE2D_DESC desc(DXGI_FORMAT_B8G8R8A8_UNORM, (UINT)win_bnds.x, (UINT)win_bnds.y, 1, 1);
+			CD3D11_TEXTURE2D_DESC desc((DXGI_FORMAT)f, (UINT)win_bnds.x, (UINT)win_bnds.y, 1, 1);
 			desc.BindFlags = D3D11_BIND_RENDER_TARGET;
 			desc.SampleDesc.Count = msaa_level;
 
@@ -141,7 +142,7 @@ namespace qeg
 
 			// Create a depth stencil view.
 			CD3D11_TEXTURE2D_DESC depthStencilDesc(
-				DXGI_FORMAT_D24_UNORM_S8_UINT,
+				(DXGI_FORMAT)df,
 				static_cast<UINT>(win_bnds.x),
 				static_cast<UINT>(win_bnds.y),
 				1,
@@ -169,7 +170,7 @@ namespace qeg
 					)
 				);
 			
-			_back_buffer = new render_texture2d(win_bnds, offscreenRenderTargetView, depth_stencil);
+			_back_buffer = new render_texture2d(win_bnds, offscreenRenderTargetView, depth_stencil, has_stencil(df));
 			push_render_target(new default_render_target);
 		}
 #pragma endregion
@@ -184,7 +185,7 @@ namespace qeg
 			chr(_device->CreateRenderTargetView(backBuffer.Get(), nullptr, &render_target));
 
 			CD3D11_TEXTURE2D_DESC depthStencilDesc(
-				DXGI_FORMAT_D24_UNORM_S8_UINT,
+				(DXGI_FORMAT)df,
 				static_cast<UINT>(win_bnds.x),
 				static_cast<UINT>(win_bnds.y),
 				1,
@@ -198,7 +199,7 @@ namespace qeg
 			CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(D3D11_DSV_DIMENSION_TEXTURE2D);
 			chr(_device->CreateDepthStencilView(depthStencil.Get(), &dsvd, &depth_stencil));
 			
-			_back_buffer = new render_texture2d(win_bnds, render_target, depth_stencil);
+			_back_buffer = new render_texture2d(win_bnds, render_target, depth_stencil, has_stencil(df));
 			push_render_target(new default_render_target);
 		}
 #pragma endregion
@@ -210,7 +211,7 @@ namespace qeg
 		D2D1_BITMAP_PROPERTIES1 bitprop =
 			D2D1::BitmapProperties1(
 			D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-			D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
+			D2D1::PixelFormat((DXGI_FORMAT)f, D2D1_ALPHA_MODE_PREMULTIPLIED),
 			dpi.x,
 			dpi.y); 
 		ComPtr<IDXGISurface> dxgibb;
@@ -242,7 +243,7 @@ else
 	{
 		if (msaa_level > 1)
 		{
-			_context->ResolveSubresource(backBuffer.Get(), 0, offscreenBackBuffer.Get(), 0, DXGI_FORMAT_B8G8R8A8_UNORM);
+			_context->ResolveSubresource(backBuffer.Get(), 0, offscreenBackBuffer.Get(), 0, (DXGI_FORMAT)f);
 		}
 		DXGI_PRESENT_PARAMETERS p = { 0 };
 		auto h = _swap_chain->Present1(1, 0, &p);
@@ -344,7 +345,7 @@ else
 			cdlog << "GL: " << oss.str();//OutputDebugStringA(oss.str().c_str());
 	}
 
-	device::device(vec2 _s, void* win_, uint _aa_samples)
+	device::device(vec2 _s, void* win_, uint _aa_samples, pixel_format f, pixel_format df)
 		: _rtsize(_s), next_uniform_buffer_bind_index(0), wnd((GLFWwindow*)win_)
 	{
 #ifdef legacy

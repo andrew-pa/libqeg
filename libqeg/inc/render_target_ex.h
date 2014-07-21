@@ -12,11 +12,12 @@ namespace qeg
 		GLuint _fbo;
 #endif
 		viewport _vp;
+		bool _wstencil;
 	public:
 		depth_render_texture2d(device* _dev, uvec2 size
-			/*, pixel_format df = pixel_format::D28_UNORM_S8_UINT or whatever when depth formats are supported*/);
+			, pixel_format df = pixel_format::D32_FLOAT /*or whatever when depth formats are supported*/);
 		depth_render_texture2d(device* _dev, const viewport& vp
-			/*, pixel_format df = pixel_format::D28_UNORM_S8_UINT or whatever when depth formats are supported*/);
+			, pixel_format df = pixel_format::D32_FLOAT /*or whatever when depth formats are supported*/);
 
 		void ombind(device* _dev) override;
 		inline viewport& mviewport() override { return _vp; }
@@ -67,9 +68,12 @@ namespace qeg
 		GLuint _fbo[6];
 		GLuint _db;
 #endif
+		bool _wstencil;
 	public:
-		render_textureCube(device* _dev, uint size, pixel_format f = pixel_format::RGBA32_FLOAT);
-		render_textureCube(device* _dev, const viewport& vp, pixel_format f = pixel_format::RGBA32_FLOAT);
+		render_textureCube(device* _dev, uint size, pixel_format f = pixel_format::RGBA32_FLOAT,
+			pixel_format df = pixel_format::D32_FLOAT);
+		render_textureCube(device* _dev, const viewport& vp, pixel_format f = pixel_format::RGBA32_FLOAT,
+			pixel_format df = pixel_format::D32_FLOAT);
 		~render_textureCube();
 
 		inline render_target* target_for_face(uint idx)

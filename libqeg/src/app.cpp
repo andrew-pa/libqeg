@@ -129,7 +129,7 @@ namespace qeg
 	}
 #endif
 #endif
-	app::app(const string& title, vec2 winsize, uint aa_samples, bool vfps, float tmpf)
+	app::app(const string& title, vec2 winsize, uint aa_samples, pixel_format f, pixel_format df, bool vfps, float tmpf)
 		: fps(0), mpf(0), var_fps(vfps), targ_mpf(tmpf), _title(title)
 	{
 #ifdef OPENGL
@@ -198,7 +198,7 @@ namespace qeg
 		GetWindowRect(wnd, &r);
 		SetCursorPos(r.left + ceil(winsize.x/2), r.top + ceil(winsize.y/2));
 
-		_dev = new device(winsize, wnd, aa_samples);
+		_dev = new device(winsize, wnd, aa_samples, f, df);
 		ShowWindow(wnd, SW_SHOW);
 		UpdateWindow(wnd);
 #endif
@@ -211,6 +211,15 @@ namespace qeg
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
+		
+		uvec4 cb = detail::get_color_bits(f);
+		glfwWindowHint(GLFW_RED_BITS, cb.r);
+		glfwWindowHint(GLFW_BLUE_BITS, cb.b);
+		glfwWindowHint(GLFW_GREEN_BITS, cb.g);
+		glfwWindowHint(GLFW_ALPHA_BITS, cb.a);
+		uvec2 db = detail::get_depth_stencil_bits(df);
+		glfwWindowHint(GLFW_DEPTH_BITS, db.x);
+		glfwWindowHint(GLFW_STENCIL_BITS, db.y);
 
 		wnd = glfwCreateWindow((int)floor(winsize.x), (int)floor(winsize.y), title.c_str(), nullptr, nullptr);
 		if(!wnd)
@@ -268,7 +277,7 @@ namespace qeg
 
 		glfwSetCursorPos(wnd, winsize.x / 2, winsize.y / 2);
 
-		_dev = new device(winsize, wnd, aa_samples);
+		_dev = new device(winsize, wnd, aa_samples, f, df);
 #endif
 	}
 

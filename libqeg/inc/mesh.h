@@ -185,7 +185,6 @@ namespace qeg
 			chr(_dev->ddevice()->CreateBuffer(&id, &sdd, &idx_buf));
 		}
 #elif OPENGL
-
 		{
 			glBindVertexArray(vtx_array);
 			glGenBuffers(1, &vtx_buf);
@@ -415,6 +414,121 @@ namespace qeg
 		return m;
 	}
 
+	//mutable_interleaved_mesh<vertex_type, index_type>
+	//	interleaved_mesh is a mesh that uses interleaved vertices, where each vertex is a struct
+	//	vertex_type: vertex data, as a struct. see vertex_position and vertex_position_normal_texture for examples of implementation. 
+	//	index_type:  type for index values. uint16 or uint32 usually
+	//	mutable_interleaved_mesh allows for updating the mesh from the CPU
+	template<typename vertex_type, typename index_type> class mutable_interleaved_mesh : public mesh
+	{
+		uint idx_cnt;
+		uint vtx_cnt;
+#ifdef DIRECTX
+		ComPtr<ID3D11Buffer> vtx_buf;
+		ComPtr<ID3D11Buffer> idx_buf;
+#elif OPENGL
+		GLuint vtx_buf;
+		GLuint idx_buf;
+#endif
+	public:
+		mutable_interleaved_mesh(device* _dev, const vector<vertex_type>& vs, const vector<index_type>& is,
+			const string& name)
+			: mesh(name), vtx_cnt(vs.size()), idx_cnt(is.size())
+#ifdef DIRECTX
+		{
+			CD3D11_BUFFER_DESC vd(sizeof(vertex_type)*vs.size(), D3D11_BIND_VERTEX_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE);
+			CD3D11_BUFFER_DESC id(sizeof(index_type)*is.size(), D3D11_BIND_INDEX_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE);
+			D3D11_SUBRESOURCE_DATA sdd = { 0 };
+			sdd.pSysMem = vs.data();
+			chr(_dev->ddevice()->CreateBuffer(&vd, &sdd, &vtx_buf));
+			sdd.pSysMem = is.data();
+			chr(_dev->ddevice()->CreateBuffer(&id, &sdd, &idx_buf));
+		}
+#elif OPENGL
+		{
+			glBindVertexArray(vtx_array);
+			glGenBuffers(1, &vtx_buf);
+			glGenBuffers(1, &idx_buf);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, is.size()*sizeof(index_type), is.data(), GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_ARRAY_BUFFER, vtx_buf);
+			glBufferData(GL_ARRAY_BUFFER, vs.size()*sizeof(vertex_type), vs.data(), GL_DYNAMIC_DRAW);
+
+			auto vabs = vertex_type::get_vertex_attribs();
+			for (const auto& v : vabs)
+			{
+				glEnableVertexAttribArray(v.idx);
+				glVertexAttribPointer(v.idx, v.count, v.type, GL_FALSE, sizeof(vertex_type), (void*)v.offset);
+			}
+		}
+#endif
+		mutable_interleaved_mesh(device* _dev, const sys_mesh<vertex_type, index_type>& gm, const string& nm)
+			: mutable_interleaved_mesh(_dev, gm.vertices, gm.indices, nm)
+		{}
+
+		void update(device* _dev, const vector<vertex_type>& vs, const vector<index_type>& is)
+#ifdef DIRECTX
+		{
+
+		}
+#elif OPENGL
+		{
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, is.size()*sizeof(index_type), is.data(), GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_ARRAY_BUFFER, vtx_buf);
+			glBufferData(GL_ARRAY_BUFFER, vs.size()*sizeof(vertex_type), vs.data(), GL_DYNAMIC_DRAW);
+		}
+#endif
+
+		void update(device* _dev, const sys_mesh<vertex_type, index_type>& gm)
+		{
+			update(_dev, gm.vertices, gm.indices);
+		}
+		
+		void draw(device* _dev, prim_draw_type dt = prim_draw_type::triangle_list,
+			int index_offset = 0, int oindex_count = -1, int vertex_offset = 0) override
+#ifdef DIRECTX
+		{
+			uint strides[] = { sizeof(vertex_type) };
+			uint offsets[] = { 0 };
+			_dev->context()->IASetVertexBuffers(0, 1, vtx_buf.GetAddressOf(), strides, offsets);
+			_dev->context()->IASetIndexBuffer(idx_buf.Get(), (DXGI_FORMAT)format_for_index_type<index_type>().format, 0);
+			_dev->context()->IASetPrimitiveTopology((D3D11_PRIMITIVE_TOPOLOGY)dt);
+			_dev->context()->DrawIndexed((oindex_count > 0 ? oindex_count : idx_cnt), index_offset, vertex_offset);
+
+		}
+#elif OPENGL
+		{
+			glBindVertexArray(vtx_array);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buf);
+			glDrawElements((GLenum)dt, (oindex_count == -1 ? idx_cnt : oindex_count),
+				GL_UNSIGNED_SHORT, (void*)0); //TODO: Change GL_UNSIGNED_SHORT to whatever the appropriate GL_* const is for the index_type
+		}
+#endif
+
+		~mutable_interleaved_mesh()
+#ifdef DIRECTX
+		{
+		}
+#elif OPENGL
+		{
+			glDeleteBuffers(1, &vtx_buf);
+			glDeleteBuffers(1, &idx_buf);
+		}
+#endif
+
+		propr(uint, index_count, { return idx_cnt; });
+		propr(uint, vertex_count, { return vtx_cnt; });
+#ifdef DIRECTX
+		propr(ID3D11Buffer*, vertex_buffer, { return vtx_buf; });
+		propr(ID3D11Buffer*, index_buffer, { return idx_buf; });
+#elif OPENGL
+		propr(GLuint, vertex_buffer, { return vtx_buf; });
+		propr(GLuint, index_buffer, { return idx_buf; });
+#endif
+	};
 	
 
 	//use interleaved mesh instead!

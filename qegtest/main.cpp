@@ -20,123 +20,7 @@ using namespace qeg;
 #include "simple_shader.h"
 #include "sky_shader.h"
 
-class render2d_shader : public shader
-{
-	constant_buffer<mat4> transform_mat;
-	constant_buffer<uvec4> options_cb;
-
-	//texture2d* tex, *oldtex;
-	//bool _texchanged;
-	texture_holder<2> tex;
-	texture_holder<2> envtex;
-	depth_stencil_state dss;
-	rasterizer_state rss;
-public:
-
-	render2d_shader(device* _dev)
-		: shader(_dev, read_data_from_package(L"render2d.vs.csh"), read_data_from_package(L"render2d.ps.csh")), 
-			transform_mat(_dev, *this, 0, mat4(), shader_stage::vertex_shader),
-			options_cb(_dev, *this, 0, uvec4(0U), shader_stage::pixel_shader),
-			//oldtex(nullptr), _texchanged(false),
-			tex(0, shader_stage::pixel_shader), envtex(1, shader_stage::pixel_shader),
-			dss(_dev, false), rss(_dev, fill_mode::solid, cull_mode::none)
-	{}
-	
-	void set_transform(const mat4& m)
-	{
-		transform_mat.data() = m;
-	}
-
-	void set_texture(texture2d* t)
-	{
-		tex.set(t);
-		//oldtex = tex;
-		//tex = t;
-		options_cb.data().y = 0;
-		//_texchanged = true;
-	}
-	void set_texture(textureCube* t)
-	{
-		envtex.set(t);
-		options_cb.data().y = 1;
-	}
-
-	void is_depth_texture(bool isadepthtexture)
-	{
-		options_cb.data().x = isadepthtexture ? 1U : 0U;
-	}
-
-	void bind(device* _dev) override
-	{
-		shader::bind(_dev);
-		transform_mat.bind(_dev);
-		options_cb.bind(_dev);
-		dss.bind(_dev, 0);
-		rss.bind(_dev);
-	}
-
-	void update(device* _dev) override
-	{
-		shader::update(_dev);
-		transform_mat.update(_dev);
-		options_cb.update(_dev);
-		tex.bind(_dev, *this);
-		envtex.bind(_dev, *this);
-		/*if(_texchanged)
-		{
-			if (oldtex != nullptr)
-				oldtex->unbind(_dev, 0, shader_stage::pixel_shader);
-			if (tex != nullptr)
-				tex->bind(_dev, 0, shader_stage::pixel_shader, *this);
-		}*/
-	}
-
-	void unbind(device* _dev) override
-	{
-		shader::unbind(_dev);
-		tex.unbind(_dev);
-		envtex.unbind(_dev);
-		//tex->unbind(_dev, 0, shader_stage::pixel_shader);
-		transform_mat.unbind(_dev);
-		options_cb.unbind(_dev);
-		dss.unbind(_dev);
-		rss.unbind(_dev);
-	}
-};
-
-template <typename vertex_type, typename index_type>
-sys_mesh<vertex_type, index_type> generate_screen_quad(vec2 offset, vec2 size)
-{
-	sys_mesh<vertex_type, index_type> m;
-
-	const vec2 z[] = 
-	{
-		vec2(1, 1),
-		vec2(1, -1),
-		vec2(-1, -1),
-		vec2(-1, 1),
-	};
-
-	m.vertices.push_back(vertex_type(vec3(offset + size*z[0], 0), vec3(0, 1, 0),
-		vec3(1, 0, 0), abs((z[0] - vec2(1.f))*vec2(.5f, .5f)) ));
-	m.vertices.push_back(vertex_type(vec3(offset + size*z[1], 0), vec3(0, 1, 0),
-		vec3(1, 0, 0), abs((z[1] - vec2(1.f))*vec2(.5f, .5f)) ));
-	m.vertices.push_back(vertex_type(vec3(offset + size*z[2], 0), vec3(0, 1, 0),
-		vec3(1, 0, 0), abs((z[2] - vec2(1.f))*vec2(.5f, .5f)) ));
-	m.vertices.push_back(vertex_type(vec3(offset + size*z[3], 0), vec3(0, 1, 0),
-		vec3(1, 0, 0), abs((z[3] - vec2(1.f))*vec2(.5f, .5f)) ));
-	
-	m.indices.push_back(0);
-	m.indices.push_back(1);
-	m.indices.push_back(2);
-
-	m.indices.push_back(2);
-	m.indices.push_back(3);
-	m.indices.push_back(0);
-
-	
-	return m;
-}
+#include "debug_render2d.h"
 
 const static vec4 diffuse_ramp_data[8] =
 {
@@ -151,6 +35,112 @@ const static vec4 diffuse_ramp_data[8] =
 };
 
 #include "render_target_ex.h"
+
+vec3 readvec3(ifstream& i)
+{
+	float x, y, z;
+	i >> x >> y >> z;
+	return vec3(x, y, z);
+}
+bool v3e(vec3 a, vec3 b)
+{
+	return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+bool v2e(vec2 a, vec2 b)
+{
+	return a.x == b.x && a.y == b.y;
+}
+
+class model
+{
+	vector<mesh*> meshes;
+	function<void(device*, uint)> mat_bind;
+	function<void(device*, uint)> mat_unbind;
+
+	void draw(device* _dev)
+	{
+		for (int i = 0; i < meshes.size(); ++i)
+		{
+			mat_bind(_dev, i);
+			meshes[i]->draw(_dev);
+			mat_unbind(_dev, i);
+		}
+	}
+};
+
+sys_mesh<vertex_position_normal_texture, uint16> load_obj(const string& OBJfilename)
+{
+	sys_mesh<vertex_position_normal_texture, uint16> m;
+#pragma region read obj
+	vector<vec3> poss;
+	vector<vec3> norms;
+	vector<vec2> texcords;
+
+	ifstream inf(OBJfilename);
+	char comm[256] = { 0 };
+
+	while (inf)
+	{
+		inf >> comm;
+		if (!inf) break;
+		if (strcmp(comm, "#") == 0) continue;
+		else if (strcmp(comm, "v") == 0)
+			poss.push_back(readvec3(inf));
+		else if (strcmp(comm, "vn") == 0)
+			norms.push_back(readvec3(inf));
+		else if (strcmp(comm, "vt") == 0)
+		{
+			float u, v;
+			inf >> u >> v;
+			texcords.push_back(vec2(u, v));
+		}
+		else if (strcmp(comm, "f") == 0)
+		{
+			for (uint ifa = 0; ifa < 3; ++ifa)
+			{
+				vertex_position_normal_texture v;
+				uint ip, in, it;
+				inf >> ip;
+				v.pos = poss[ip - 1];
+				if ('/' == inf.peek())
+				{
+					inf.ignore();
+					if ('/' != inf.peek())
+					{
+						inf >> it;
+						v.tex = texcords[it - 1];
+					}
+					if ('/' == inf.peek())
+					{
+						inf.ignore();
+						inf >> in;
+						v.norm = norms[in - 1];
+					}
+				}
+
+				auto iv = find_if(m.vertices.begin(), m.vertices.end(),
+					[&](const vertex_position_normal_texture& a)
+				{
+					bool pe = v3e(v.pos, a.pos);
+					bool ne = v3e(v.norm, a.norm);
+					bool te = v2e(v.tex, a.tex);
+					return pe && ne && te; 
+				});
+				if (iv == m.vertices.end())
+				{
+					m.indices.push_back(m.vertices.size());
+					m.vertices.push_back(v);
+				}
+				else
+				{
+					m.indices.push_back(std::distance(m.vertices.begin(), iv));
+				}
+			}
+		}
+	}
+#pragma endregion
+	return m;
+}
 
 //Tested Now
 //meshes, constant_buffer, camera(s), gamepad, keyboard, rasterizer_state, app, device, render_texture2d, timer,
@@ -167,6 +157,7 @@ class qegtest_app : public app
 	mesh* ground;
 	mesh* torus;
 	mesh* portal;
+	mesh* knot;
 
 	fps_camera cam;
 	camera other_cam;
@@ -178,6 +169,8 @@ class qegtest_app : public app
 	float wireframe_timer;
 
 	blend_state bs_weird;
+
+	depth_stencil_state dss;
 
 	vec3 ball_pos;
 
@@ -206,13 +199,13 @@ public:
 #elif OPENGL
 		"libqeg test (OpenGL)",
 #endif
-		vec2(1280, 960), 8, false, 1.f / 60.f),
+		vec2(1280, 960), 8, pixel_format::BGRA8_UNORM, pixel_format::D32_FLOAT_S8X24_UINT),
 
 		shd(_dev), skshd(_dev), r2ds(_dev),
 		
 		cam(vec3(0, 3, -5), vec3(0.1f), radians(45.f), _dev->size(), 10.f, 2.f, ctrl0),
 		other_cam(vec3(0, 4, -10), vec3(0.1f)-vec3(0,2,-5), radians(45.f), vec2(1024)),
-		rcb_rig(vec3(0, 4, -10), vec2(1024)),
+		rcb_rig(vec3(0, 4, 0), vec2(1024)),
 		ctrl0(0), 
 		
 		wireframe_rs(_dev, fill_mode::wireframe, cull_mode::none), render_wireframe(false),
@@ -223,16 +216,19 @@ public:
 				blend_state::render_target_blend_state_desc(true, blend_factor::src_alpha,
 				blend_factor::inv_src_alpha, blend_op::add, blend_factor::one,
 				blend_factor::zero, blend_op::add, write_mask::enable_all),
-			}), 
+			}),  
 
-		ball_pos(0, 1, 0),
+		ball_pos(0, 1, -6),
 		
 		ss(_dev),
 		tex(*texture2d::load(_dev, read_data_from_package(L"checker.tex"))),
 		sky(*textureCube::load(_dev, read_data_from_package(L"testcm.tex"))),
-		portal_tex(_dev, uvec2(1024)),
-		depth_tex(_dev, uvec2(1024)), rcb(_dev, 1024),
-		sky_dss(_dev, true, true, comparison_func::less_equal)
+		portal_tex(_dev, uvec2(1024), pixel_format::RGBA32_FLOAT, pixel_format::D24_UNORM_S8_UINT),
+		depth_tex(_dev, uvec2(1024), pixel_format::D32_FLOAT_S8X24_UINT), rcb(_dev, 1024),
+		sky_dss(_dev, true, true, comparison_func::less_equal),
+		dss(_dev, true, true, comparison_func::less, true, 0xff, 0xff, 
+				depth_stencil_state::depthstencil_op(stencil_op::decr, 
+				stencil_op::keep, stencil_op::incr, comparison_func::equal))
 	{
 		//generate scene meshes
 		ball = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, generate_sphere<vertex_position_normal_texture,uint16>(1.f, 64, 64), "ball");
@@ -241,6 +237,21 @@ public:
 		portal = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev,
 			generate_plane<vertex_position_normal_texture, uint16>(vec2(4), vec2(16), vec3(.5f, 0, .5f)), "portal");
 		
+		//auto g = load_obj("C:\\Users\\andre_000\\Source\\libqeg\\DebugGL\\knot.obj");
+		bo_file bf(bo_file::file_type::generic);
+		/*bf.chunks().push_back(bo_file::chunk(0,
+			new datablob<byte>((byte*)g.vertices.data(), g.vertices.size()*sizeof(vertex_position_normal_texture))));
+		bf.chunks().push_back(bo_file::chunk(1,
+			new datablob<byte>((byte*)g.indices.data(), g.indices.size()*sizeof(uint16))));
+		auto x = bf.write();
+		FILE* f = fopen("knot.mdl", "wb");
+		fwrite(x.data, x.length, 1, f);
+		fclose(f);*/
+		bf = bo_file(read_data(L"knot.mdl"));
+		auto om = read_mesh<vertex_position_normal_texture,uint16>(bf.chunks()[0], bf.chunks()[1]);
+		knot = new interleaved_mesh<vertex_position_normal_texture, uint16>(_dev, om, "knot");
+
+
 		//generate sky dome mesh
 		sky_mesh = new interleaved_mesh<vertex_position, uint16>(_dev, generate_sphere<vertex_position, uint16>(2.f, 32, 32), "sky");
 		
@@ -337,24 +348,32 @@ public:
 		ground->draw(_dev);
 
 		//draw the portal
-		if (with_rendered_textures) shd.diffuse_tex(&portal_tex); //if this is the render to render the texture, then use the rendered texture
-		shd.world(translate(mat4(1), vec3(4, 2, 4)));
-		shd.material(simple_shader::mat(vec3(.9f, .9f, .9f), 0.f));
-		shd.update(_dev);
-		portal->draw(_dev);
-		if (with_rendered_textures) shd.diffuse_tex(&tex); //reset the texture if needed
+		//if (with_rendered_textures) shd.diffuse_tex(&portal_tex); //if this is the render to render the texture, then use the rendered texture
+		//shd.world(translate(mat4(1), vec3(4, 2, 4)));
+		//shd.material(simple_shader::mat(vec3(.9f, .9f, .9f), 0.f));
+		//shd.update(_dev);
+		//portal->draw(_dev);
+		//if (with_rendered_textures) shd.diffuse_tex(&tex); //reset the texture if needed
 
+		dss.bind(_dev, -1);
 		//draw the ball
 		shd.world(translate(mat4(1), ball_pos));
 		shd.material(simple_shader::mat(vec3(.8f, .45f, 0.f), 64.f));
 		shd.update(_dev);
 		ball->draw(_dev);
+
+		//draw the knot
+		shd.world(translate(mat4(1), vec3(4,1.5f,6)));
+		shd.material(simple_shader::mat(vec3(.0f, .45f, .8f), 64.f));
+		shd.update(_dev);
+		knot->draw(_dev);
+		dss.unbind(_dev);
 		
 		//bind the 'weird' blend state
 		bs_weird.bind(_dev);
 
 		//draw the torus
-		shd.world(rotate(translate(mat4(1), vec3(-3, 1.4f, 3)), t, vec3(.2f, .6f, .4f)));
+		shd.world(rotate(translate(mat4(1), vec3(-4, 1.4f, 6)), t, vec3(.2f, .6f, .4f)));
 		shd.material(simple_shader::mat(vec3(.1f, .8f, .1f), 256.f));
 		shd.update(_dev);
 		torus->draw(_dev);
@@ -404,10 +423,10 @@ public:
 			quad_mesh->draw(_dev);
 			r2ds.unbind(_dev);
 			r2ds.bind(_dev);
-			r2ds.set_transform(mat4(.3f, 0, 0, 0,
-				0, .3f, 0, 0,
+			r2ds.set_transform(mat4(.2f, 0, 0, 0,
+				0, .2f, 0, 0,
 				0, 0, 1, 0,
-				-.45f, .65f, 0, 1));
+				-.25f, .75f, 0, 1));
 			r2ds.set_texture(&rcb);
 			r2ds.is_depth_texture(false);
 			r2ds.update(_dev);
@@ -442,6 +461,10 @@ public:
 
 		//render main view
 		render(t, dt, cam, true);
+	}
+
+	~qegtest_app()
+	{
 	}
 };
 

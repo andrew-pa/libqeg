@@ -9,6 +9,7 @@ namespace qeg
 	class device
 	{
 		stack<render_target*> rt_sk;
+		pixel_format f, df;
 	protected:
 #ifdef WIN32
 #ifdef OPENGL
@@ -77,7 +78,8 @@ namespace qeg
 #endif
 	public:
 		device(){}
-		device(vec2 _s , void* win_, uint aa_lvl_ = 4);
+		device(vec2 _s , void* win_, uint aa_lvl_ = 4,
+			pixel_format f = pixel_format::BGRA8_UNORM, pixel_format df = pixel_format::D32_FLOAT);
 		~device();
 		inline render_target* current_render_target() const;
 		void pop_render_target();

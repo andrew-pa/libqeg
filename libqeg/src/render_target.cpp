@@ -3,29 +3,33 @@
 namespace qeg
 {
 #ifdef DIRECTX
-	render_texture2d::render_texture2d(device* dev, uvec2 size_, pixel_format f)
+	render_texture2d::render_texture2d(device* dev, uvec2 size_, pixel_format f, pixel_format df)
 		: texture2d(dev, CD3D11_TEXTURE2D_DESC((DXGI_FORMAT)f, size_.x, size_.y, 1, 1, 
-			D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)), _vp(size_)
+			D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)), _vp(size_), _wstencil(has_stencil(df))
 	{
-		CD3D11_TEXTURE2D_DESC dd(DXGI_FORMAT_R24G8_TYPELESS, size_.x, size_.y);
+		CD3D11_TEXTURE2D_DESC dd((DXGI_FORMAT)detail::get_texture_format_for_depth(df)/*DXGI_FORMAT_R24G8_TYPELESS*/, size_.x, size_.y);
 		dd.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		ComPtr<ID3D11Texture2D> dst;
-		chr(dev->ddevice()->CreateTexture2D(&dd, nullptr, &dst));
-		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(dst.Get(), D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT);
+		//chr(dev->ddevice()->CreateTexture2D(&dd, nullptr, &dst));
+		depth_tex = new texture2d(dev, dd);
+		dst = depth_tex->texture2D();
+		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(dst.Get(), D3D11_DSV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)df /*DXGI_FORMAT_D24_UNORM_S8_UINT*/);
 		chr(dev->ddevice()->CreateDepthStencilView(dst.Get(), &dsvd, dsv.GetAddressOf()));
 		CD3D11_RENDER_TARGET_VIEW_DESC rsvd(texd.Get(), D3D11_RTV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)f);
 		chr(dev->ddevice()->CreateRenderTargetView(texd.Get(), &rsvd, &rtv));
 	}
 
-	render_texture2d::render_texture2d(device* dev, const viewport& vp, pixel_format f)
+	render_texture2d::render_texture2d(device* dev, const viewport& vp, pixel_format f, pixel_format df)
 		: texture2d(dev, CD3D11_TEXTURE2D_DESC((DXGI_FORMAT)f, vp.size.x, vp.size.y, 1, 1,
-		D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)), _vp(vp)
+		D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE)), _vp(vp), _wstencil(has_stencil(df))
 	{
-		CD3D11_TEXTURE2D_DESC dd(DXGI_FORMAT_R24G8_TYPELESS, _vp.size.x, _vp.size.y);
+		CD3D11_TEXTURE2D_DESC dd((DXGI_FORMAT)detail::get_texture_format_for_depth(df)/*DXGI_FORMAT_R24G8_TYPELESS*/, _vp.size.x, _vp.size.y);
 		dd.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		ComPtr<ID3D11Texture2D> dst;
-		chr(dev->ddevice()->CreateTexture2D(&dd, nullptr, &dst));
-		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(dst.Get(), D3D11_DSV_DIMENSION_TEXTURE2D, DXGI_FORMAT_D24_UNORM_S8_UINT);
+		//chr(dev->ddevice()->CreateTexture2D(&dd, nullptr, &dst));
+		depth_tex = new texture2d(dev, dd);
+		dst = depth_tex->texture2D();
+		CD3D11_DEPTH_STENCIL_VIEW_DESC dsvd(dst.Get(), D3D11_DSV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)df /*DXGI_FORMAT_D24_UNORM_S8_UINT*/);
 		chr(dev->ddevice()->CreateDepthStencilView(dst.Get(), &dsvd, dsv.GetAddressOf()));
 		CD3D11_RENDER_TARGET_VIEW_DESC rsvd(texd.Get(), D3D11_RTV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)f);
 		chr(dev->ddevice()->CreateRenderTargetView(texd.Get(), &rsvd, &rtv));
@@ -67,10 +71,9 @@ namespace qeg
 		}
 	}
 #elif defined(OPENGL)
-	render_texture2d::render_texture2d(device* dev, uvec2 size, pixel_format f)
-		: texture2d(size), _vp(size)
+	render_texture2d::render_texture2d(device* dev, uvec2 size, pixel_format f, pixel_format df)
+		: texture2d(size), _vp(size), _wstencil(has_stencil(df))
 	{	
-
 		glGenFramebuffers(1, &_fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
 
@@ -83,19 +86,18 @@ namespace qeg
 		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _id, 0);
 
 		glBindTexture(GL_TEXTURE_2D, _db);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _size.x, _size.y, 0,
-			GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, (GLenum)df, _size.x, _size.y, 0,
+			detail::get_gl_format_internal(df), detail::get_gl_format_type(df), 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, _wstencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
 
-	render_texture2d::render_texture2d(device* dev, const viewport& vp, pixel_format f)
-		: texture2d(vp.size), _vp(vp)
+	render_texture2d::render_texture2d(device* dev, const viewport& vp, pixel_format f, pixel_format df)
+		: texture2d(vp.size), _vp(vp), _wstencil(has_stencil(df))
 	{	
-
 		glGenFramebuffers(1, &_fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
 
@@ -110,7 +112,7 @@ namespace qeg
 		glBindTexture(GL_TEXTURE_2D, _db);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, _size.x, _size.y, 0,
 			GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
+		glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, _wstencil ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _db, 0);
 
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
@@ -126,6 +128,7 @@ namespace qeg
 		glDepthRange(_vp.min_depth < 0 ? 0.f : _vp.min_depth, 
 			_vp.max_depth < 0 ? 1.f : _vp.max_depth);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		if (_wstencil) glClear(GL_STENCIL_BITS);
 	}
 
 	void default_render_target::ombind(device* _dev)

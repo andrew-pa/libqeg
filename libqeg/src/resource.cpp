@@ -1,5 +1,4 @@
 #include "resource.h"
-#include "bo_file.h"
 #include "texture.h"
 
 namespace qeg

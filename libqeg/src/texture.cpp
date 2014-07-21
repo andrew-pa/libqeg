@@ -111,7 +111,7 @@ namespace qeg
 		: texture(uvec2(desc.Width, desc.Height))
 	{
 		chr(dev->ddevice()->CreateTexture2D(&desc, nullptr, &texd));
-		CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc(texd.Get(), D3D11_SRV_DIMENSION_TEXTURE2D, desc.Format);
+		CD3D11_SHADER_RESOURCE_VIEW_DESC srvdesc(texd.Get(), D3D11_SRV_DIMENSION_TEXTURE2D, (DXGI_FORMAT)detail::make_valid_for_srv((pixel_format)desc.Format));
 		chr(dev->ddevice()->CreateShaderResourceView(texd.Get(), &srvdesc, &srv));
 	}
 

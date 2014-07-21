@@ -18,7 +18,9 @@ namespace qeg
 		GLFWwindow* wnd;
 #endif
 	public:
-		app(const string& title, vec2 winsize, uint aa_samples, bool vfps = false, float tmpf = 1.f/70.f);
+		app(const string& title, vec2 winsize, uint aa_samples, 
+			pixel_format f = pixel_format::BGRA8_UNORM, pixel_format df = pixel_format::D32_FLOAT,
+			bool vfps = false, float tmpf = 1.f/70.f);
 
 		~app();
 		

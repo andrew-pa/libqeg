@@ -30,9 +30,12 @@
     <CustomBuild Include="test1.dds" />
     <CustomBuild Include="testcm.dds" />
     <CustomBuild Include="test1.dds" />
-    <CustomBuild Include="*.dds" />
+    <CustomBuild Include="test1.dds" />
+    <CustomBuild Include="testcm.dds" />
     <CustomBuild Include="checker.dds" />
     <CustomBuild Include="testcm.dds" />
+    <CustomBuild Include="render2d.vs.shdr" />
+    <CustomBuild Include="render2d.ps.shdr" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl" />
@@ -44,9 +47,8 @@
     <ClInclude Include="simple_shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="render2d.vs.shdr" />
-    <None Include="render2d.ps.shdr" />
+    <ClInclude Include="debug_render2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
