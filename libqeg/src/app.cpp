@@ -235,13 +235,13 @@ namespace qeg
 		glfwSetKeyCallback(wnd, [](GLFWwindow* w, int key, int scancode, int action, int mods) 
 		{
 			//auto p = (app*)glfwGetWindowUserPointer(w);
-			input::keyboard::__update(translate_key(key), action == GLFW_PRESS || action == GLFW_REPEAT);
 			if (check_flag(GLFW_MOD_SHIFT, mods))
 				input::keyboard::__update(input::key::shift, action == GLFW_PRESS || action == GLFW_REPEAT);
-			if (check_flag(GLFW_MOD_CONTROL, mods))
+			else if (check_flag(GLFW_MOD_CONTROL, mods))
 				input::keyboard::__update(input::key::control, action == GLFW_PRESS || action == GLFW_REPEAT);
-			if (check_flag(GLFW_MOD_ALT, mods))
+			else if (check_flag(GLFW_MOD_ALT, mods))
 				input::keyboard::__update(input::key::menu, action == GLFW_PRESS || action == GLFW_REPEAT);
+			input::keyboard::__update(translate_key(key), action == GLFW_PRESS || action == GLFW_REPEAT);
 		});
 		glfwSetMouseButtonCallback(wnd, [](GLFWwindow* w, int button, int action, int mods) 
 		{

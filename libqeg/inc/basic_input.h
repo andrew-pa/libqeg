@@ -155,6 +155,7 @@ namespace qeg
               numlock    =	0x90,
               scrllock   =	0x91,
 
+			  //the (l/r)shift, (l/r)ctrl & (l/r)menu are redundant with shift, control, and menu. should be removed
 			  lshift	 =	0xA0,
 			  rshift,
 			  lctrl,
@@ -175,8 +176,14 @@ namespace qeg
 			  quote,	// Std = ' '" ' key (single/double quote)
 
 		};
-
 #endif
+		enum class mod_key : byte
+		{
+			none = 0x0,
+			control = 0x1,
+			shift = 0x2,
+			alt = 0x4,
+		};
 		
 		class keyboard
 		{
@@ -185,6 +192,7 @@ namespace qeg
 			{
 			public:
 				bool key_down(key k) const;
+				mod_key mods() const;
 				bool key_pressed(key k) const;
 			};
 			inline static const state get_state() { return state();  }

@@ -95,7 +95,7 @@ namespace qeg
 	template <typename flag_type>
 	inline bool check_flag(flag_type check_for, flag_type in)
 	{
-		return (in&check_for) == check_for;
+		return ((uint)in&(uint)check_for) == (uint)check_for;
 	}
 
 #define pi glm::pi<float>()

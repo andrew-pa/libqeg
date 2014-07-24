@@ -39,6 +39,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PixelShader.hlsl" />
+    <FxCompile Include="GeometryShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sky_shader.h">
@@ -48,6 +49,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="debug_render2d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="old_qegtest_app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qegtests_app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="testscene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simple_scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

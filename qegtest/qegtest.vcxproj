@@ -169,6 +169,14 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="GeometryShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Pixel</ShaderType>
@@ -182,6 +190,7 @@
       <Outputs>C:\Users\andre_000\Source\libqeg\DebugDX\checker.tex</Outputs>
       <LinkObjects>false</LinkObjects>
       <TreatOutputAsContent>true</TreatOutputAsContent>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">txcv C:\Users\andre_000\Source\libqeg\qegtest\checker.dds $(TargetDir)checker.tex</Command>
     </CustomBuild>
     <CustomBuild Include="test1.dds">
       <Command>txcv C:\Users\andre_000\Source\libqeg\qegtest\test1.dds C:\Users\andre_000\Source\libqeg\DebugDX\test1.tex</Command>
@@ -202,8 +211,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="debug_render2d.h" />
+    <ClInclude Include="old_qegtest_app.h" />
+    <ClInclude Include="qegtests_app.h" />
+    <ClInclude Include="simple_scene.h" />
     <ClInclude Include="simple_shader.h" />
     <ClInclude Include="sky_shader.h" />
+    <ClInclude Include="testscene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

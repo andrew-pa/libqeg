@@ -40,6 +40,7 @@ namespace qeg
 		}
 
 		bool key_state[160], last_key_state[160];
+		mod_key mod_state;
 
 		bool keyboard::state::key_down(key k) const
 		{
@@ -51,8 +52,40 @@ namespace qeg
 			return !last_key_state[(int)k] && key_state[(int)k];
 		}
 
+		mod_key keyboard::state::mods() const
+		{
+			return mod_state;
+		}
+
 		void keyboard::__update(key kc, bool s)
 		{
+			if (kc == key::control) 
+				if (s) 
+				{
+					mod_state = (mod_key)((byte)mod_state | (byte)mod_key::control);
+				}
+				else 
+				{
+					mod_state = (mod_key)((byte)mod_state ^ (byte)mod_key::control); 
+				}
+			if (kc == key::shift)
+				if (s)
+				{
+					mod_state = (mod_key)((byte)mod_state | (byte)mod_key::shift);
+				}
+				else
+				{
+					mod_state = (mod_key)((byte)mod_state ^ (byte)mod_key::shift);
+				}
+			if (kc == key::menu)
+				if (s)
+				{
+					mod_state = (mod_key)((byte)mod_state | (byte)mod_key::alt);
+				}
+				else
+				{
+					mod_state = (mod_key)((byte)mod_state ^ (byte)mod_key::alt);
+				}
 			last_key_state[(int)kc] = key_state[(int)kc];
 			key_state[(int)kc] = s;
 		}
