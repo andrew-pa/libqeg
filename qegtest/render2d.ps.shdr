@@ -46,9 +46,13 @@ float intersect(vec3 rayOrigin, vec3 rayDir, vec3 sphereCenter, float radius)
 
 void main()
 {
+	vec2 texmul = vec2(1.);
+#ifdef GLSL
+	texmul.y = -1.;
+#endif
 	if(options.x > 0)
 	{
-		float depth = sample_texture(tex, input.texc).x;
+		float depth = sample_texture(tex, input.texc*texmul).x;
 		float x = pow(1. - (1. - depth) * 50., 2.4);
 		output.color = vec4(hsv2rgb(vec3(.04, max(.1, 1-x), max(.1, x))), 1.);
 	}
@@ -66,11 +70,11 @@ void main()
 		vec3 p = ro+rd*t;
 		vec3 n = normalize(vec3(0.)-p);
 
-		if(t > 0) output.color = sample_texture(envtex, vec3(-1.,1.,-1.)*reflect(n, rd))*max(0.8, dot(n, vec3(0, 1., 0)));
+		if(t > 0) output.color = sample_texture(envtex, vec3(-1.,texmul.y,-1.)*reflect(n, rd))*max(0.8, dot(n, vec3(0, 1., 0)));
 		else output.color = vec4(.2);
 	}
 	else
 	{
-		output.color = sample_texture(tex, input.texc);
+		output.color = sample_texture(tex, input.texc*texmul);
 	}
 }

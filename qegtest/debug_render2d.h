@@ -99,15 +99,22 @@ sys_mesh<vertex_type, index_type> generate_screen_quad(vec2 offset, vec2 size)
 		vec2(-1, -1),
 		vec2(-1, 1),
 	};
+	const vec2 t[] =
+	{
+		vec2(0, 0),
+		vec2(0, 1),
+		vec2(1, 1),
+		vec2(1, 0),
+	};
 
 	m.vertices.push_back(vertex_type(vec3(offset + size*z[0], 0), vec3(0, 1, 0),
-		vec3(1, 0, 0), abs((z[0] - vec2(1.f))*vec2(.5f, .5f))));
+		vec3(1, 0, 0), t[0]));
 	m.vertices.push_back(vertex_type(vec3(offset + size*z[1], 0), vec3(0, 1, 0),
-		vec3(1, 0, 0), abs((z[1] - vec2(1.f))*vec2(.5f, .5f))));
+		vec3(1, 0, 0), t[1]));
 	m.vertices.push_back(vertex_type(vec3(offset + size*z[2], 0), vec3(0, 1, 0),
-		vec3(1, 0, 0), abs((z[2] - vec2(1.f))*vec2(.5f, .5f))));
+		vec3(1, 0, 0), t[2]));
 	m.vertices.push_back(vertex_type(vec3(offset + size*z[3], 0), vec3(0, 1, 0),
-		vec3(1, 0, 0), abs((z[3] - vec2(1.f))*vec2(.5f, .5f))));
+		vec3(1, 0, 0), t[3]));
 
 	m.indices.push_back(0);
 	m.indices.push_back(1);

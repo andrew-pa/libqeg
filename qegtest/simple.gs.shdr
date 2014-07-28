@@ -1,0 +1,40 @@
+$geometry_shader(6)
+
+input(triangle)
+{
+	vec4 pos : rs_position;
+	vec3 posW : position;
+	vec3 normW : normal;
+	vec2 texc : texcoord;
+}
+output(triangle)
+{
+	vec4 pos : rs_position;
+	vec3 posW : position;
+	vec3 normW : normal;
+	vec2 texc : texcoord;
+}
+
+void main()
+{
+	for(uint i = 0; i < 3; ++i)
+	{
+		output.pos = inputs[i].pos;
+		output.posW = inputs[i].posW;
+		output.normW = inputs[i].normW;
+		output.texc = inputs[i].texc;
+		emit_vertex();
+	}
+	end_primitive();
+
+	for(uint i = 0; i < 3; ++i)
+	{
+		output.pos = inputs[i].pos * vec4(1+., -1., 1., 1.);
+		output.posW = inputs[i].posW;
+		output.normW = inputs[i].normW;
+		output.texc = inputs[i].texc;
+		emit_vertex();
+	}
+	end_primitive();
+}
+

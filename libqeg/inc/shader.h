@@ -11,17 +11,18 @@ namespace qeg
 #ifdef DIRECTX
 		ComPtr<ID3D11VertexShader> vertex_sh;
 		ComPtr<ID3D11PixelShader> pixel_sh;
+		ComPtr<ID3D11GeometryShader> geom_sh;
 		ComPtr<ID3D11InputLayout> inplo; //this should be in mesh, but it has a dependency on the VS bytecode only in DX, which is lame
-
 #endif
 #ifdef OPENGL
-		GLuint _id, _idvp, _idfp;
+		GLuint _id, _idvp, _idfp, _idgp;
 #endif
 	public:
 #ifdef DIRECTX
 		shader(device* _dev, const datablob<byte>& vs_data, const datablob<byte>& ps_data, const D3D11_INPUT_ELEMENT_DESC lo[], size_t cnt);
 #endif
-		shader(device* _dev, const datablob<byte>& vs_data, const datablob<byte>& ps_data);
+		shader(device* _dev, const datablob<byte>& vs_data, const datablob<byte>& ps_data = datablob<byte>(),
+			const datablob<byte>& gs_data = datablob<byte>());
 		~shader();
 
 		virtual void bind(device* _dev);

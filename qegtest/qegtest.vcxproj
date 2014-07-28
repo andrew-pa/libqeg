@@ -126,6 +126,17 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Translating Shader</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)%(Filename).csh</Outputs>
     </CustomBuild>
+    <CustomBuild Include="simple.gs.shdr">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tgs_5_0 /nologo /Fo "$(OutDir)%(Filename).csh" ;</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">Translating shader</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">$(OutDir)%(Filename).csh</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">cosl.exe -glsl 400 %(FullPath) $(OutDir)%(Filename).csh</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">$(OutDir)%(Filename).csh</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">false</LinkObjects>
+      <TreatOutputAsContent Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">true</TreatOutputAsContent>
+      <Message Condition="'$(Configuration)|$(Platform)'=='DebugGL|Win32'">Translating Shader</Message>
+    </CustomBuild>
     <CustomBuild Include="sky.ps.shdr">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='DebugDX|Win32'">cosl.exe -hlsl %(FullPath) $(IntDir)%(Filename).hlsl -c /Tps_5_0 /nologo /Fo "$(OutDir)%(Filename).csh" ;</Command>

@@ -48,7 +48,8 @@ protected:
 	bool _tex_changed;
 public:
 	simple_shader(device* _dev)
-		: shader(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")),
+		: shader(_dev, read_data_from_package(L"simple.vs.csh"), read_data_from_package(L"simple.ps.csh")
+			, read_data_from_package(L"simple.gs.csh")),
 		vsmt_cb(_dev, *this, 0, vs_matxs(), shader_stage::vertex_shader),
 		mat_cb(_dev, *this, 0, mat(), shader_stage::pixel_shader),
 		li_cb(_dev, *this, 1, lighting_cbd(), shader_stage::pixel_shader),

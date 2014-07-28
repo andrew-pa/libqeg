@@ -403,7 +403,7 @@ namespace qeg
 
 	enum class shader_stage
 	{
-		pixel_shader, vertex_shader, //... other shaders
+		pixel_shader, vertex_shader, geometry_shader //... other shaders
 	};
 
 	template <int Dim, class T, precision P>

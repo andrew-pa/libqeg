@@ -78,13 +78,17 @@ namespace qeg
 		void bind(device* _dev)
 #ifdef DIRECTX 
 		{
-			if (_ss == shader_stage::vertex_shader)
+			switch (_ss)
 			{
-				_dev->context()->VSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
-			}
-			else if (_ss == shader_stage::pixel_shader)
-			{
+			case qeg::shader_stage::pixel_shader:
 				_dev->context()->PSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
+				break;
+			case qeg::shader_stage::vertex_shader:
+				_dev->context()->VSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
+				break;
+			case qeg::shader_stage::geometry_shader:
+				_dev->context()->GSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
+				break;
 			}
 		}
 #elif OPENGL
@@ -94,14 +98,7 @@ namespace qeg
 		void bind(device* _dev, shader& ov_shd)
 #ifdef DIRECTX 
 		{
-			if (_ss == shader_stage::vertex_shader)
-			{
-				_dev->context()->VSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
-			}
-			else if (_ss == shader_stage::pixel_shader)
-			{
-				_dev->context()->PSSetConstantBuffers(_slot, 1, _buf.GetAddressOf());
-			}
+			bind(_dev);
 		}
 #elif OPENGL
 		{
@@ -116,14 +113,17 @@ namespace qeg
 #ifdef DIRECTX 
 		{				
 			ID3D11Buffer* nb[] = { nullptr };
-
-			if (_ss == shader_stage::vertex_shader)
+			switch (_ss)
 			{
-				_dev->context()->VSSetConstantBuffers(_slot, 1,nb);
-			}
-			else if (_ss == shader_stage::pixel_shader)
-			{
+			case qeg::shader_stage::pixel_shader:
 				_dev->context()->PSSetConstantBuffers(_slot, 1, nb);
+				break;
+			case qeg::shader_stage::vertex_shader:
+				_dev->context()->VSSetConstantBuffers(_slot, 1, nb);
+				break;
+			case qeg::shader_stage::geometry_shader:
+				_dev->context()->GSSetConstantBuffers(_slot, 1, nb);
+				break;
 			}
 		}
 #elif OPENGL
