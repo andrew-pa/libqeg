@@ -4,6 +4,7 @@
 
 namespace qeg
 {
+
 	class render_target;
 	class render_texture2d;
 	class device
@@ -88,6 +89,8 @@ namespace qeg
 		void present();
 		void resize(vec2 ns);
 		
+		uint supported_shader_model();
+
 #ifdef OPENGL
 		propr(vec2, size, { return _rtsize; });
 #elif DIRECTX

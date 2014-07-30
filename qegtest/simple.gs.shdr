@@ -29,7 +29,7 @@ void main()
 
 	for(uint i = 0; i < 3; ++i)
 	{
-		output.pos = inputs[i].pos * vec4(1+., -1., 1., 1.);
+		output.pos = inputs[i].pos * vec4(1., -1., 1., 1.);
 		output.posW = inputs[i].posW;
 		output.normW = inputs[i].normW;
 		output.texc = inputs[i].texc;

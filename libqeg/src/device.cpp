@@ -296,6 +296,24 @@ else
 		update_render_target();
 	}
 
+
+	uint device::supported_shader_model()
+	{
+		switch(featureLevel)
+		{
+		case D3D_FEATURE_LEVEL_9_2:
+			return 2;
+		case D3D_FEATURE_LEVEL_9_3:
+			return 3;
+		case D3D_FEATURE_LEVEL_10_0:
+		case D3D_FEATURE_LEVEL_10_1:
+			return 4;
+		case D3D_FEATURE_LEVEL_11_0:
+		case D3D_FEATURE_LEVEL_11_1:
+			return 5;
+		}
+	}
+
 	device::~device()
 	{
 	}
@@ -462,6 +480,18 @@ else
 	{
 		previously_alloced_ubbi.push(ubbi);
 		ubbi = -1;
+	}
+
+	uint device::supported_shader_model()
+	{
+		int glVersion[2] = { -1, -1 };
+		glGetIntegerv(GL_MAJOR_VERSION, &glVersion[0]);
+		glGetIntegerv(GL_MINOR_VERSION, &glVersion[1]);
+		if (glVersion[0] > 4) return 5;
+		else if (glVersion[0] > 3) return 4;
+		else if (glVersion[0] > 2) return 3;
+		else if (glVersion[0] > 1) return 2;
+		else return 1;
 	}
 
 	device::~device()
